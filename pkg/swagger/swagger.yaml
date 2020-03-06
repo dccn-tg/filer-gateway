@@ -1,0 +1,308 @@
+swagger: "2.0"
+
+basePath: /v1
+
+info:
+  description: filer gateway APIs
+  title: filer-gateway
+  version: 0.1.0
+
+# API paths
+paths:
+
+  /projects:
+    post:
+      summary: provision filer resource for a new project.
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: body
+          name: projectProvisionData
+          description: data for project provisioning
+          required: true
+          schema:
+            $ref: '#/definitions/requestBodyProjectProvision'
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyProjectResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+  /projects/{id}:
+    patch:
+      summary: update filer resource for an existing project.
+    
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: project identifier
+          type: string
+          required: true
+
+        - in: body
+          name: projectUpdateData
+          description: data for project update 
+          required: true
+          schema:
+            $ref: '#/definitions/requestBodyProjectResource'
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyProjectResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: project not found
+          schema:
+            type: string
+            enum: [project not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+    get:
+      summary: get filer resource for an existing project.
+    
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: project identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyProjectResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: project not found
+          schema:
+            type: string
+            enum: [project not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+  /projects/{id}/members:
+    get:
+      summary: retrieves project members and their filer roles.
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: project identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyProjectMembers'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: project not found
+          schema:
+            type: string
+            enum: [project not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+  /projects/{id}/storage:
+    get:
+      summary: retrieves storage resource information of a project.
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: project identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyStorageResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: project not found
+          schema:
+            type: string
+            enum: [project not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+# object definitions
+definitions:
+
+  responseBody400:
+    description: JSON object containing error message concerning bad client request.
+    properties:
+      errorMessage:
+        description: error message specifying the bad request.
+        type: string
+
+  responseBody500:
+    description: JSON object containing server side error.
+    properties:
+      exitCode:
+        description: server-side exit code.
+        type: integer
+      errorMessage:
+        description: server-side error message.
+        type: string
+
+  responseBodyProjectResource:
+    description: JSON object containing project resources.
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      storage:
+        $ref: '#/definitions/storage'
+      members:
+        $ref: '#/definitions/members'
+    required:
+      - projectID
+      - storage
+      - members
+
+  responseBodyProjectMembers:
+    description: JSON object containing current list of members implemented on the filer.
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      members:
+        $ref: '#/definitions/members'
+    required:
+      - projectID
+      - members
+
+  responseBodyStorageResource:
+    description: JSON object containing storage resource information of a project.
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      storage:
+        $ref: '#/definitions/storage'
+    required:
+      - projectID
+      - storage
+     
+  requestBodyProjectResource:
+    description: JSON object describing resource to be set to the project.
+    properties:
+      storage:
+        $ref: '#/definitions/storage'
+      members:
+        $ref: '#/definitions/members'
+    required:
+      - storage
+      - members
+
+  requestBodyProjectProvision:
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      storage:
+        $ref: '#/definitions/storage'
+      members:
+        $ref: '#/definitions/members'
+    required:
+      - projectID
+      - storage
+      - members
+
+  member:
+    description: JSON object for a project member.
+    properties:
+      userID:
+        description: userid of the member.
+        type: string
+      role:
+        description: role of the member.
+        type: string
+        enum: [manager, contributor, viewer, traverse, none]
+    required:
+      - userID
+      - role
+
+  storage:
+    description: JSON object for storage resource data.
+    properties:
+      system:
+        description: the targeting filer on which the storage resource is allocated.
+        type: string
+        enum: [netapp, freenas, ceph]
+      quotaGb:
+        description: storage quota in GiB.
+        type: integer
+      usageGb:
+        description: used quota size in GiB.
+        type: integer
+    required:
+      - system
+      - quotaGb
+      - usageGb
+  
+  members:
+    description: a list of project members.
+    type: array
+    items:
+      $ref: '#/definitions/member'
+
+  projectID:
+    description: project identifier.
+    type: string
