@@ -70,6 +70,9 @@ func main() {
 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handlers.GetProjectMembers())
 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handlers.GetProjectStorage())
 
+	// configure API
+	server.ConfigureAPI()
+
 	// Start server which listening
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
