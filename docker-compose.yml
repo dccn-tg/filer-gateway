@@ -11,6 +11,4 @@ services:
       - /home:/home:ro
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
-    ports:
-      - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
     command: -p 8080 -v
