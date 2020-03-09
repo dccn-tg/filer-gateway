@@ -16,11 +16,13 @@ import (
 var (
 	//optsConfig  *string
 	optsVerbose *bool
+	optsPort    *int
 )
 
 func init() {
 	//optsConfig = flag.String("c", "config.yml", "set the `path` of the configuration file")
 	optsVerbose = flag.Bool("v", false, "print debug messages")
+	optsPort = flag.Int("p", 8080, "specify the service `port` number")
 
 	flag.Usage = usage
 
@@ -61,7 +63,7 @@ func main() {
 		}
 	}()
 
-	server.Port = 8080
+	server.Port = *optsPort
 
 	// associate handlers with implementations
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handlers.CreateProject())
