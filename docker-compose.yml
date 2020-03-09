@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  filer-gateway:
+    build:
+      context: ./
+    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway:${DOCKER_IMAGE_TAG:-latest}
+    user: root
+    volumes:
+      - /project:/project:ro
+      - /project_freenas:/project_freenas:ro
+      - /home:/home:ro
+      - /var/lib/sss/pipes:/var/lib/sss/pipes
+      - /var/lib/sss/mc:/var/lib/sss/mc:ro
+    ports:
+      - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
+    command: -p 8080 -v
