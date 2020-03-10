@@ -53,6 +53,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
 		}),
+		PostUsersHandler: PostUsersHandlerFunc(func(params PostUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostUsers has not yet been implemented")
+		}),
 	}
 }
 
@@ -94,6 +97,8 @@ type FilerGatewayAPI struct {
 	PatchProjectsIDHandler PatchProjectsIDHandler
 	// PostProjectsHandler sets the operation handler for the post projects operation
 	PostProjectsHandler PostProjectsHandler
+	// PostUsersHandler sets the operation handler for the post users operation
+	PostUsersHandler PostUsersHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -178,6 +183,10 @@ func (o *FilerGatewayAPI) Validate() error {
 
 	if o.PostProjectsHandler == nil {
 		unregistered = append(unregistered, "Operations.PostProjectsHandler")
+	}
+
+	if o.PostUsersHandler == nil {
+		unregistered = append(unregistered, "Operations.PostUsersHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -296,6 +305,11 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/projects"] = NewPostProjects(o.context, o.PostProjectsHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/users"] = NewPostUsers(o.context, o.PostUsersHandler)
 
 }
 

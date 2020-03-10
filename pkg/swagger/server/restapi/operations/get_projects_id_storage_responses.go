@@ -25,7 +25,7 @@ type GetProjectsIDStorageOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBodyStorageResource `json:"body,omitempty"`
+	Payload *models.ResponseBodyProjectStorage `json:"body,omitempty"`
 }
 
 // NewGetProjectsIDStorageOK creates GetProjectsIDStorageOK with default headers values
@@ -35,13 +35,13 @@ func NewGetProjectsIDStorageOK() *GetProjectsIDStorageOK {
 }
 
 // WithPayload adds the payload to the get projects Id storage o k response
-func (o *GetProjectsIDStorageOK) WithPayload(payload *models.ResponseBodyStorageResource) *GetProjectsIDStorageOK {
+func (o *GetProjectsIDStorageOK) WithPayload(payload *models.ResponseBodyProjectStorage) *GetProjectsIDStorageOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get projects Id storage o k response
-func (o *GetProjectsIDStorageOK) SetPayload(payload *models.ResponseBodyStorageResource) {
+func (o *GetProjectsIDStorageOK) SetPayload(payload *models.ResponseBodyProjectStorage) {
 	o.Payload = payload
 }
 

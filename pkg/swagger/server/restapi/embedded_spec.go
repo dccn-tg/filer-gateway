@@ -238,7 +238,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyStorageResource"
+              "$ref": "#/definitions/responseBodyProjectStorage"
             }
           },
           "400": {
@@ -254,6 +254,48 @@ func init() {
               "enum": [
                 "project not found"
               ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "provision filer resource for a new user.",
+        "parameters": [
+          {
+            "description": "data for user provisioning",
+            "name": "userProvisionData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyUserProvision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
             }
           },
           "500": {
@@ -335,6 +377,20 @@ func init() {
         }
       }
     },
+    "requestBodyUserProvision": {
+      "required": [
+        "userID",
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storage"
+        },
+        "userID": {
+          "$ref": "#/definitions/userID"
+        }
+      }
+    },
     "responseBody400": {
       "description": "JSON object containing error message concerning bad client request.",
       "properties": {
@@ -391,7 +447,7 @@ func init() {
         }
       }
     },
-    "responseBodyStorageResource": {
+    "responseBodyProjectStorage": {
       "description": "JSON object containing storage resource information of a project.",
       "required": [
         "projectID",
@@ -403,6 +459,21 @@ func init() {
         },
         "storage": {
           "$ref": "#/definitions/storage"
+        }
+      }
+    },
+    "responseBodyUserResource": {
+      "description": "JSON object containing user resources.",
+      "required": [
+        "userID",
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storage"
+        },
+        "userID": {
+          "$ref": "#/definitions/userID"
         }
       }
     },
@@ -432,6 +503,10 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "userID": {
+      "description": "user identifier.",
+      "type": "string"
     }
   }
 }`))
@@ -656,7 +731,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyStorageResource"
+              "$ref": "#/definitions/responseBodyProjectStorage"
             }
           },
           "400": {
@@ -672,6 +747,48 @@ func init() {
               "enum": [
                 "project not found"
               ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "provision filer resource for a new user.",
+        "parameters": [
+          {
+            "description": "data for user provisioning",
+            "name": "userProvisionData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyUserProvision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
             }
           },
           "500": {
@@ -753,6 +870,20 @@ func init() {
         }
       }
     },
+    "requestBodyUserProvision": {
+      "required": [
+        "userID",
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storage"
+        },
+        "userID": {
+          "$ref": "#/definitions/userID"
+        }
+      }
+    },
     "responseBody400": {
       "description": "JSON object containing error message concerning bad client request.",
       "properties": {
@@ -809,7 +940,7 @@ func init() {
         }
       }
     },
-    "responseBodyStorageResource": {
+    "responseBodyProjectStorage": {
       "description": "JSON object containing storage resource information of a project.",
       "required": [
         "projectID",
@@ -821,6 +952,21 @@ func init() {
         },
         "storage": {
           "$ref": "#/definitions/storage"
+        }
+      }
+    },
+    "responseBodyUserResource": {
+      "description": "JSON object containing user resources.",
+      "required": [
+        "userID",
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storage"
+        },
+        "userID": {
+          "$ref": "#/definitions/userID"
         }
       }
     },
@@ -850,6 +996,10 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "userID": {
+      "description": "user identifier.",
+      "type": "string"
     }
   }
 }`))

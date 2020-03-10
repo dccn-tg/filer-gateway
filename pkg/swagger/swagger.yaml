@@ -10,6 +10,38 @@ info:
 # API paths
 paths:
 
+  /users:
+    post:
+      summary: provision filer resource for a new user.
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: body
+          name: userProvisionData
+          description: data for user provisioning
+          required: true
+          schema:
+            $ref: '#/definitions/requestBodyUserProvision'
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyUserResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
   /projects:
     post:
       summary: provision filer resource for a new project.
@@ -170,7 +202,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/responseBodyStorageResource'
+            $ref: '#/definitions/responseBodyProjectStorage'
         400:
           description: bad request
           schema:
@@ -205,6 +237,17 @@ definitions:
         description: server-side error message.
         type: string
 
+  responseBodyUserResource:
+    description: JSON object containing user resources.
+    properties:
+      userID:
+        $ref: '#/definitions/userID'
+      storage:
+        $ref: '#/definitions/storage'
+    required:
+      - userID
+      - storage
+
   responseBodyProjectResource:
     description: JSON object containing project resources.
     properties:
@@ -230,7 +273,7 @@ definitions:
       - projectID
       - members
 
-  responseBodyStorageResource:
+  responseBodyProjectStorage:
     description: JSON object containing storage resource information of a project.
     properties:
       projectID:
@@ -251,6 +294,16 @@ definitions:
     required:
       - storage
       - members
+
+  requestBodyUserProvision:
+    properties:
+      userID:
+        $ref: '#/definitions/userID'
+      storage:
+        $ref: '#/definitions/storage'
+    required:
+      - userID
+      - storage
 
   requestBodyProjectProvision:
     properties:
@@ -305,4 +358,8 @@ definitions:
 
   projectID:
     description: project identifier.
+    type: string
+
+  userID:
+    description: user identifier.
     type: string

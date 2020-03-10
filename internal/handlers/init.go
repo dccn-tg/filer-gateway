@@ -151,7 +151,7 @@ func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) midd
 
 		// return 200 success with storage quota information.
 		return operations.NewGetProjectsIDStorageOK().WithPayload(
-			&models.ResponseBodyStorageResource{
+			&models.ResponseBodyProjectStorage{
 				ProjectID: models.ProjectID(pid),
 				Storage: &models.Storage{
 					QuotaGb: &quota,

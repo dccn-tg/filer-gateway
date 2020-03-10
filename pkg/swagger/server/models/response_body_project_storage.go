@@ -12,9 +12,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ResponseBodyStorageResource JSON object containing storage resource information of a project.
-// swagger:model responseBodyStorageResource
-type ResponseBodyStorageResource struct {
+// ResponseBodyProjectStorage JSON object containing storage resource information of a project.
+// swagger:model responseBodyProjectStorage
+type ResponseBodyProjectStorage struct {
 
 	// project ID
 	// Required: true
@@ -25,8 +25,8 @@ type ResponseBodyStorageResource struct {
 	Storage *Storage `json:"storage"`
 }
 
-// Validate validates this response body storage resource
-func (m *ResponseBodyStorageResource) Validate(formats strfmt.Registry) error {
+// Validate validates this response body project storage
+func (m *ResponseBodyProjectStorage) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateProjectID(formats); err != nil {
@@ -43,7 +43,7 @@ func (m *ResponseBodyStorageResource) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ResponseBodyStorageResource) validateProjectID(formats strfmt.Registry) error {
+func (m *ResponseBodyProjectStorage) validateProjectID(formats strfmt.Registry) error {
 
 	if err := m.ProjectID.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -55,7 +55,7 @@ func (m *ResponseBodyStorageResource) validateProjectID(formats strfmt.Registry)
 	return nil
 }
 
-func (m *ResponseBodyStorageResource) validateStorage(formats strfmt.Registry) error {
+func (m *ResponseBodyProjectStorage) validateStorage(formats strfmt.Registry) error {
 
 	if err := validate.Required("storage", "body", m.Storage); err != nil {
 		return err
@@ -74,7 +74,7 @@ func (m *ResponseBodyStorageResource) validateStorage(formats strfmt.Registry) e
 }
 
 // MarshalBinary interface implementation
-func (m *ResponseBodyStorageResource) MarshalBinary() ([]byte, error) {
+func (m *ResponseBodyProjectStorage) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -82,8 +82,8 @@ func (m *ResponseBodyStorageResource) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ResponseBodyStorageResource) UnmarshalBinary(b []byte) error {
-	var res ResponseBodyStorageResource
+func (m *ResponseBodyProjectStorage) UnmarshalBinary(b []byte) error {
+	var res ResponseBodyProjectStorage
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
