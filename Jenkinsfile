@@ -111,7 +111,7 @@ pipeline {
             agent {
                 docker {
                     image 'jwilder/dockerize'
-                    args '--network filer-gateway_default'
+                    args '--network proxynet'
                 }
             }
             steps {
