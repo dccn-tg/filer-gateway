@@ -39,15 +39,32 @@ pipeline {
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
                 ]) {
                     sh 'docker-compose build --parallel'
-                } 
+                }
             }
         }
 
-        // stage('Unit test') {
-        //     steps {
-        //         echo 'hi'
-        //     }
-        // }
+        stage('Unit tests') {
+            when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
+            steps {
+                echo 'Unit tests go here'
+            }
+            post {
+                success {
+                    script {
+                        if (env.DOCKER_REGISTRY) {
+                            sh (
+                                label: "Pushing images to repository '${env.DOCKER_REGISTRY}'",
+                                script: 'docker-compose push'
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Staging') {
              when {
