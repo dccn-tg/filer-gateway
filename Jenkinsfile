@@ -102,27 +102,49 @@ pipeline {
             }
         }
 
+        // The following health check requires default network to be set "attachable". 
+        // stage('Health check') {
+        //      when {
+        //         expression {
+        //             return !params.PRODUCTION
+        //         }
+        //     }
+        //     agent {
+        //         docker {
+        //             image 'jwilder/dockerize'
+        //             args '--network filer-gateway_default'
+        //         }
+        //     }
+        //     steps {
+        //         sh (
+        //             label: 'Waiting for services to become available',
+        //             script: 'dockerize \
+        //                 -timeout 120s \
+        //                 -wait http://filer-gateway:8080'
+        //         )
+        //     }
+        // }
         stage('Health check') {
-             when {
+            when {
                 expression {
                     return !params.PRODUCTION
                 }
             }
             agent {
-                docker {
-                    image 'jwilder/dockerize'
-                    args '--network proxynet'
-                }
+                label 'swarm-manager'
             }
             steps {
+                // wait for 10 seconds
+                sleep 10
+
+                // check whether the docker service reports running
                 sh (
-                    label: 'Waiting for services to become available',
-                    script: 'dockerize \
-                        -timeout 120s \
-                        -wait http://filer-gateway:8080'
+                    label: 'checking if filer-gateway_api-server in running state'
+                    script: "docker service ps filer-gateway_api-server --format '{{.CurrentState}}' | grep '^Running'"
                 )
             }
         }
+
 
         // stage('Integration test') {
         //     steps {
