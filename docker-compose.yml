@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  filer-gateway:
+  api-server:
     build:
       context: ./
     image: ${DOCKER_REGISTRY:-dccn}/filer-gateway:${DOCKER_IMAGE_TAG:-latest}

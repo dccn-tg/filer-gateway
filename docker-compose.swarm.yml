@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  filer-gateway:
+  api-server:
     ports:
       - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
     networks:
