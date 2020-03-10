@@ -49,6 +49,9 @@ pipeline {
                     return !params.PRODUCTION
                 }
             }
+            agent {
+                label 'swarm-manager'
+            }
             steps {
                 echo 'Unit tests go here'
             }
