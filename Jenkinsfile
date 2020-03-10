@@ -139,7 +139,7 @@ pipeline {
 
                 // check whether the docker service reports running
                 sh (
-                    label: 'checking if filer-gateway_api-server in running state'
+                    label: 'checking if filer-gateway_api-server in running state',
                     script: "docker service ps filer-gateway_api-server --format '{{.CurrentState}}' | grep '^Running'"
                 )
             }
