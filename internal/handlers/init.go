@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -30,6 +31,9 @@ var (
 
 	// QuotaGettingError indicates error when getting the quota limitation and usage from the underlying filer.
 	QuotaGettingError int64 = 103
+
+	// UserLookupError indicates error when looking up the user in the system.
+	UserLookupError int64 = 104
 )
 
 // Common payload for the ResponseBody500.
@@ -59,6 +63,57 @@ func UpdateProject() func(params operations.PatchProjectsIDParams) middleware.Re
 	// Not implemented
 	return func(params operations.PatchProjectsIDParams) middleware.Responder {
 		return operations.NewPatchProjectsIDInternalServerError().WithPayload(&responseNotImplemented)
+	}
+}
+
+// GetUserResource implements retrival of file resource for a user (i.e. storage).
+func GetUserResource() func(params operations.GetUsersIDParams) middleware.Responder {
+	return func(params operations.GetUsersIDParams) middleware.Responder {
+		uname := params.ID
+		u, e := user.Lookup(uname)
+		if e != nil {
+			switch e.(type) {
+			case *user.UnknownGroupError:
+				return operations.NewGetUsersIDNotFound().WithPayload(e.Error())
+			default:
+				return operations.NewGetUsersIDInternalServerError().WithPayload(
+					&models.ResponseBody500{
+						ErrorMessage: e.Error(),
+						ExitCode:     UserLookupError,
+					},
+				)
+			}
+		}
+
+		// getting storage quota on the user's home directory
+		system, quota, usage, err := getStorageQuota(u.HomeDir)
+
+		// Return response error based on error code.
+		if err != nil {
+			switch err.code {
+			case 404:
+				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
+			default:
+				return operations.NewGetUsersIDInternalServerError().WithPayload(
+					&models.ResponseBody500{
+						ErrorMessage: err.Error(),
+						ExitCode:     QuotaGettingError,
+					},
+				)
+			}
+		}
+
+		// return 200 success with storage quota information.
+		return operations.NewGetUsersIDOK().WithPayload(
+			&models.ResponseBodyUserResource{
+				UserID: models.UserID(uname),
+				Storage: &models.StorageResponse{
+					QuotaGb: &quota,
+					System:  &system,
+					UsageGb: &usage,
+				},
+			},
+		)
 	}
 }
 
@@ -109,7 +164,7 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 		return operations.NewGetProjectsIDOK().WithPayload(
 			&models.ResponseBodyProjectResource{
 				ProjectID: models.ProjectID(pid),
-				Storage: &models.Storage{
+				Storage: &models.StorageResponse{
 					QuotaGb: &quota,
 					System:  &system,
 					UsageGb: &usage,
@@ -153,7 +208,7 @@ func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) midd
 		return operations.NewGetProjectsIDStorageOK().WithPayload(
 			&models.ResponseBodyProjectStorage{
 				ProjectID: models.ProjectID(pid),
-				Storage: &models.Storage{
+				Storage: &models.StorageResponse{
 					QuotaGb: &quota,
 					System:  &system,
 					UsageGb: &usage,

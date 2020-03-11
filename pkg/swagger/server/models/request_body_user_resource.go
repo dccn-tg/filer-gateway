@@ -12,28 +12,20 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// RequestBodyUserProvision request body user provision
-// swagger:model requestBodyUserProvision
-type RequestBodyUserProvision struct {
+// RequestBodyUserResource JSON object describing resource to be set to the user.
+// swagger:model requestBodyUserResource
+type RequestBodyUserResource struct {
 
 	// storage
 	// Required: true
 	Storage *StorageRequest `json:"storage"`
-
-	// user ID
-	// Required: true
-	UserID UserID `json:"userID"`
 }
 
-// Validate validates this request body user provision
-func (m *RequestBodyUserProvision) Validate(formats strfmt.Registry) error {
+// Validate validates this request body user resource
+func (m *RequestBodyUserResource) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateStorage(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -43,7 +35,7 @@ func (m *RequestBodyUserProvision) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *RequestBodyUserProvision) validateStorage(formats strfmt.Registry) error {
+func (m *RequestBodyUserResource) validateStorage(formats strfmt.Registry) error {
 
 	if err := validate.Required("storage", "body", m.Storage); err != nil {
 		return err
@@ -61,20 +53,8 @@ func (m *RequestBodyUserProvision) validateStorage(formats strfmt.Registry) erro
 	return nil
 }
 
-func (m *RequestBodyUserProvision) validateUserID(formats strfmt.Registry) error {
-
-	if err := m.UserID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("userID")
-		}
-		return err
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
-func (m *RequestBodyUserProvision) MarshalBinary() ([]byte, error) {
+func (m *RequestBodyUserResource) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -82,8 +62,8 @@ func (m *RequestBodyUserProvision) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *RequestBodyUserProvision) UnmarshalBinary(b []byte) error {
-	var res RequestBodyUserProvision
+func (m *RequestBodyUserResource) UnmarshalBinary(b []byte) error {
+	var res RequestBodyUserResource
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

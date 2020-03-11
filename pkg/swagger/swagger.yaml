@@ -42,6 +42,83 @@ paths:
           schema:
             $ref: '#/definitions/responseBody500'
 
+  /users/{id}:
+    patch:
+      summary: update filer resource for an existing user.
+    
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: user identifier
+          type: string
+          required: true
+
+        - in: body
+          name: userUpdateData
+          description: data for user update 
+          required: true
+          schema:
+            $ref: '#/definitions/requestBodyUserResource'
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyUserResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: user not found
+          schema:
+            type: string
+            enum: [user not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+    get:
+      summary: get filer resource for an existing user.
+    
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: user identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyUserResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: user not found
+          schema:
+            type: string
+            enum: [user not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
   /projects:
     post:
       summary: provision filer resource for a new project.
@@ -243,7 +320,7 @@ definitions:
       userID:
         $ref: '#/definitions/userID'
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageResponse'
     required:
       - userID
       - storage
@@ -254,7 +331,7 @@ definitions:
       projectID:
         $ref: '#/definitions/projectID'
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageResponse'
       members:
         $ref: '#/definitions/members'
     required:
@@ -279,7 +356,7 @@ definitions:
       projectID:
         $ref: '#/definitions/projectID'
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageResponse'
     required:
       - projectID
       - storage
@@ -288,19 +365,27 @@ definitions:
     description: JSON object describing resource to be set to the project.
     properties:
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageRequest'
       members:
         $ref: '#/definitions/members'
     required:
       - storage
       - members
 
+  requestBodyUserResource:
+    description: JSON object describing resource to be set to the user.
+    properties:
+      storage:
+        $ref: '#/definitions/storageRequest'
+    required:
+      - storage
+
   requestBodyUserProvision:
     properties:
       userID:
         $ref: '#/definitions/userID'
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageRequest'
     required:
       - userID
       - storage
@@ -310,7 +395,7 @@ definitions:
       projectID:
         $ref: '#/definitions/projectID'
       storage:
-        $ref: '#/definitions/storage'
+        $ref: '#/definitions/storageRequest'
       members:
         $ref: '#/definitions/members'
     required:
@@ -332,7 +417,7 @@ definitions:
       - userID
       - role
 
-  storage:
+  storageResponse:
     description: JSON object for storage resource data.
     properties:
       system:
@@ -343,12 +428,26 @@ definitions:
         description: storage quota in GiB.
         type: integer
       usageGb:
-        description: used quota size in GiB.
+        description: used quota size in GiB (not used for the request data).
         type: integer
     required:
       - system
       - quotaGb
       - usageGb
+
+  storageRequest:
+    description: JSON object for storage resource data.
+    properties:
+      system:
+        description: the targeting filer on which the storage resource is allocated.
+        type: string
+        enum: [netapp, freenas, ceph]
+      quotaGb:
+        description: storage quota in GiB.
+        type: integer
+    required:
+      - system
+      - quotaGb
   
   members:
     description: a list of project members.

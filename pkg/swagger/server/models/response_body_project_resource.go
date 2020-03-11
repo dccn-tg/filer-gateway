@@ -26,7 +26,7 @@ type ResponseBodyProjectResource struct {
 
 	// storage
 	// Required: true
-	Storage *Storage `json:"storage"`
+	Storage *StorageResponse `json:"storage"`
 }
 
 // Validate validates this response body project resource

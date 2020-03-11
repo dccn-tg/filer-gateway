@@ -18,7 +18,7 @@ type ResponseBodyUserResource struct {
 
 	// storage
 	// Required: true
-	Storage *Storage `json:"storage"`
+	Storage *StorageResponse `json:"storage"`
 
 	// user ID
 	// Required: true

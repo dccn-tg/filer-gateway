@@ -306,6 +306,111 @@ func init() {
           }
         }
       }
+    },
+    "/users/{id}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resource for an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "update filer resource for an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "data for user update",
+            "name": "userUpdateData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyUserResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -358,7 +463,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -373,7 +478,7 @@ func init() {
           "$ref": "#/definitions/members"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -384,10 +489,21 @@ func init() {
       ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         },
         "userID": {
           "$ref": "#/definitions/userID"
+        }
+      }
+    },
+    "requestBodyUserResource": {
+      "description": "JSON object describing resource to be set to the user.",
+      "required": [
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -443,7 +559,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         }
       }
     },
@@ -458,7 +574,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         }
       }
     },
@@ -470,14 +586,36 @@ func init() {
       ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         },
         "userID": {
           "$ref": "#/definitions/userID"
         }
       }
     },
-    "storage": {
+    "storageRequest": {
+      "description": "JSON object for storage resource data.",
+      "required": [
+        "system",
+        "quotaGb"
+      ],
+      "properties": {
+        "quotaGb": {
+          "description": "storage quota in GiB.",
+          "type": "integer"
+        },
+        "system": {
+          "description": "the targeting filer on which the storage resource is allocated.",
+          "type": "string",
+          "enum": [
+            "netapp",
+            "freenas",
+            "ceph"
+          ]
+        }
+      }
+    },
+    "storageResponse": {
       "description": "JSON object for storage resource data.",
       "required": [
         "system",
@@ -499,7 +637,7 @@ func init() {
           ]
         },
         "usageGb": {
-          "description": "used quota size in GiB.",
+          "description": "used quota size in GiB (not used for the request data).",
           "type": "integer"
         }
       }
@@ -799,6 +937,111 @@ func init() {
           }
         }
       }
+    },
+    "/users/{id}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resource for an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
+      "patch": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "update filer resource for an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "data for user update",
+            "name": "userUpdateData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyUserResource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -851,7 +1094,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -866,7 +1109,7 @@ func init() {
           "$ref": "#/definitions/members"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -877,10 +1120,21 @@ func init() {
       ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageRequest"
         },
         "userID": {
           "$ref": "#/definitions/userID"
+        }
+      }
+    },
+    "requestBodyUserResource": {
+      "description": "JSON object describing resource to be set to the user.",
+      "required": [
+        "storage"
+      ],
+      "properties": {
+        "storage": {
+          "$ref": "#/definitions/storageRequest"
         }
       }
     },
@@ -936,7 +1190,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         }
       }
     },
@@ -951,7 +1205,7 @@ func init() {
           "$ref": "#/definitions/projectID"
         },
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         }
       }
     },
@@ -963,14 +1217,36 @@ func init() {
       ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storage"
+          "$ref": "#/definitions/storageResponse"
         },
         "userID": {
           "$ref": "#/definitions/userID"
         }
       }
     },
-    "storage": {
+    "storageRequest": {
+      "description": "JSON object for storage resource data.",
+      "required": [
+        "system",
+        "quotaGb"
+      ],
+      "properties": {
+        "quotaGb": {
+          "description": "storage quota in GiB.",
+          "type": "integer"
+        },
+        "system": {
+          "description": "the targeting filer on which the storage resource is allocated.",
+          "type": "string",
+          "enum": [
+            "netapp",
+            "freenas",
+            "ceph"
+          ]
+        }
+      }
+    },
+    "storageResponse": {
       "description": "JSON object for storage resource data.",
       "required": [
         "system",
@@ -992,7 +1268,7 @@ func init() {
           ]
         },
         "usageGb": {
-          "description": "used quota size in GiB.",
+          "description": "used quota size in GiB (not used for the request data).",
           "type": "integer"
         }
       }

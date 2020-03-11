@@ -26,7 +26,7 @@ type RequestBodyProjectProvision struct {
 
 	// storage
 	// Required: true
-	Storage *Storage `json:"storage"`
+	Storage *StorageRequest `json:"storage"`
 }
 
 // Validate validates this request body project provision

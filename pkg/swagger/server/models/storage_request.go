@@ -14,9 +14,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Storage JSON object for storage resource data.
-// swagger:model storage
-type Storage struct {
+// StorageRequest JSON object for storage resource data.
+// swagger:model storageRequest
+type StorageRequest struct {
 
 	// storage quota in GiB.
 	// Required: true
@@ -26,14 +26,10 @@ type Storage struct {
 	// Required: true
 	// Enum: [netapp freenas ceph]
 	System *string `json:"system"`
-
-	// used quota size in GiB.
-	// Required: true
-	UsageGb *int64 `json:"usageGb"`
 }
 
-// Validate validates this storage
-func (m *Storage) Validate(formats strfmt.Registry) error {
+// Validate validates this storage request
+func (m *StorageRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateQuotaGb(formats); err != nil {
@@ -44,17 +40,13 @@ func (m *Storage) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateUsageGb(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-func (m *Storage) validateQuotaGb(formats strfmt.Registry) error {
+func (m *StorageRequest) validateQuotaGb(formats strfmt.Registry) error {
 
 	if err := validate.Required("quotaGb", "body", m.QuotaGb); err != nil {
 		return err
@@ -63,7 +55,7 @@ func (m *Storage) validateQuotaGb(formats strfmt.Registry) error {
 	return nil
 }
 
-var storageTypeSystemPropEnum []interface{}
+var storageRequestTypeSystemPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -71,31 +63,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		storageTypeSystemPropEnum = append(storageTypeSystemPropEnum, v)
+		storageRequestTypeSystemPropEnum = append(storageRequestTypeSystemPropEnum, v)
 	}
 }
 
 const (
 
-	// StorageSystemNetapp captures enum value "netapp"
-	StorageSystemNetapp string = "netapp"
+	// StorageRequestSystemNetapp captures enum value "netapp"
+	StorageRequestSystemNetapp string = "netapp"
 
-	// StorageSystemFreenas captures enum value "freenas"
-	StorageSystemFreenas string = "freenas"
+	// StorageRequestSystemFreenas captures enum value "freenas"
+	StorageRequestSystemFreenas string = "freenas"
 
-	// StorageSystemCeph captures enum value "ceph"
-	StorageSystemCeph string = "ceph"
+	// StorageRequestSystemCeph captures enum value "ceph"
+	StorageRequestSystemCeph string = "ceph"
 )
 
 // prop value enum
-func (m *Storage) validateSystemEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, storageTypeSystemPropEnum); err != nil {
+func (m *StorageRequest) validateSystemEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, storageRequestTypeSystemPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Storage) validateSystem(formats strfmt.Registry) error {
+func (m *StorageRequest) validateSystem(formats strfmt.Registry) error {
 
 	if err := validate.Required("system", "body", m.System); err != nil {
 		return err
@@ -109,17 +101,8 @@ func (m *Storage) validateSystem(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Storage) validateUsageGb(formats strfmt.Registry) error {
-
-	if err := validate.Required("usageGb", "body", m.UsageGb); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
-func (m *Storage) MarshalBinary() ([]byte, error) {
+func (m *StorageRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -127,8 +110,8 @@ func (m *Storage) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Storage) UnmarshalBinary(b []byte) error {
-	var res Storage
+func (m *StorageRequest) UnmarshalBinary(b []byte) error {
+	var res StorageRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

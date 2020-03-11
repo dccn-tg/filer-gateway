@@ -71,6 +71,7 @@ func main() {
 	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handlers.GetProjectResource())
 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handlers.GetProjectMembers())
 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handlers.GetProjectStorage())
+	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handlers.GetUserResource())
 
 	// configure API
 	server.ConfigureAPI()

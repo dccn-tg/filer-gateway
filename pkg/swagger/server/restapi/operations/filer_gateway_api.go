@@ -47,8 +47,14 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetProjectsIDStorageHandler: GetProjectsIDStorageHandlerFunc(func(params GetProjectsIDStorageParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
 		}),
+		GetUsersIDHandler: GetUsersIDHandlerFunc(func(params GetUsersIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetUsersID has not yet been implemented")
+		}),
 		PatchProjectsIDHandler: PatchProjectsIDHandlerFunc(func(params PatchProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PatchProjectsID has not yet been implemented")
+		}),
+		PatchUsersIDHandler: PatchUsersIDHandlerFunc(func(params PatchUsersIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PatchUsersID has not yet been implemented")
 		}),
 		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
@@ -93,8 +99,12 @@ type FilerGatewayAPI struct {
 	GetProjectsIDMembersHandler GetProjectsIDMembersHandler
 	// GetProjectsIDStorageHandler sets the operation handler for the get projects ID storage operation
 	GetProjectsIDStorageHandler GetProjectsIDStorageHandler
+	// GetUsersIDHandler sets the operation handler for the get users ID operation
+	GetUsersIDHandler GetUsersIDHandler
 	// PatchProjectsIDHandler sets the operation handler for the patch projects ID operation
 	PatchProjectsIDHandler PatchProjectsIDHandler
+	// PatchUsersIDHandler sets the operation handler for the patch users ID operation
+	PatchUsersIDHandler PatchUsersIDHandler
 	// PostProjectsHandler sets the operation handler for the post projects operation
 	PostProjectsHandler PostProjectsHandler
 	// PostUsersHandler sets the operation handler for the post users operation
@@ -177,8 +187,16 @@ func (o *FilerGatewayAPI) Validate() error {
 		unregistered = append(unregistered, "Operations.GetProjectsIDStorageHandler")
 	}
 
+	if o.GetUsersIDHandler == nil {
+		unregistered = append(unregistered, "Operations.GetUsersIDHandler")
+	}
+
 	if o.PatchProjectsIDHandler == nil {
 		unregistered = append(unregistered, "Operations.PatchProjectsIDHandler")
+	}
+
+	if o.PatchUsersIDHandler == nil {
+		unregistered = append(unregistered, "Operations.PatchUsersIDHandler")
 	}
 
 	if o.PostProjectsHandler == nil {
@@ -296,10 +314,20 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/projects/{id}/storage"] = NewGetProjectsIDStorage(o.context, o.GetProjectsIDStorageHandler)
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/users/{id}"] = NewGetUsersID(o.context, o.GetUsersIDHandler)
+
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/projects/{id}"] = NewPatchProjectsID(o.context, o.PatchProjectsIDHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/users/{id}"] = NewPatchUsersID(o.context, o.PatchUsersIDHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
