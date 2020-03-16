@@ -6,7 +6,8 @@ ADD internal ./internal
 ADD pkg ./pkg
 ADD go.mod .
 ADD go.sum .
-RUN ls -l /tmp/filer-gateway && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway internal/main.go
+RUN ls -l /tmp/filer-gateway && GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway internal/main.go
+#RUN ls -l /tmp/filer-gateway && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway internal/main.go
 
 # stage 1: build image
 FROM centos:7
