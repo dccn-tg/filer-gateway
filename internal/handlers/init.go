@@ -71,13 +71,11 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 	return func(params operations.GetUsersIDParams) middleware.Responder {
 		uname := params.ID
 
-		log.Debugf("look up user: '%s'", uname)
-
 		u, e := user.Lookup(uname)
 
 		if e != nil {
 			switch e.(type) {
-			case *user.UnknownUserError:
+			case user.UnknownUserError:
 				return operations.NewGetUsersIDNotFound().WithPayload(e.Error())
 			default:
 				return operations.NewGetUsersIDInternalServerError().WithPayload(
