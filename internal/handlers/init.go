@@ -73,7 +73,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 		u, e := user.Lookup(uname)
 		if e != nil {
 			switch e.(type) {
-			case *user.UnknownGroupError:
+			case *user.UnknownUserError:
 				return operations.NewGetUsersIDNotFound().WithPayload(e.Error())
 			default:
 				return operations.NewGetUsersIDInternalServerError().WithPayload(
