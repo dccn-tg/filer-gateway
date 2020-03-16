@@ -70,7 +70,11 @@ func UpdateProject() func(params operations.PatchProjectsIDParams) middleware.Re
 func GetUserResource() func(params operations.GetUsersIDParams) middleware.Responder {
 	return func(params operations.GetUsersIDParams) middleware.Responder {
 		uname := params.ID
+
+		log.Debugf("look up user: '%s'", uname)
+
 		u, e := user.Lookup(uname)
+
 		if e != nil {
 			switch e.(type) {
 			case *user.UnknownUserError:
