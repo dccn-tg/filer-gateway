@@ -471,7 +471,7 @@ func findUserMember(uid string, dirs chan string, members chan *models.ProjectRo
 		chanOut, err := runner.GetRoles(false)
 		if err != nil {
 			log.Errorf("cannot get role for path %s: %s", dir, err)
-			return
+			continue
 		}
 
 		// feed members channel if the user in question is in the list.
