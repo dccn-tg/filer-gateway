@@ -8,6 +8,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -409,7 +410,7 @@ func getMemberRoles(path string) ([]*models.Member, *responseError) {
 // the membership of the user `uid`.
 func getMemberOf(uid string) ([]*models.ProjectRole, *responseError) {
 
-	nworkers := 4
+	nworkers := runtime.NumCPU()
 
 	dirs := make(chan string, nworkers*2)
 	members := make(chan *models.ProjectRole)
