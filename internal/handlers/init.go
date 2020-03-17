@@ -487,8 +487,8 @@ func findUserMember(uid string, dirs chan string, members chan *models.ProjectRo
 				for _, u := range users {
 					if u == uid {
 						members <- &models.ProjectRole{
-							ProjectID: &rstr,
-							Role:      &pid,
+							ProjectID: &pid,
+							Role:      &rstr,
 						}
 						break
 					}
