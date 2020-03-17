@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
 	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
@@ -16,6 +18,14 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	log "github.com/sirupsen/logrus"
+)
+
+var (
+	// PathProject is the top-leve directory in which directories of active projects are located.
+	PathProject string = "/project"
+
+	// PathProjectFreenas is the top-level mount point of project hosted on FreeNAS box.
+	PathProjectFreenas string = "/project_freenas"
 )
 
 // Error code definitions.
@@ -34,6 +44,9 @@ var (
 
 	// UserLookupError indicates error when looking up the user in the system.
 	UserLookupError int64 = 104
+
+	// MemberOfGettingError indicates error when looking up user's membership on all active projects.
+	MemberOfGettingError int64 = 105
 )
 
 // Common payload for the ResponseBody500.
@@ -105,10 +118,27 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 			}
 		}
 
+		// getting user's membership on all active projects
+		memberOf, err := getMemberOf(uname)
+		if err != nil {
+			switch err.code {
+			case 404:
+				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
+			default:
+				return operations.NewGetUsersIDInternalServerError().WithPayload(
+					&models.ResponseBody500{
+						ErrorMessage: err.Error(),
+						ExitCode:     MemberOfGettingError,
+					},
+				)
+			}
+		}
+
 		// return 200 success with storage quota information.
 		return operations.NewGetUsersIDOK().WithPayload(
 			&models.ResponseBodyUserResource{
-				UserID: models.UserID(uname),
+				UserID:   models.UserID(uname),
+				MemberOf: memberOf,
 				Storage: &models.StorageResponse{
 					QuotaGb: &quota,
 					System:  &system,
@@ -282,7 +312,7 @@ func pid2path(pid string) (string, error) {
 	var path string
 	if matched, _ := regexp.MatchString("^[0-9]{7,}", pid); matched {
 		// input pid is a project number
-		path = filepath.Join("/project", pid)
+		path = filepath.Join(PathProject, pid)
 	}
 
 	// evaluate symlink to its absolute path.
@@ -297,7 +327,7 @@ func getStorageSystem(path string) string {
 
 	system := "netapp"
 
-	if strings.HasPrefix(path, "/project_freenas/") {
+	if strings.HasPrefix(path, PathProjectFreenas) {
 		system = "freenas"
 	}
 
@@ -373,4 +403,98 @@ func getMemberRoles(path string) ([]*models.Member, *responseError) {
 	}
 
 	return members, nil
+}
+
+// getMemberOf scans through all projects' top-level directories to find out
+// the membership of the user `uid`.
+func getMemberOf(uid string) ([]*models.ProjectRole, *responseError) {
+
+	nworkers := 4
+
+	dirs := make(chan string, nworkers*2)
+	members := make(chan *models.ProjectRole)
+
+	wg := sync.WaitGroup{}
+	for i := 0; i < nworkers; i++ {
+		wg.Add(1)
+		go findUserMember(uid, dirs, members, &wg)
+	}
+
+	// go routine to list all directories in the /project folder
+	go func(path string) {
+		// close the dirs channel on exit
+		defer close(dirs)
+
+		infoDirs, err := ioutil.ReadDir(path)
+		if err != nil {
+			log.Errorf("cannot get content of path: %s", path)
+			return
+		}
+
+		for _, infoDir := range infoDirs {
+			dirs <- filepath.Join(path, infoDir.Name())
+		}
+
+	}(PathProject)
+
+	// go routine to wait for all workers to complete and close the members channel.
+	go func() {
+		wg.Wait()
+		close(members)
+	}()
+
+	// making up the output from the data in the members channel.
+	memberOf := make([]*models.ProjectRole, 0)
+	for member := range members {
+		memberOf = append(memberOf, member)
+	}
+
+	return memberOf, nil
+}
+
+// findUserMember is a worker function that scan through each entry in `dirs`, and search for a member role
+// of a given user `uid`.
+func findUserMember(uid string, dirs chan string, members chan *models.ProjectRole, wg *sync.WaitGroup) {
+
+	for dir := range dirs {
+
+		log.Debugf("finding user member for %s in %s", uid, dir)
+
+		// get all members of the dir
+		runner := acl.Runner{
+			RootPath:   dir,
+			FollowLink: true,
+			SkipFiles:  true,
+			Nthreads:   1,
+		}
+
+		chanOut, err := runner.GetRoles(false)
+		if err != nil {
+			log.Errorf("cannot get role for path %s: %s", dir, err)
+			return
+		}
+
+		// feed members channel if the user in question is in the list.
+		for o := range chanOut {
+			for r, users := range o.RoleMap {
+				if r == acl.System {
+					continue
+				}
+				rstr := r.String()
+				pid := filepath.Base(dir)
+				for _, u := range users {
+					if u == uid {
+						members <- &models.ProjectRole{
+							ProjectID: &rstr,
+							Role:      &pid,
+						}
+						break
+					}
+					continue
+				}
+			}
+		}
+	}
+
+	wg.Done()
 }

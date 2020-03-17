@@ -438,6 +438,13 @@ func init() {
         }
       }
     },
+    "memberOf": {
+      "description": "a list providing an overview of user's member roles in all active projects.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/projectRole"
+      }
+    },
     "members": {
       "description": "a list of project members.",
       "type": "array",
@@ -448,6 +455,29 @@ func init() {
     "projectID": {
       "description": "project identifier.",
       "type": "string"
+    },
+    "projectRole": {
+      "description": "JSON object for a member role of a project.",
+      "required": [
+        "projectID",
+        "role"
+      ],
+      "properties": {
+        "projectID": {
+          "description": "project identifier",
+          "type": "string"
+        },
+        "role": {
+          "description": "role of the member.",
+          "type": "string",
+          "enum": [
+            "manager",
+            "contributor",
+            "viewer",
+            "traverse"
+          ]
+        }
+      }
     },
     "requestBodyProjectProvision": {
       "required": [
@@ -582,9 +612,13 @@ func init() {
       "description": "JSON object containing user resources.",
       "required": [
         "userID",
+        "memberOf",
         "storage"
       ],
       "properties": {
+        "memberOf": {
+          "$ref": "#/definitions/memberOf"
+        },
         "storage": {
           "$ref": "#/definitions/storageResponse"
         },
@@ -1069,6 +1103,13 @@ func init() {
         }
       }
     },
+    "memberOf": {
+      "description": "a list providing an overview of user's member roles in all active projects.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/projectRole"
+      }
+    },
     "members": {
       "description": "a list of project members.",
       "type": "array",
@@ -1079,6 +1120,29 @@ func init() {
     "projectID": {
       "description": "project identifier.",
       "type": "string"
+    },
+    "projectRole": {
+      "description": "JSON object for a member role of a project.",
+      "required": [
+        "projectID",
+        "role"
+      ],
+      "properties": {
+        "projectID": {
+          "description": "project identifier",
+          "type": "string"
+        },
+        "role": {
+          "description": "role of the member.",
+          "type": "string",
+          "enum": [
+            "manager",
+            "contributor",
+            "viewer",
+            "traverse"
+          ]
+        }
+      }
     },
     "requestBodyProjectProvision": {
       "required": [
@@ -1213,9 +1277,13 @@ func init() {
       "description": "JSON object containing user resources.",
       "required": [
         "userID",
+        "memberOf",
         "storage"
       ],
       "properties": {
+        "memberOf": {
+          "$ref": "#/definitions/memberOf"
+        },
         "storage": {
           "$ref": "#/definitions/storageResponse"
         },

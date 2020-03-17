@@ -319,10 +319,13 @@ definitions:
     properties:
       userID:
         $ref: '#/definitions/userID'
+      memberOf:
+        $ref: '#/definitions/memberOf'
       storage:
         $ref: '#/definitions/storageResponse'
     required:
       - userID
+      - memberOf
       - storage
 
   responseBodyProjectResource:
@@ -403,20 +406,6 @@ definitions:
       - storage
       - members
 
-  member:
-    description: JSON object for a project member.
-    properties:
-      userID:
-        description: userid of the member.
-        type: string
-      role:
-        description: role of the member.
-        type: string
-        enum: [manager, contributor, viewer, traverse, none]
-    required:
-      - userID
-      - role
-
   storageResponse:
     description: JSON object for storage resource data.
     properties:
@@ -448,7 +437,41 @@ definitions:
     required:
       - system
       - quotaGb
+
+  member:
+    description: JSON object for a project member.
+    properties:
+      userID:
+        description: userid of the member.
+        type: string
+      role:
+        description: role of the member.
+        type: string
+        enum: [manager, contributor, viewer, traverse, none]
+    required:
+      - userID
+      - role
   
+  projectRole:
+    description: JSON object for a member role of a project.
+    properties:
+      projectID:
+        description: project identifier
+        type: string
+      role:
+        description: role of the member.
+        type: string
+        enum: [manager, contributor, viewer, traverse]
+    required:
+      - projectID
+      - role
+
+  memberOf:
+    description: a list providing an overview of user's member roles in all active projects.
+    type: array
+    items:
+      $ref: '#/definitions/projectRole'
+
   members:
     description: a list of project members.
     type: array

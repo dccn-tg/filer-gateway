@@ -16,6 +16,10 @@ import (
 // swagger:model responseBodyUserResource
 type ResponseBodyUserResource struct {
 
+	// member of
+	// Required: true
+	MemberOf MemberOf `json:"memberOf"`
+
 	// storage
 	// Required: true
 	Storage *StorageResponse `json:"storage"`
@@ -29,6 +33,10 @@ type ResponseBodyUserResource struct {
 func (m *ResponseBodyUserResource) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMemberOf(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateStorage(formats); err != nil {
 		res = append(res, err)
 	}
@@ -40,6 +48,22 @@ func (m *ResponseBodyUserResource) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ResponseBodyUserResource) validateMemberOf(formats strfmt.Registry) error {
+
+	if err := validate.Required("memberOf", "body", m.MemberOf); err != nil {
+		return err
+	}
+
+	if err := m.MemberOf.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("memberOf")
+		}
+		return err
+	}
+
 	return nil
 }
 
