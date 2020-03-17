@@ -456,6 +456,8 @@ func getMemberOf(uid string) ([]*models.ProjectRole, *responseError) {
 // of a given user `uid`.
 func findUserMember(uid string, dirs chan string, members chan *models.ProjectRole, wg *sync.WaitGroup) {
 
+	defer wg.Done()
+
 	for dir := range dirs {
 
 		log.Debugf("finding user member for %s in %s", uid, dir)
@@ -495,6 +497,4 @@ func findUserMember(uid string, dirs chan string, members chan *models.ProjectRo
 			}
 		}
 	}
-
-	wg.Done()
 }
