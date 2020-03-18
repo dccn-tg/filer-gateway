@@ -7,6 +7,8 @@ github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200227164132-ef9653234a9
 github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200227164132-ef9653234a91/go.mod h1:IH0gGt5I2SKC0oQqoUrXX8JsjagQNwtmYYA5fxt+414=
 github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200228145917-75d79fc87a58 h1:+MsMQx6hrg1mrdj9uFnWLUYvHvCvVxhG4YsLW9ZDv9E=
 github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200228145917-75d79fc87a58/go.mod h1:IH0gGt5I2SKC0oQqoUrXX8JsjagQNwtmYYA5fxt+414=
+github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200318131045-9d0ce491a230 h1:Ld6a236jLr2Kzt6ZLHxkzFgMZ70ja4k0FnNvV3CKfoM=
+github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200318131045-9d0ce491a230/go.mod h1:kNM7+otEucuYz4XGkqo7niSkrk19rCaKc13qfyDrNg8=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=

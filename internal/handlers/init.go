@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"os/user"
@@ -18,6 +17,7 @@ import (
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	"github.com/go-openapi/runtime/middleware"
 
+	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -426,14 +426,14 @@ func getMemberOf(uid string) ([]*models.ProjectRole, *responseError) {
 		// close the dirs channel on exit
 		defer close(dirs)
 
-		infoDirs, err := ioutil.ReadDir(path)
+		objs, err := fp.ListDir(path)
 		if err != nil {
 			log.Errorf("cannot get content of path: %s", path)
 			return
 		}
 
-		for _, infoDir := range infoDirs {
-			dirs <- filepath.Join(path, infoDir.Name())
+		for _, obj := range objs {
+			dirs <- obj
 		}
 
 	}(PathProject)
