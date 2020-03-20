@@ -1,5 +1,11 @@
 version: "3.7"
 services:
+  db:
+    volumes:
+      - ${VOL_DB_DATA:-/mnt/docker/data/filer-gateway/db}:/data
+    networks:
+      default:
+      
   api-server:
     ports:
       - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080

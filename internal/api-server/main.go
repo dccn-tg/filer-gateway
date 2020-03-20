@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Donders-Institute/filer-gateway/internal/api-server/handlers"
+	"github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/go-openapi/loads"
@@ -87,22 +87,24 @@ func main() {
 				},
 			},
 		},
-	}, bokchoy.WithMaxRetries(2), bokchoy.WithRetryIntervals([]time.Duration{
-		5 * time.Second,
-		10 * time.Second,
-	}), bokchoy.WithLogger(logger))
+	}, bokchoy.WithLogger(logger), bokchoy.WithTTL(7*24*time.Hour))
+
+	if err != nil {
+		log.Errorf("cannot connect to db: %s", err)
+		os.Exit(1)
+	}
 
 	bok.Use(middleware.Recoverer)
 	bok.Use(middleware.DefaultLogger)
 
-	// associate handlers with implementations
-	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handlers.GetTask(ctx, bok))
-	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handlers.CreateProject(ctx, bok))
-	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handlers.UpdateProject(ctx, bok))
-	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handlers.GetProjectResource())
-	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handlers.GetProjectMembers())
-	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handlers.GetProjectStorage())
-	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handlers.GetUserResource())
+	// associate handler functions with implementations
+	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
+	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
+	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
+	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource())
+	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handler.GetProjectMembers())
+	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handler.GetProjectStorage())
+	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource())
 
 	// configure API
 	server.ConfigureAPI()

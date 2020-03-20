@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"context"
@@ -12,7 +12,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
+	"github.com/Donders-Institute/filer-gateway/internal/task"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
@@ -132,7 +134,40 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 	// Not implemented
 	return func(params operations.PatchProjectsIDParams) middleware.Responder {
 
-		task, err := bok.Queue(QueueSetProject).Publish(ctx, &params.ProjectUpdateData)
+		// construct task data from request data
+		t := task.SetProjectResource{
+			ProjectID: params.ID,
+			Storage: task.Storage{
+				System:  *params.ProjectUpdateData.Storage.System,
+				QuotaGb: *params.ProjectUpdateData.Storage.QuotaGb,
+			},
+			Members: make([]task.Member, 0),
+		}
+
+		for _, m := range params.ProjectUpdateData.Members {
+
+			switch *m.Role {
+			case acl.Manager.String():
+			case acl.Contributor.String():
+			case acl.Viewer.String():
+			default:
+				// only accept setting for manager,contributor and viewer roles
+				return operations.NewPatchProjectsIDBadRequest().WithPayload(
+					&models.ResponseBody400{
+						ErrorMessage: fmt.Sprintf("invalid member role for set: %s", *m.Role),
+					},
+				)
+			}
+
+			t.Members = append(t.Members, task.Member{
+				UserID: *m.UserID,
+				Role:   *m.Role,
+			})
+		}
+
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t, bokchoy.WithTimeout(12*time.Hour))
 
 		if err != nil {
 			return operations.NewPatchProjectsIDInternalServerError().WithPayload(

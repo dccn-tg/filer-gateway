@@ -36,3 +36,4 @@ services:
     depends_on:
       - db
       - api-server
+    command: -v -r db:6379
