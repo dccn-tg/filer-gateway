@@ -18,7 +18,7 @@ worker:
 	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway-worker internal/worker/main.go
 
 api-server:
-	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway internal/api-server/main.go
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway-api internal/api-server/main.go
 
 swagger:
 	swagger validate pkg/swagger/swagger.yaml
