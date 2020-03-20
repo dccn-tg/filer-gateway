@@ -48,7 +48,7 @@ func init() {
 }
 
 func usage() {
-	fmt.Printf("\nAPI server for filer gateway\n")
+	fmt.Printf("\nAPI server of filer gateway\n")
 	fmt.Printf("\nUSAGE: %s [OPTIONS]\n", os.Args[0])
 	fmt.Printf("\nOPTIONS:\n")
 	flag.PrintDefaults()

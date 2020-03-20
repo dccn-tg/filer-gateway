@@ -46,7 +46,7 @@ func init() {
 }
 
 func usage() {
-	fmt.Printf("\nBackground task worker for filer gateway\n")
+	fmt.Printf("\nTask worker of filer gateway\n")
 	fmt.Printf("\nUSAGE: %s [OPTIONS]\n", os.Args[0])
 	fmt.Printf("\nOPTIONS:\n")
 	flag.PrintDefaults()
