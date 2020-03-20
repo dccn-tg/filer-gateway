@@ -25,7 +25,7 @@ type PostProjectsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBodyProjectResource `json:"body,omitempty"`
+	Payload *models.ResponseBodyTaskResource `json:"body,omitempty"`
 }
 
 // NewPostProjectsOK creates PostProjectsOK with default headers values
@@ -35,13 +35,13 @@ func NewPostProjectsOK() *PostProjectsOK {
 }
 
 // WithPayload adds the payload to the post projects o k response
-func (o *PostProjectsOK) WithPayload(payload *models.ResponseBodyProjectResource) *PostProjectsOK {
+func (o *PostProjectsOK) WithPayload(payload *models.ResponseBodyTaskResource) *PostProjectsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the post projects o k response
-func (o *PostProjectsOK) SetPayload(payload *models.ResponseBodyProjectResource) {
+func (o *PostProjectsOK) SetPayload(payload *models.ResponseBodyTaskResource) {
 	o.Payload = payload
 }
 

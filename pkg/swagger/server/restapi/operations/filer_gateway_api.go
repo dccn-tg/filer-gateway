@@ -47,6 +47,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetProjectsIDStorageHandler: GetProjectsIDStorageHandlerFunc(func(params GetProjectsIDStorageParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
 		}),
+		GetTasksTypeIDHandler: GetTasksTypeIDHandlerFunc(func(params GetTasksTypeIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
+		}),
 		GetUsersIDHandler: GetUsersIDHandlerFunc(func(params GetUsersIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetUsersID has not yet been implemented")
 		}),
@@ -99,6 +102,8 @@ type FilerGatewayAPI struct {
 	GetProjectsIDMembersHandler GetProjectsIDMembersHandler
 	// GetProjectsIDStorageHandler sets the operation handler for the get projects ID storage operation
 	GetProjectsIDStorageHandler GetProjectsIDStorageHandler
+	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
+	GetTasksTypeIDHandler GetTasksTypeIDHandler
 	// GetUsersIDHandler sets the operation handler for the get users ID operation
 	GetUsersIDHandler GetUsersIDHandler
 	// PatchProjectsIDHandler sets the operation handler for the patch projects ID operation
@@ -185,6 +190,10 @@ func (o *FilerGatewayAPI) Validate() error {
 
 	if o.GetProjectsIDStorageHandler == nil {
 		unregistered = append(unregistered, "Operations.GetProjectsIDStorageHandler")
+	}
+
+	if o.GetTasksTypeIDHandler == nil {
+		unregistered = append(unregistered, "Operations.GetTasksTypeIDHandler")
 	}
 
 	if o.GetUsersIDHandler == nil {
@@ -313,6 +322,11 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/projects/{id}/storage"] = NewGetProjectsIDStorage(o.context, o.GetProjectsIDStorageHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/tasks/{type}/{id}"] = NewGetTasksTypeID(o.context, o.GetTasksTypeIDHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

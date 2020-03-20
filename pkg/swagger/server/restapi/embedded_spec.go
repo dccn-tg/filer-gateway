@@ -50,7 +50,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyProjectResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -146,7 +146,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyProjectResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -254,6 +254,50 @@ func init() {
               "enum": [
                 "project not found"
               ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{type}/{id}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "summary": "query background task status",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "task identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "task type",
+            "name": "type",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
             }
           },
           "500": {
@@ -608,6 +652,21 @@ func init() {
         }
       }
     },
+    "responseBodyTaskResource": {
+      "description": "JSON object containing scheduled task resource.",
+      "required": [
+        "taskID",
+        "taskStatus"
+      ],
+      "properties": {
+        "taskID": {
+          "$ref": "#/definitions/taskID"
+        },
+        "taskStatus": {
+          "$ref": "#/definitions/taskStatus"
+        }
+      }
+    },
     "responseBodyUserResource": {
       "description": "JSON object containing user resources.",
       "required": [
@@ -675,6 +734,14 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "taskID": {
+      "description": "identifier for scheduled background tasks.",
+      "type": "string"
+    },
+    "taskStatus": {
+      "description": "status of the background task.",
+      "type": "string"
     },
     "userID": {
       "description": "user identifier.",
@@ -715,7 +782,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyProjectResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -811,7 +878,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyProjectResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -919,6 +986,50 @@ func init() {
               "enum": [
                 "project not found"
               ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{type}/{id}": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "summary": "query background task status",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "task identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "task type",
+            "name": "type",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
             }
           },
           "500": {
@@ -1273,6 +1384,21 @@ func init() {
         }
       }
     },
+    "responseBodyTaskResource": {
+      "description": "JSON object containing scheduled task resource.",
+      "required": [
+        "taskID",
+        "taskStatus"
+      ],
+      "properties": {
+        "taskID": {
+          "$ref": "#/definitions/taskID"
+        },
+        "taskStatus": {
+          "$ref": "#/definitions/taskStatus"
+        }
+      }
+    },
     "responseBodyUserResource": {
       "description": "JSON object containing user resources.",
       "required": [
@@ -1340,6 +1466,14 @@ func init() {
           "type": "integer"
         }
       }
+    },
+    "taskID": {
+      "description": "identifier for scheduled background tasks.",
+      "type": "string"
+    },
+    "taskStatus": {
+      "description": "status of the background task.",
+      "type": "string"
     },
     "userID": {
       "description": "user identifier.",

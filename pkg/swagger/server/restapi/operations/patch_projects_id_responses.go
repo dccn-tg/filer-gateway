@@ -25,7 +25,7 @@ type PatchProjectsIDOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBodyProjectResource `json:"body,omitempty"`
+	Payload *models.ResponseBodyTaskResource `json:"body,omitempty"`
 }
 
 // NewPatchProjectsIDOK creates PatchProjectsIDOK with default headers values
@@ -35,13 +35,13 @@ func NewPatchProjectsIDOK() *PatchProjectsIDOK {
 }
 
 // WithPayload adds the payload to the patch projects Id o k response
-func (o *PatchProjectsIDOK) WithPayload(payload *models.ResponseBodyProjectResource) *PatchProjectsIDOK {
+func (o *PatchProjectsIDOK) WithPayload(payload *models.ResponseBodyTaskResource) *PatchProjectsIDOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch projects Id o k response
-func (o *PatchProjectsIDOK) SetPayload(payload *models.ResponseBodyProjectResource) {
+func (o *PatchProjectsIDOK) SetPayload(payload *models.ResponseBodyTaskResource) {
 	o.Payload = payload
 }
 

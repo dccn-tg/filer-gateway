@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/thoas/bokchoy"
 
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/sirupsen/logrus"
@@ -27,6 +29,12 @@ var (
 
 	// PathProjectFreenas is the top-level mount point of project hosted on FreeNAS box.
 	PathProjectFreenas string = "/project_freenas"
+
+	// QueueSetProject is the queue name for setting project resources.
+	QueueSetProject string = "tasks.setProject"
+
+	// QueueSetUser is the queue name for setting user resources.
+	QueueSetUser string = "tasks.setUser"
 )
 
 // Error code definitions.
@@ -48,6 +56,9 @@ var (
 
 	// MemberOfGettingError indicates error when looking up user's membership on all active projects.
 	MemberOfGettingError int64 = 105
+
+	// TaskQueueError indicates the request is failed to be added to the task queue for resource setting.
+	TaskQueueError int64 = 106
 )
 
 // Common payload for the ResponseBody500.
@@ -56,10 +67,54 @@ var responseNotImplemented = models.ResponseBody500{
 	ExitCode:     NotImplementedError,
 }
 
+// GetTask retrieves task status.
+func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.GetTasksTypeIDParams) middleware.Responder {
+	return func(params operations.GetTasksTypeIDParams) middleware.Responder {
+		id := params.ID
+
+		var qn string
+
+		switch t := params.Type; t {
+		case "project":
+			qn = QueueSetProject
+		case "user":
+			qn = QueueSetUser
+		default:
+			qn = ""
+		}
+
+		if qn == "" {
+			return operations.NewGetTasksTypeIDBadRequest().WithPayload(
+				&models.ResponseBody400{
+					ErrorMessage: fmt.Sprintf("invalid task type: %s", params.Type),
+				},
+			)
+		}
+
+		// retrieve task from the queue
+		task, err := bok.Queue(qn).Get(ctx, id)
+
+		if err != nil {
+			return operations.NewGetTasksTypeIDInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		return operations.NewGetTasksTypeIDOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID:     models.TaskID(task.ID),
+				TaskStatus: models.TaskStatus(task.StatusDisplay()),
+			},
+		)
+	}
+}
+
 // CreateProject implements the project creation on filer systems.
 //
-func CreateProject() func(params operations.PostProjectsParams) middleware.Responder {
-	// Not implemented
+func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams) middleware.Responder {
 	return func(params operations.PostProjectsParams) middleware.Responder {
 		return operations.NewPostProjectsInternalServerError().WithPayload(&responseNotImplemented)
 	}
@@ -73,10 +128,27 @@ func CreateProject() func(params operations.PostProjectsParams) middleware.Respo
 //
 // The corresponding project directory on the filer should exist in advance.
 //
-func UpdateProject() func(params operations.PatchProjectsIDParams) middleware.Responder {
+func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchProjectsIDParams) middleware.Responder {
 	// Not implemented
 	return func(params operations.PatchProjectsIDParams) middleware.Responder {
-		return operations.NewPatchProjectsIDInternalServerError().WithPayload(&responseNotImplemented)
+
+		task, err := bok.Queue(QueueSetProject).Publish(ctx, &params.ProjectUpdateData)
+
+		if err != nil {
+			return operations.NewPatchProjectsIDInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		return operations.NewPatchProjectsIDOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID:     models.TaskID(task.ID),
+				TaskStatus: models.TaskStatus(task.StatusDisplay()),
+			},
+		)
 	}
 }
 

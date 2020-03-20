@@ -141,7 +141,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/responseBodyProjectResource'
+            $ref: '#/definitions/responseBodyTaskResource'
         400:
           description: bad request
           schema:
@@ -179,7 +179,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/responseBodyProjectResource'
+            $ref: '#/definitions/responseBodyTaskResource'
         400:
           description: bad request
           schema:
@@ -294,6 +294,44 @@ paths:
           schema:
             $ref: '#/definitions/responseBody500'
 
+  /tasks/{type}/{id}:
+    get:
+      summary: query background task status
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: task identifier
+          type: string
+          required: true
+        - in: path
+          name: type
+          type: string
+          description: task type
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyTaskResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        # 404:
+        #   description: task not found
+        #   schema:
+        #     type: string
+        #     enum: [task not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
 # object definitions
 definitions:
 
@@ -313,6 +351,17 @@ definitions:
       errorMessage:
         description: server-side error message.
         type: string
+
+  responseBodyTaskResource:
+    description: JSON object containing scheduled task resource.
+    properties:
+      taskID:
+        $ref: '#/definitions/taskID'
+      taskStatus:
+        $ref: '#/definitions/taskStatus'
+    required:
+      - taskID
+      - taskStatus
 
   responseBodyUserResource:
     description: JSON object containing user resources.
@@ -484,4 +533,12 @@ definitions:
 
   userID:
     description: user identifier.
+    type: string
+
+  taskID:
+    description: identifier for scheduled background tasks.
+    type: string
+
+  taskStatus:
+    description: status of the background task.
     type: string

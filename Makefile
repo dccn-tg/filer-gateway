@@ -12,12 +12,17 @@ endif
 
 all: swagger build
 
-build:
-	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway internal/main.go
+build: api-server worker
+
+worker:
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway-worker internal/worker/main.go
+
+api-server:
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go build -o bin/filer-gateway internal/api-server/main.go
 
 swagger:
 	swagger validate pkg/swagger/swagger.yaml
-	go generate github.com/Donders-Institute/filer-gateway/internal github.com/Donders-Institute/filer-gateway/pkg/swagger
+	go generate github.com/Donders-Institute/filer-gateway/internal/api-server github.com/Donders-Institute/filer-gateway/pkg/swagger
 
 doc: swagger
 	swagger serve pkg/swagger/swagger.yaml

@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
-	"github.com/Donders-Institute/filer-gateway/internal/handlers"
+	"github.com/Donders-Institute/filer-gateway/internal/api-server/handlers"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/go-openapi/loads"
+
+	"github.com/thoas/bokchoy"
+	"github.com/thoas/bokchoy/logging"
+	"github.com/thoas/bokchoy/middleware"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -17,12 +23,14 @@ var (
 	//optsConfig  *string
 	optsVerbose *bool
 	optsPort    *int
+	redisAddr   *string
 )
 
 func init() {
 	//optsConfig = flag.String("c", "config.yml", "set the `path` of the configuration file")
 	optsVerbose = flag.Bool("v", false, "print debug messages")
 	optsPort = flag.Int("p", 8080, "specify the service `port` number")
+	redisAddr = flag.String("r", "redis:6379", "redis service `address`")
 
 	flag.Usage = usage
 
@@ -65,9 +73,32 @@ func main() {
 
 	server.Port = *optsPort
 
+	// initiate blochy queue for setting project roles
+	var logger logging.Logger
+
+	ctx := context.Background()
+	bok, err := bokchoy.New(ctx, bokchoy.Config{
+		Broker: bokchoy.BrokerConfig{
+			Type: "redis",
+			Redis: bokchoy.RedisConfig{
+				Type: "client",
+				Client: bokchoy.RedisClientConfig{
+					Addr: *redisAddr,
+				},
+			},
+		},
+	}, bokchoy.WithMaxRetries(2), bokchoy.WithRetryIntervals([]time.Duration{
+		5 * time.Second,
+		10 * time.Second,
+	}), bokchoy.WithLogger(logger))
+
+	bok.Use(middleware.Recoverer)
+	bok.Use(middleware.DefaultLogger)
+
 	// associate handlers with implementations
-	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handlers.CreateProject())
-	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handlers.UpdateProject())
+	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handlers.GetTask(ctx, bok))
+	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handlers.CreateProject(ctx, bok))
+	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handlers.UpdateProject(ctx, bok))
 	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handlers.GetProjectResource())
 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handlers.GetProjectMembers())
 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handlers.GetProjectStorage())

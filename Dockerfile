@@ -6,9 +6,9 @@ ADD internal ./internal
 ADD pkg ./pkg
 ADD go.mod .
 ADD go.sum .
-RUN ls -l /tmp/filer-gateway && GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway internal/main.go
+RUN ls -l /tmp/filer-gateway && GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway internal/api-server/main.go
 
-# stage 1: build image
+# stage 1: build image for the api-server
 FROM centos:7
 RUN yum install -y nfs4-acl-tools sssd-client && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root

@@ -15,6 +15,7 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/thoas/bokchoy v0.2.0
 	go.mongodb.org/mongo-driver v1.3.0 // indirect
 	golang.org/x/net v0.0.0-20200226051749-491c5fce7268
 	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
