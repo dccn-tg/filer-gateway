@@ -209,7 +209,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 		}
 
 		// getting storage quota on the user's home directory
-		system, quota, usage, err := getStorageQuota(u.HomeDir)
+		system, quota, usage, err := GetStorageQuota(u.HomeDir)
 
 		// Return response error based on error code.
 		if err != nil {
@@ -267,7 +267,7 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 		}
 
 		// Get Storage Resource
-		system, quota, usage, err := getStorageQuota(path)
+		system, quota, usage, err := GetStorageQuota(path)
 		// Return response error based on error code.
 		if err != nil {
 			switch err.code {
@@ -327,7 +327,7 @@ func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) midd
 
 		log.Debugf("get storage quota on %s\n", path)
 
-		system, quota, usage, err := getStorageQuota(path)
+		system, quota, usage, err := GetStorageQuota(path)
 
 		// Return response error based on error code.
 		if err != nil {
@@ -442,8 +442,8 @@ func getStorageSystem(path string) string {
 	return system
 }
 
-// getStorageQuota retrives quota limitation and its usage on the path.
-func getStorageQuota(path string) (system string, quota, usage int64, err *responseError) {
+// GetStorageQuota retrives quota limitation and its usage on the path.
+func GetStorageQuota(path string) (system string, quota, usage int64, err *responseError) {
 
 	fi, e := os.Stat(path)
 

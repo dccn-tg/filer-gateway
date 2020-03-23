@@ -2,9 +2,14 @@ package handler
 
 import (
 	"encoding/json"
-	"time"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
+	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
+	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	log "github.com/sirupsen/logrus"
 	"github.com/thoas/bokchoy"
 )
@@ -34,11 +39,59 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	log.Debugf("payload data: %+v", data)
 
-	// sleep for 5 minutes to test if on-demand timeout works
-	time.Sleep(5 * time.Minute)
+	// setting project resource
+	// 1. create project namespace
+	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
+	if _, err := os.Stat(ppath); os.IsNotExist(err) {
+		// call filer API to create project volume and/or namespace
+		log.Debug("creating project storage on %s, path %s", data.Storage.System, ppath)
+	}
+
+	// 2. update project quota
+	_, quota, _, err := hapi.GetStorageQuota(ppath)
+	if err != nil {
+		return err
+	}
+	if data.Storage.QuotaGb != quota {
+		// call filer API to set the new quota
+		log.Debug("setting project storage quota from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+	}
+
+	// 3. set project roles
+	managers := make([]string, 0)
+	contributors := make([]string, 0)
+	viewers := make([]string, 0)
+
+	for _, m := range data.Members {
+		switch m.Role {
+		case acl.Manager.String():
+			managers = append(managers, m.UserID)
+		case acl.Contributor.String():
+			contributors = append(contributors, m.UserID)
+		case acl.Viewer.String():
+			viewers = append(viewers, m.UserID)
+		}
+	}
+
+	runner := acl.Runner{
+		Managers:     strings.Join(managers, ","),
+		Contributors: strings.Join(contributors, ","),
+		Viewers:      strings.Join(viewers, ","),
+		RootPath:     ppath,
+		Traverse:     false,
+		Force:        false,
+		FollowLink:   false,
+		SkipFiles:    false,
+		Silence:      true,
+		Nthreads:     4,
+	}
+
+	if ec, err := runner.SetRoles(); ec != 0 || err != nil {
+		return fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
+	}
 
 	// Put payload data as result.
-	r.Task.Result = &data
+	//r.Task.Result = &data
 
 	return nil
 }
