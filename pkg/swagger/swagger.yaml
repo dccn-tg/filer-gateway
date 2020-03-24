@@ -541,4 +541,18 @@ definitions:
 
   taskStatus:
     description: status of the background task.
-    type: string
+    properties:
+      status:
+        description: task status from the last execution.
+        type: string
+        enum: [waiting, processing, failed, succeeded, canceled]
+      error:
+        description: task error message from the last execution.
+        type: string
+      result:
+        description: task result from the last execution.
+        type: string
+    required:
+      - status
+      - error
+      - result

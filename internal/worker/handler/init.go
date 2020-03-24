@@ -9,10 +9,16 @@ import (
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
+	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
-	log "github.com/sirupsen/logrus"
 	"github.com/thoas/bokchoy"
 )
+
+// TaskResults defines the output structure of the task
+type TaskResults struct {
+	Error error  `json:"errors"`
+	Info  string `json:"info"`
+}
 
 // SetProjectResourceHandler implements `bokchoy.Handler` for applying update on project resource.
 type SetProjectResourceHandler struct {
@@ -44,17 +50,19 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
 	if _, err := os.Stat(ppath); os.IsNotExist(err) {
 		// call filer API to create project volume and/or namespace
-		log.Debug("creating project storage on %s, path %s", data.Storage.System, ppath)
+		log.Debugf("creating project storage on %s, path %s", data.Storage.System, ppath)
 	}
 
 	// 2. update project quota
 	_, quota, _, err := hapi.GetStorageQuota(ppath)
 	if err != nil {
+		log.Errorf("%s", err.Error())
 		return err
 	}
+
 	if data.Storage.QuotaGb != quota {
 		// call filer API to set the new quota
-		log.Debug("setting project storage quota from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+		log.Debugf("setting project storage quota from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
 	}
 
 	// 3. set project roles

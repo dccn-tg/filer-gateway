@@ -3,7 +3,7 @@ module github.com/Donders-Institute/filer-gateway
 go 1.13
 
 require (
-	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200318132213-7f5d3439f92d
+	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200324134841-530ce249eebb
 	github.com/go-openapi/errors v0.19.3
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.11

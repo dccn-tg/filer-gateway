@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/errors"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ResponseBodyTaskResource JSON object containing scheduled task resource.
@@ -21,7 +22,7 @@ type ResponseBodyTaskResource struct {
 
 	// task status
 	// Required: true
-	TaskStatus TaskStatus `json:"taskStatus"`
+	TaskStatus *TaskStatus `json:"taskStatus"`
 }
 
 // Validate validates this response body task resource
@@ -56,11 +57,17 @@ func (m *ResponseBodyTaskResource) validateTaskID(formats strfmt.Registry) error
 
 func (m *ResponseBodyTaskResource) validateTaskStatus(formats strfmt.Registry) error {
 
-	if err := m.TaskStatus.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("taskStatus")
-		}
+	if err := validate.Required("taskStatus", "body", m.TaskStatus); err != nil {
 		return err
+	}
+
+	if m.TaskStatus != nil {
+		if err := m.TaskStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("taskStatus")
+			}
+			return err
+		}
 	}
 
 	return nil

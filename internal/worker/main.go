@@ -14,7 +14,7 @@ import (
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	hworker "github.com/Donders-Institute/filer-gateway/internal/worker/handler"
-	log "github.com/sirupsen/logrus"
+	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 )
 
 var (
@@ -34,15 +34,23 @@ func init() {
 
 	flag.Parse()
 
-	// set logging
-	log.SetOutput(os.Stderr)
-
-	// set logging level
-	llevel := log.InfoLevel
-	if *optsVerbose {
-		llevel = log.DebugLevel
+	cfg := log.Configuration{
+		EnableConsole:     true,
+		ConsoleJSONFormat: false,
+		ConsoleLevel:      log.Info,
+		EnableFile:        true,
+		FileJSONFormat:    true,
+		FileLocation:      "log/worker.log",
+		FileLevel:         log.Info,
 	}
-	log.SetLevel(llevel)
+
+	if *optsVerbose {
+		cfg.ConsoleLevel = log.Debug
+		cfg.FileLevel = log.Debug
+	}
+
+	// initialize logger
+	log.NewLogger(cfg, log.InstanceZapLogger)
 }
 
 func usage() {
@@ -99,7 +107,7 @@ func main() {
 
 	go func() {
 		for range c {
-			log.Print("Received signal, gracefully stopping")
+			log.Warnf("Received signal, gracefully stopping")
 			bok.Stop(ctx)
 		}
 	}()

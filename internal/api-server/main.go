@@ -16,7 +16,7 @@ import (
 	"github.com/thoas/bokchoy/logging"
 	"github.com/thoas/bokchoy/middleware"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 )
 
 var (
@@ -36,15 +36,23 @@ func init() {
 
 	flag.Parse()
 
-	// set logging
-	log.SetOutput(os.Stderr)
-
-	// set logging level
-	llevel := log.InfoLevel
-	if *optsVerbose {
-		llevel = log.DebugLevel
+	cfg := log.Configuration{
+		EnableConsole:     true,
+		ConsoleJSONFormat: false,
+		ConsoleLevel:      log.Info,
+		EnableFile:        true,
+		FileJSONFormat:    true,
+		FileLocation:      "log/api-server.log",
+		FileLevel:         log.Info,
 	}
-	log.SetLevel(llevel)
+
+	if *optsVerbose {
+		cfg.ConsoleLevel = log.Debug
+		cfg.FileLevel = log.Debug
+	}
+
+	// initialize logger
+	log.NewLogger(cfg, log.InstanceZapLogger)
 }
 
 func usage() {
@@ -59,7 +67,7 @@ func main() {
 	// Initialize Swagger
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("%s", err)
 	}
 
 	api := operations.NewFilerGatewayAPI(swaggerSpec)
@@ -67,7 +75,7 @@ func main() {
 	defer func() {
 		if err := server.Shutdown(); err != nil {
 			// error handle
-			log.Fatalln(err)
+			log.Fatalf("%s", err)
 		}
 	}()
 
@@ -111,6 +119,6 @@ func main() {
 
 	// Start server which listening
 	if err := server.Serve(); err != nil {
-		log.Fatalln(err)
+		log.Fatalf("%s", err)
 	}
 }

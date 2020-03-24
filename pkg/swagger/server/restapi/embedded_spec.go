@@ -741,7 +741,32 @@ func init() {
     },
     "taskStatus": {
       "description": "status of the background task.",
-      "type": "string"
+      "required": [
+        "status",
+        "error",
+        "result"
+      ],
+      "properties": {
+        "error": {
+          "description": "task error message from the last execution.",
+          "type": "string"
+        },
+        "result": {
+          "description": "task result from the last execution.",
+          "type": "string"
+        },
+        "status": {
+          "description": "task status from the last execution.",
+          "type": "string",
+          "enum": [
+            "waiting",
+            "processing",
+            "failed",
+            "succeeded",
+            "canceled"
+          ]
+        }
+      }
     },
     "userID": {
       "description": "user identifier.",
@@ -1473,7 +1498,32 @@ func init() {
     },
     "taskStatus": {
       "description": "status of the background task.",
-      "type": "string"
+      "required": [
+        "status",
+        "error",
+        "result"
+      ],
+      "properties": {
+        "error": {
+          "description": "task error message from the last execution.",
+          "type": "string"
+        },
+        "result": {
+          "description": "task result from the last execution.",
+          "type": "string"
+        },
+        "status": {
+          "description": "task status from the last execution.",
+          "type": "string",
+          "enum": [
+            "waiting",
+            "processing",
+            "failed",
+            "succeeded",
+            "canceled"
+          ]
+        }
+      }
     },
     "userID": {
       "description": "user identifier.",

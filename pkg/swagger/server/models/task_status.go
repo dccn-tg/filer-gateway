@@ -6,14 +6,138 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
+	"github.com/go-openapi/errors"
 	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // TaskStatus status of the background task.
 // swagger:model taskStatus
-type TaskStatus string
+type TaskStatus struct {
+
+	// task error message from the last execution.
+	// Required: true
+	Error *string `json:"error"`
+
+	// task result from the last execution.
+	// Required: true
+	Result *string `json:"result"`
+
+	// task status from the last execution.
+	// Required: true
+	// Enum: [waiting processing failed succeeded canceled]
+	Status *string `json:"status"`
+}
 
 // Validate validates this task status
-func (m TaskStatus) Validate(formats strfmt.Registry) error {
+func (m *TaskStatus) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateError(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateResult(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *TaskStatus) validateError(formats strfmt.Registry) error {
+
+	if err := validate.Required("error", "body", m.Error); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TaskStatus) validateResult(formats strfmt.Registry) error {
+
+	if err := validate.Required("result", "body", m.Result); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var taskStatusTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["waiting","processing","failed","succeeded","canceled"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		taskStatusTypeStatusPropEnum = append(taskStatusTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// TaskStatusStatusWaiting captures enum value "waiting"
+	TaskStatusStatusWaiting string = "waiting"
+
+	// TaskStatusStatusProcessing captures enum value "processing"
+	TaskStatusStatusProcessing string = "processing"
+
+	// TaskStatusStatusFailed captures enum value "failed"
+	TaskStatusStatusFailed string = "failed"
+
+	// TaskStatusStatusSucceeded captures enum value "succeeded"
+	TaskStatusStatusSucceeded string = "succeeded"
+
+	// TaskStatusStatusCanceled captures enum value "canceled"
+	TaskStatusStatusCanceled string = "canceled"
+)
+
+// prop value enum
+func (m *TaskStatus) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, taskStatusTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *TaskStatus) validateStatus(formats strfmt.Registry) error {
+
+	if err := validate.Required("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", *m.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *TaskStatus) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *TaskStatus) UnmarshalBinary(b []byte) error {
+	var res TaskStatus
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
 	return nil
 }

@@ -22,7 +22,7 @@ import (
 	"github.com/thoas/bokchoy"
 
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
-	log "github.com/sirupsen/logrus"
+	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 )
 
 var (
@@ -105,10 +105,24 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 			)
 		}
 
+		taskStatus := task.StatusDisplay()
+		taskRslt := ""
+		taskErr := ""
+		if task.Result != nil {
+			taskRslt = fmt.Sprintf("%s", task.Result)
+		}
+		if task.Error != nil {
+			taskErr = fmt.Sprintf("%s", task.Error)
+		}
+
 		return operations.NewGetTasksTypeIDOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID:     models.TaskID(task.ID),
-				TaskStatus: models.TaskStatus(task.StatusDisplay()),
+				TaskID: models.TaskID(task.ID),
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: &taskRslt,
+					Error:  &taskErr,
+				},
 			},
 		)
 	}
@@ -178,10 +192,16 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 			)
 		}
 
+		taskStatus := task.StatusDisplay()
+
 		return operations.NewPatchProjectsIDOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID:     models.TaskID(task.ID),
-				TaskStatus: models.TaskStatus(task.StatusDisplay()),
+				TaskID: models.TaskID(task.ID),
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
 			},
 		)
 	}
@@ -213,7 +233,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 
 		// Return response error based on error code.
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
 			default:
@@ -229,7 +249,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 		// getting user's membership on all active projects
 		memberOf, err := getMemberOf(uname)
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
 			default:
@@ -270,7 +290,7 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 		system, quota, usage, err := GetStorageQuota(path)
 		// Return response error based on error code.
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetProjectsIDNotFound().WithPayload(err.Error())
 			default:
@@ -287,7 +307,7 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 		members, err := getMemberRoles(path)
 		// Return response error based on error code.
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetProjectsIDNotFound().WithPayload(err.Error())
 			default:
@@ -331,7 +351,7 @@ func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) midd
 
 		// Return response error based on error code.
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetProjectsIDStorageNotFound().WithPayload(err.Error())
 			default:
@@ -381,7 +401,7 @@ func GetProjectMembers() func(params operations.GetProjectsIDMembersParams) midd
 
 		// Return response error based on error code.
 		if err != nil {
-			switch err.code {
+			switch err.(*ResponseError).code {
 			case 404:
 				return operations.NewGetProjectsIDMembersNotFound().WithPayload(err.Error())
 			default:
@@ -404,14 +424,14 @@ func GetProjectMembers() func(params operations.GetProjectsIDMembersParams) midd
 	}
 }
 
-// responseError is an internal error type for the API handler function to
+// ResponseError is an internal error type for the API handler function to
 // determine which response error should be returned to the API client.
-type responseError struct {
+type ResponseError struct {
 	code int
 	err  string
 }
 
-func (e *responseError) Error() string {
+func (e *ResponseError) Error() string {
 	return e.err
 }
 
@@ -443,16 +463,16 @@ func getStorageSystem(path string) string {
 }
 
 // GetStorageQuota retrives quota limitation and its usage on the path.
-func GetStorageQuota(path string) (system string, quota, usage int64, err *responseError) {
+func GetStorageQuota(path string) (system string, quota, usage int64, err error) {
 
 	fi, e := os.Stat(path)
 
 	if e != nil {
-		err = &responseError{code: 500, err: err.Error()}
+		err = &ResponseError{code: 500, err: e.Error()}
 		return
 	}
 	if !fi.Mode().IsDir() {
-		err = &responseError{code: 500, err: fmt.Sprintf("Not a directory: %s", path)}
+		err = &ResponseError{code: 500, err: fmt.Sprintf("Not a directory: %s", path)}
 		return
 	}
 
@@ -472,7 +492,7 @@ func GetStorageQuota(path string) (system string, quota, usage int64, err *respo
 }
 
 // getMemberRoles retrives member roles applied on the path.
-func getMemberRoles(path string) ([]*models.Member, *responseError) {
+func getMemberRoles(path string) ([]*models.Member, error) {
 
 	members := make([]*models.Member, 0)
 
@@ -488,7 +508,7 @@ func getMemberRoles(path string) ([]*models.Member, *responseError) {
 	// we know it's path not found error because this is the only case the runner.GetRoles returns an error.
 	// TODO: maybe the runner should return an explicit error type.
 	if err != nil {
-		return members, &responseError{code: 500, err: fmt.Sprintf("cannot get role: %s", path)}
+		return members, &ResponseError{code: 500, err: fmt.Sprintf("cannot get role: %s", path)}
 	}
 
 	// only one object is expected from the channel as the recursion is disabled on the runner function.
@@ -515,7 +535,7 @@ func getMemberRoles(path string) ([]*models.Member, *responseError) {
 
 // getMemberOf scans through all projects' top-level directories to find out
 // the membership of the user `uid`.
-func getMemberOf(uid string) ([]*models.ProjectRole, *responseError) {
+func getMemberOf(uid string) ([]*models.ProjectRole, error) {
 
 	nworkers := runtime.NumCPU()
 
