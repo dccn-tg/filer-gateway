@@ -27,8 +27,6 @@ type SetProjectResourceHandler struct {
 // Handle performs project resource update based on the request payload.
 func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
-	log.Debugf("payload: %+v", r.Task.Payload)
-
 	res, err := json.Marshal(r.Task.Payload)
 	if err != nil {
 		log.Errorf("Marshal error: %s", err)
@@ -65,10 +63,11 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		log.Debugf("setting project storage quota from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
 	}
 
-	// 3. set project roles
+	// 3. set/delete project roles
 	managers := make([]string, 0)
 	contributors := make([]string, 0)
 	viewers := make([]string, 0)
+	udelete := make([]string, 0)
 
 	for _, m := range data.Members {
 		switch m.Role {
@@ -78,24 +77,50 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 			contributors = append(contributors, m.UserID)
 		case acl.Viewer.String():
 			viewers = append(viewers, m.UserID)
+		case "none":
+			udelete = append(udelete, m.UserID)
 		}
 	}
 
-	runner := acl.Runner{
-		Managers:     strings.Join(managers, ","),
-		Contributors: strings.Join(contributors, ","),
-		Viewers:      strings.Join(viewers, ","),
-		RootPath:     ppath,
-		Traverse:     false,
-		Force:        false,
-		FollowLink:   false,
-		SkipFiles:    false,
-		Silence:      true,
-		Nthreads:     4,
+	if len(managers)+len(contributors)+len(viewers) > 0 {
+		runner := acl.Runner{
+			Managers:     strings.Join(managers, ","),
+			Contributors: strings.Join(contributors, ","),
+			Viewers:      strings.Join(viewers, ","),
+			RootPath:     ppath,
+			Traverse:     false,
+			Force:        false,
+			FollowLink:   false,
+			SkipFiles:    false,
+			Silence:      true,
+			Nthreads:     4,
+		}
+
+		if ec, err := runner.SetRoles(); ec != 0 || err != nil {
+			return fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
+		}
 	}
 
-	if ec, err := runner.SetRoles(); ec != 0 || err != nil {
-		return fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
+	// 4. delete user
+	if len(udelete) > 0 {
+		udelstr := strings.Join(udelete, ",")
+		runner := acl.Runner{
+			RootPath:     ppath,
+			Managers:     udelstr,
+			Contributors: udelstr,
+			Viewers:      udelstr,
+			Traversers:   udelstr,
+			FollowLink:   false,
+			SkipFiles:    false,
+			Nthreads:     4,
+			Silence:      true,
+			Traverse:     false,
+			Force:        false,
+		}
+
+		if ec, err := runner.RemoveRoles(); ec != 0 || err != nil {
+			return fmt.Errorf("fail removing roles (ec=%d): %s", ec, err)
+		}
 	}
 
 	// Put payload data as result.
