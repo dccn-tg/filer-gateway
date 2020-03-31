@@ -1,5 +1,5 @@
 netapp:
-  apiURL: https://131.174.44.94/api
+  apiURL: https://131.174.44.94
   apiUser: gatewayadmin
   apiPass:
   projectRoot: /project
