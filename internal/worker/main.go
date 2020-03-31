@@ -22,6 +22,7 @@ var (
 	optsVerbose *bool
 	redisAddr   *string
 	nworkers    *int
+	configFile  *string
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 	optsVerbose = flag.Bool("v", false, "print debug messages")
 	nworkers = flag.Int("p", 4, "`number` of concurrent workers per queue")
 	redisAddr = flag.String("r", "redis:6379", "redis service `address`")
+	configFile = flag.String("c", os.Getenv("FILER_GATEWAY_WORKER_CONFIG"), "configurateion file `path`")
 
 	flag.Usage = usage
 
@@ -92,13 +94,13 @@ func main() {
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetProject`
 	bok.Queue(hapi.QueueSetProject).Handle(
-		&hworker.SetProjectResourceHandler{},
+		&hworker.SetProjectResourceHandler{ConfigFile: *configFile},
 		bokchoy.WithConcurrency(*nworkers),
 	)
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetUser`
 	bok.Queue(hapi.QueueSetUser).Handle(
-		&hworker.SetUserResourceHandler{},
+		&hworker.SetUserResourceHandler{ConfigFile: *configFile},
 		bokchoy.WithConcurrency(*nworkers),
 	)
 

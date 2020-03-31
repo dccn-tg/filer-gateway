@@ -7,7 +7,7 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 
-	pathCfg := os.Getenv("FILER_GATEWAY_CONFIG")
+	pathCfg := os.Getenv("FILER_GATEWAY_WORKER_CONFIG")
 
 	cfg, err := LoadConfig(pathCfg)
 

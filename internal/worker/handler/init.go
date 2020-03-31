@@ -9,10 +9,35 @@ import (
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
+	"github.com/Donders-Institute/filer-gateway/internal/worker/config"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
+	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/filer"
 	"github.com/thoas/bokchoy"
 )
+
+// getFilerAPI
+func getFilerAPI(system, configFile string) (filer.Filer, error) {
+
+	// load filer config and panic out if there is a problem loading it.
+	cfg, err := config.LoadConfig(configFile)
+	if err != nil {
+		return nil, fmt.Errorf("fail to laod filer configuration %s: %s", configFile, err)
+	}
+
+	var fConfig filer.Config
+	switch system {
+	case "netapp":
+		fConfig = cfg.NetApp
+	case "freenas":
+		fConfig = cfg.FreeNas
+	default:
+		return nil, fmt.Errorf("unknown filer system: %s", system)
+	}
+
+	// initiate filer API instances
+	return filer.New(system, fConfig), nil
+}
 
 // TaskResults defines the output structure of the task
 type TaskResults struct {
@@ -22,6 +47,8 @@ type TaskResults struct {
 
 // SetProjectResourceHandler implements `bokchoy.Handler` for applying update on project resource.
 type SetProjectResourceHandler struct {
+	// Configuration file for the worker
+	ConfigFile string
 }
 
 // Handle performs project resource update based on the request payload.
@@ -44,11 +71,21 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	log.Debugf("payload data: %+v", data)
 
 	// setting project resource
+	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+	if err != nil {
+		return err
+	}
+
 	// 1. create project namespace
 	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
 	if _, err := os.Stat(ppath); os.IsNotExist(err) {
 		// call filer API to create project volume and/or namespace
-		log.Debugf("creating project storage on %s, path %s", data.Storage.System, ppath)
+		if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+		}
+		log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
+	} else {
+		log.Warnf("skip project space creation as project path already exists: %s", ppath)
 	}
 
 	// 2. update project quota
@@ -60,7 +97,12 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	if data.Storage.QuotaGb != quota {
 		// call filer API to set the new quota
-		log.Debugf("setting project storage quota from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to set space quota for project %s: %s", data.ProjectID, err)
+		}
+		log.Debugf("project storage quota set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+	} else {
+		log.Warnf("skip setting project space quota as the quota is already in right size: project %s quota %d", data.ProjectID, quota)
 	}
 
 	// 3. set/delete project roles
@@ -131,6 +173,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 // SetUserResourceHandler implements `bokchoy.Handler` for applying update on user resource.
 type SetUserResourceHandler struct {
+	// Configuration file for the worker
+	ConfigFile string
 }
 
 // Handle performs user resource update based on the request payload.
