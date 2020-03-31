@@ -27,5 +27,8 @@ swagger:
 doc: swagger
 	swagger serve pkg/swagger/swagger.yaml
 
+test_cfg: build
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/Donders-Institute/filer-gateway/internal/config/... 
+
 clean:
 	rm -rf bin

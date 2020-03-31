@@ -1,0 +1,17 @@
+netapp:
+  apiURL: https://131.174.44.94/api
+  apiUser: gatewayadmin
+  apiPass:
+  projectRoot: /project
+  projectUID: 1010
+  projectGID: 1010
+  projectMode: "volume"
+  vserver: "atreides"
+
+freenas:
+  apiURL: https://freenas.dccn.nl/api/v2.0
+  apiUser: root
+  apiPass:
+  projectRoot: /project_freenas
+  projectUser: project
+  projectGroup: project_g
