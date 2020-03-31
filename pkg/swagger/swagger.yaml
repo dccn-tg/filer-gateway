@@ -7,12 +7,25 @@ info:
   title: filer-gateway
   version: 0.1.0
 
+securityDefinitions:
+  basicAuth:
+    type: basic
+
+  apiKeyHeader:
+    type: apiKey
+    in: header
+    name: X-API-Key
+
 # API paths
 paths:
 
   /users:
     post:
       summary: provision filer resource for a new user.
+
+      security:
+        - basicAuth: []
+          apiKeyHeader: []
 
       consumes:
         - application/json
@@ -46,6 +59,10 @@ paths:
     patch:
       summary: update filer resource for an existing user.
     
+      security:
+        - basicAuth: []
+          apiKeyHeader: []
+
       consumes:
         - application/json
 
@@ -123,6 +140,10 @@ paths:
     post:
       summary: provision filer resource for a new project.
 
+      security:
+        - basicAuth: []
+          apiKeyHeader: []
+
       consumes:
         - application/json
 
@@ -154,7 +175,11 @@ paths:
   /projects/{id}:
     patch:
       summary: update filer resource for an existing project.
-    
+
+      security:
+        - basicAuth: []
+          apiKeyHeader: []
+
       consumes:
         - application/json
 
@@ -556,3 +581,6 @@ definitions:
       - status
       - error
       - result
+
+  principle:
+    type: string

@@ -130,8 +130,8 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 
 // CreateProject implements the project creation on filer systems.
 //
-func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams) middleware.Responder {
-	return func(params operations.PostProjectsParams) middleware.Responder {
+func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
 		// construct task data from request data
 		t := task.SetProjectResource{
 			ProjectID: string(params.ProjectProvisionData.ProjectID),
@@ -199,9 +199,9 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 //
 // The corresponding project directory on the filer should exist in advance.
 //
-func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchProjectsIDParams) middleware.Responder {
+func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchProjectsIDParams, principle *models.Principle) middleware.Responder {
 	// Not implemented
-	return func(params operations.PatchProjectsIDParams) middleware.Responder {
+	return func(params operations.PatchProjectsIDParams, principle *models.Principle) middleware.Responder {
 
 		// construct task data from request data
 		t := task.SetProjectResource{

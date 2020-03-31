@@ -28,6 +28,12 @@ func init() {
   "paths": {
     "/projects": {
       "post": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -117,6 +123,12 @@ func init() {
         }
       },
       "patch": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -311,6 +323,12 @@ func init() {
     },
     "/users": {
       "post": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -400,6 +418,12 @@ func init() {
         }
       },
       "patch": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -495,6 +519,9 @@ func init() {
       "items": {
         "$ref": "#/definitions/member"
       }
+    },
+    "principle": {
+      "type": "string"
     },
     "projectID": {
       "description": "project identifier.",
@@ -771,6 +798,16 @@ func init() {
     "userID": {
       "description": "user identifier.",
       "type": "string"
+    }
+  },
+  "securityDefinitions": {
+    "apiKeyHeader": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header"
+    },
+    "basicAuth": {
+      "type": "basic"
     }
   }
 }`))
@@ -785,6 +822,12 @@ func init() {
   "paths": {
     "/projects": {
       "post": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -874,6 +917,12 @@ func init() {
         }
       },
       "patch": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -1068,6 +1117,12 @@ func init() {
     },
     "/users": {
       "post": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -1157,6 +1212,12 @@ func init() {
         }
       },
       "patch": {
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
         "consumes": [
           "application/json"
         ],
@@ -1252,6 +1313,9 @@ func init() {
       "items": {
         "$ref": "#/definitions/member"
       }
+    },
+    "principle": {
+      "type": "string"
     },
     "projectID": {
       "description": "project identifier.",
@@ -1528,6 +1592,16 @@ func init() {
     "userID": {
       "description": "user identifier.",
       "type": "string"
+    }
+  },
+  "securityDefinitions": {
+    "apiKeyHeader": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header"
+    },
+    "basicAuth": {
+      "type": "basic"
     }
   }
 }`))

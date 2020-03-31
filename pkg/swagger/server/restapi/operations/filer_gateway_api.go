@@ -18,6 +18,8 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 )
 
 // NewFilerGatewayAPI creates a new FilerGateway instance
@@ -53,18 +55,28 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetUsersIDHandler: GetUsersIDHandlerFunc(func(params GetUsersIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetUsersID has not yet been implemented")
 		}),
-		PatchProjectsIDHandler: PatchProjectsIDHandlerFunc(func(params PatchProjectsIDParams) middleware.Responder {
+		PatchProjectsIDHandler: PatchProjectsIDHandlerFunc(func(params PatchProjectsIDParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PatchProjectsID has not yet been implemented")
 		}),
-		PatchUsersIDHandler: PatchUsersIDHandlerFunc(func(params PatchUsersIDParams) middleware.Responder {
+		PatchUsersIDHandler: PatchUsersIDHandlerFunc(func(params PatchUsersIDParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PatchUsersID has not yet been implemented")
 		}),
-		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams) middleware.Responder {
+		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
 		}),
-		PostUsersHandler: PostUsersHandlerFunc(func(params PostUsersParams) middleware.Responder {
+		PostUsersHandler: PostUsersHandlerFunc(func(params PostUsersParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostUsers has not yet been implemented")
-		}),
+		}), // Applies when the "X-API-Key" header is set
+		APIKeyHeaderAuth: func(token string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("api key auth (apiKeyHeader) X-API-Key from header param [X-API-Key] has not yet been implemented")
+		},
+		// Applies when the Authorization header is set with the Basic scheme
+		BasicAuthAuth: func(user string, pass string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
+		},
+
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -95,6 +107,17 @@ type FilerGatewayAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+
+	// APIKeyHeaderAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key X-API-Key provided in the header
+	APIKeyHeaderAuth func(string) (*models.Principle, error)
+
+	// BasicAuthAuth registers a function that takes username and password and returns a principal
+	// it performs authentication with basic auth
+	BasicAuthAuth func(string, string) (*models.Principle, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
 
 	// GetProjectsIDHandler sets the operation handler for the get projects ID operation
 	GetProjectsIDHandler GetProjectsIDHandler
@@ -180,6 +203,14 @@ func (o *FilerGatewayAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.APIKeyHeaderAuth == nil {
+		unregistered = append(unregistered, "XAPIKeyAuth")
+	}
+
+	if o.BasicAuthAuth == nil {
+		unregistered = append(unregistered, "BasicAuthAuth")
+	}
+
 	if o.GetProjectsIDHandler == nil {
 		unregistered = append(unregistered, "Operations.GetProjectsIDHandler")
 	}
@@ -231,14 +262,32 @@ func (o *FilerGatewayAPI) ServeErrorFor(operationID string) func(http.ResponseWr
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *FilerGatewayAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
 
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+
+		case "apiKeyHeader":
+
+			scheme := schemes[name]
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
+				return o.APIKeyHeaderAuth(token)
+			})
+
+		case "basicAuth":
+			result[name] = o.BasicAuthenticator(func(username, password string) (interface{}, error) {
+				return o.BasicAuthAuth(username, password)
+			})
+
+		}
+	}
+	return result
 
 }
 
 // Authorizer returns the registered authorizer
 func (o *FilerGatewayAPI) Authorizer() runtime.Authorizer {
 
-	return nil
+	return o.APIAuthorizer
 
 }
 

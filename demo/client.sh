@@ -10,6 +10,9 @@ CURL="curl -k -#"
 # filer gateway endpoint
 API_URL="http://localhost:8080/v1"
 
+[ -z $API_KEY ] && API_KEY="demo"
+[ -z $API_USER ] && API_USER="demo"
+
 function usage() {
 
     echo "Usage: $1 <new|get|set>" 1>&2
@@ -55,9 +58,12 @@ function newProject() {
     echo -n "create project [y/N]:"
     read ans
     [ "${ans}" == "" ] && ans="n"
-    [ "${ans,,}" == "y" ] && 
-        out=$( ${CURL} -X POST \
+    [ "${ans,,}" == "y" ] &&
+        echo -n "password for api user ($API_USER): " > /dev/tty &&
+        read -s pass &&
+        out=$( ${CURL} -X POST -u "${API_USER}:${pass}" \
             -H 'content-type: application/json' \
+            -H "X-API-Key: ${API_KEY}" \
             -d $(echo ${data} | jq -c -M '.storage.quotaGb=(.storage.quotaGb|tonumber)' ) \
             "${API_URL}/projects" )
     echo
@@ -66,18 +72,9 @@ function newProject() {
 
     # waiting for task to reach the end state
     id=$(echo $out | jq '.taskID' | sed 's/"//g')
-    [ "$id" == "" ] && echo "cannot find task id" >&2 && return 1
+    [ "$id" == "null" ] && echo "cannot find task id" >&2 && return 1
 
-    while [ 1 -eq 1 ]; do
-        s=$(taskPoll $id project)
-        [ $? -ne 0 ] && break
-        if [[ "$s" =~ ^(failed|succeeded)$ ]]; then
-            echo "task $s"
-            break
-        else
-            sleep 2
-        fi
-    done
+    waitTask $id project
 }
 
 function setProject() {
@@ -94,8 +91,11 @@ function setProject() {
     read ans
     [ "${ans}" == "" ] && ans="n"
     [ "${ans,,}" == "y" ] && 
-        out=$( ${CURL} -X PATCH \
+        echo -n "password for api user ($API_USER): " > /dev/tty &&
+        read -s pass &&
+        out=$( ${CURL} -X PATCH -u "${API_USER}:${pass}" \
             -H 'content-type: application/json' \
+            -H "X-API-Key: ${API_KEY}" \
             -d $(echo ${data} | jq -c -M '.storage.quotaGb=(.storage.quotaGb|tonumber)' ) \
             "${API_URL}/projects/${prj}" )
     echo
@@ -104,10 +104,16 @@ function setProject() {
 
     # waiting for task to reach the end state
     id=$(echo $out | jq '.taskID' | sed 's/"//g')
-    [ "$id" == "" ] && echo "cannot find task id" >&2 && return 1
+    [ "$id" == "null" ] && echo "cannot find task id" >&2 && return 1
 
+    waitTask $id project
+}
+
+function waitTask() {
+    id=$1
+    ns=$2
     while [ 1 -eq 1 ]; do
-        s=$(taskPoll $id project)
+        s=$(taskPoll $id $ns)
         [ $? -ne 0 ] && break
         echo "task $s" > /dev/tty
         if [[ "$s" =~ ^(failed|succeeded)$ ]]; then

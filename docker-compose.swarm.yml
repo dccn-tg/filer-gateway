@@ -14,6 +14,9 @@ services:
       proxynet:
         aliases:
           - filer-gateway
+    secrets:
+      - filer-gateway-api-server.yml
+    command: -p 8080 -v -r db:6379 -c /run/secrets/filer-gateway-api-server.yml
 
   worker:
     secrets:
@@ -25,5 +28,7 @@ networks:
     external: true
 
 secrets:
+  filer-gateway-api-server.yml:
+    external: true
   filer-gateway-worker.yml:
     external: true

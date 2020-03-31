@@ -10,10 +10,11 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 )
 
-//go:generate swagger generate server --target ../../server --name FilerGateway --spec ../../swagger.yaml --exclude-main
+//go:generate swagger generate server --target ../../server --name FilerGateway --spec ../../swagger.yaml --principal models.Principle --exclude-main
 
 func configureFlags(api *operations.FilerGatewayAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -33,6 +34,24 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	// Applies when the "X-API-Key" header is set
+	if api.APIKeyHeaderAuth == nil {
+		api.APIKeyHeaderAuth = func(token string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("api key auth (apiKeyHeader) X-API-Key from header param [X-API-Key] has not yet been implemented")
+		}
+	}
+	// Applies when the Authorization header is set with the Basic scheme
+	if api.BasicAuthAuth == nil {
+		api.BasicAuthAuth = func(user string, pass string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
+		}
+	}
+
+	// Set your custom authorizer if needed. Default one is security.Authorized()
+	// Expected interface runtime.Authorizer
+	//
+	// Example:
+	// api.APIAuthorizer = security.Authorized()
 	if api.GetProjectsIDHandler == nil {
 		api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(func(params operations.GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
@@ -48,14 +67,34 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 			return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
 		})
 	}
+	if api.GetTasksTypeIDHandler == nil {
+		api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(func(params operations.GetTasksTypeIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
+		})
+	}
+	if api.GetUsersIDHandler == nil {
+		api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(func(params operations.GetUsersIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetUsersID has not yet been implemented")
+		})
+	}
 	if api.PatchProjectsIDHandler == nil {
-		api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(func(params operations.PatchProjectsIDParams) middleware.Responder {
+		api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(func(params operations.PatchProjectsIDParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PatchProjectsID has not yet been implemented")
 		})
 	}
+	if api.PatchUsersIDHandler == nil {
+		api.PatchUsersIDHandler = operations.PatchUsersIDHandlerFunc(func(params operations.PatchUsersIDParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PatchUsersID has not yet been implemented")
+		})
+	}
 	if api.PostProjectsHandler == nil {
-		api.PostProjectsHandler = operations.PostProjectsHandlerFunc(func(params operations.PostProjectsParams) middleware.Responder {
+		api.PostProjectsHandler = operations.PostProjectsHandlerFunc(func(params operations.PostProjectsParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
+		})
+	}
+	if api.PostUsersHandler == nil {
+		api.PostUsersHandler = operations.PostUsersHandlerFunc(func(params operations.PostUsersParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostUsers has not yet been implemented")
 		})
 	}
 
