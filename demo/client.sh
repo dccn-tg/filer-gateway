@@ -63,6 +63,21 @@ function newProject() {
     echo
     echo $out | jq
     echo
+
+    # waiting for task to reach the end state
+    id=$(echo $out | jq '.taskID' | sed 's/"//g')
+    [ "$id" == "" ] && echo "cannot find task id" >&2 && return 1
+
+    while [ 1 -eq 1 ]; do
+        s=$(taskPoll $id project)
+        [ $? -ne 0 ] && break
+        if [[ "$s" =~ ^(failed|succeeded)$ ]]; then
+            echo "task $s"
+            break
+        else
+            sleep 2
+        fi
+    done
 }
 
 function setProject() {
@@ -86,6 +101,40 @@ function setProject() {
     echo
     echo $out | jq
     echo
+
+    # waiting for task to reach the end state
+    id=$(echo $out | jq '.taskID' | sed 's/"//g')
+    [ "$id" == "" ] && echo "cannot find task id" >&2 && return 1
+
+    while [ 1 -eq 1 ]; do
+        s=$(taskPoll $id project)
+        [ $? -ne 0 ] && break
+        echo "task $s" > /dev/tty
+        if [[ "$s" =~ ^(failed|succeeded)$ ]]; then
+            break
+        else
+            sleep 2
+        fi
+    done
+}
+
+function taskPoll() {
+
+    id=$1
+    ns=$2
+
+    out=$( ${CURL} -X GET "${API_URL}/tasks/${ns}/${id}" )
+    [ $? -ne 0 ] && echo "fail to poll task $id" >&2 && return 1
+
+    status=$( echo $out | jq '.taskStatus.status' | sed 's/"//g' )
+
+    if [[ "$status" =~ ^(waiting|processing|failed|succeeded|canceled)$ ]]; then
+        echo $status
+        return 0
+    else
+        echo $out >&2
+        return 1
+    fi
 }
 
 ## Main program
