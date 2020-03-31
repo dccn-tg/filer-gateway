@@ -28,7 +28,7 @@ var (
 func init() {
 	//optsConfig = flag.String("c", "config.yml", "set the `path` of the configuration file")
 	optsVerbose = flag.Bool("v", false, "print debug messages")
-	nworkers = flag.Int("p", 4, "`number` of concurrent workers per queue")
+	nworkers = flag.Int("p", 4, "`number` of global concurrent workers")
 	redisAddr = flag.String("r", "redis:6379", "redis service `address`")
 	configFile = flag.String("c", os.Getenv("FILER_GATEWAY_WORKER_CONFIG"), "configurateion file `path`")
 
@@ -78,11 +78,11 @@ func main() {
 				},
 			},
 		},
-	}, bokchoy.WithMaxRetries(3), bokchoy.WithRetryIntervals([]time.Duration{
+	}, bokchoy.WithMaxRetries(0), bokchoy.WithRetryIntervals([]time.Duration{
 		30 * time.Second,
 		60 * time.Second,
 		120 * time.Second,
-	}), bokchoy.WithLogger(logger), bokchoy.WithTTL(7*24*time.Hour))
+	}), bokchoy.WithLogger(logger), bokchoy.WithTTL(7*24*time.Hour), bokchoy.WithConcurrency(*nworkers))
 
 	if err != nil {
 		log.Errorf("cannot connect to db: %s", err)
@@ -95,13 +95,11 @@ func main() {
 	// add handler to handle tasks in the queue of `hapi.QueueSetProject`
 	bok.Queue(hapi.QueueSetProject).Handle(
 		&hworker.SetProjectResourceHandler{ConfigFile: *configFile},
-		bokchoy.WithConcurrency(*nworkers),
 	)
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetUser`
 	bok.Queue(hapi.QueueSetUser).Handle(
 		&hworker.SetUserResourceHandler{ConfigFile: *configFile},
-		bokchoy.WithConcurrency(*nworkers),
 	)
 
 	c := make(chan os.Signal, 1)
