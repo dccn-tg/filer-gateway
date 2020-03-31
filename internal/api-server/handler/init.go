@@ -132,7 +132,62 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 //
 func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams) middleware.Responder {
 	return func(params operations.PostProjectsParams) middleware.Responder {
-		return operations.NewPostProjectsInternalServerError().WithPayload(&responseNotImplemented)
+		// construct task data from request data
+		t := task.SetProjectResource{
+			ProjectID: string(params.ProjectProvisionData.ProjectID),
+			Storage: task.Storage{
+				System:  *params.ProjectProvisionData.Storage.System,
+				QuotaGb: *params.ProjectProvisionData.Storage.QuotaGb,
+			},
+			Members: make([]task.Member, 0),
+		}
+
+		for _, m := range params.ProjectProvisionData.Members {
+
+			switch *m.Role {
+			case acl.Manager.String():
+			case acl.Contributor.String():
+			case acl.Viewer.String():
+			default:
+				// only accept setting for manager,contributor and viewer roles
+				return operations.NewPostProjectsBadRequest().WithPayload(
+					&models.ResponseBody400{
+						ErrorMessage: fmt.Sprintf("invalid member role for set: %s", *m.Role),
+					},
+				)
+			}
+
+			t.Members = append(t.Members, task.Member{
+				UserID: *m.UserID,
+				Role:   *m.Role,
+			})
+		}
+
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t, bokchoy.WithTimeout(12*time.Hour))
+
+		if err != nil {
+			return operations.NewPostProjectsInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		taskStatus := task.StatusDisplay()
+
+		return operations.NewPostProjectsOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID: models.TaskID(task.ID),
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
+			},
+		)
 	}
 }
 
