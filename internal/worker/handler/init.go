@@ -81,7 +81,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	if _, err := os.Stat(ppath); os.IsNotExist(err) {
 		// call filer API to create project volume and/or namespace
 		if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+			return fmt.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
 		}
 		log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
 	} else {
@@ -98,7 +98,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	if data.Storage.QuotaGb != quota {
 		// call filer API to set the new quota
 		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to set space quota for project %s: %s", data.ProjectID, err)
+			return fmt.Errorf("fail to set space quota for project %s: %s", data.ProjectID, err)
 		}
 		log.Debugf("project storage quota set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
 	} else {
