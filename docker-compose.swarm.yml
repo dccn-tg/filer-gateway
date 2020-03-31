@@ -15,6 +15,15 @@ services:
         aliases:
           - filer-gateway
 
+  worker:
+    secrets:
+      - filer-gateway-worker.yml
+    command: -v -r db:6379 -c /run/secrets/filer-gateway-worker.yml
+
 networks:
   proxynet:
+    external: true
+
+secrets:
+  filer-gateway-worker.yml:
     external: true

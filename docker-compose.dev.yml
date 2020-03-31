@@ -3,3 +3,8 @@ services:
   api-server:
     ports:
       - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
+
+  worker:
+    volumes:
+      - ${FILER_GATEWAY_WORKER_CONFIG:-config.yml}:/run/secrets/filer-gateway-worker.yml:ro
+    command: -v -r db:6379 -c /run/secrets/filer-gateway-worker.yml
