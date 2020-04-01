@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
@@ -73,6 +75,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	// setting project resource
 	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
 	if err != nil {
+		log.Errorf("cannot load filer api: %s", err)
 		return err
 	}
 
@@ -81,7 +84,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	if _, err := os.Stat(ppath); os.IsNotExist(err) {
 		// call filer API to create project volume and/or namespace
 		if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			return fmt.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+			log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+			return err
 		}
 		log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
 	} else {
@@ -89,20 +93,23 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	// 2. update project quota
-	_, quota, _, err := hapi.GetStorageQuota(ppath)
+	//    NOTE: get quota from the api instead of the `df` on the file system, given that the
+	//          `df` of the file system is always smaller than the actual quota set on the filer.
+	quota, err := api.GetProjectQuotaInBytes(data.ProjectID)
 	if err != nil {
 		log.Errorf("%s", err.Error())
 		return err
 	}
 
-	if data.Storage.QuotaGb != quota {
+	if data.Storage.QuotaGb<<30 != quota {
 		// call filer API to set the new quota
 		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			return fmt.Errorf("fail to set space quota for project %s: %s", data.ProjectID, err)
+			log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+			return err
 		}
-		log.Debugf("project storage quota set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+		log.Debugf("quota of project %s set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
 	} else {
-		log.Warnf("skip setting project space quota as the quota is already in right size: project %s quota %d", data.ProjectID, quota)
+		log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
 	}
 
 	// 3. set/delete project roles
@@ -139,7 +146,9 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 
 		if ec, err := runner.SetRoles(); ec != 0 || err != nil {
-			return fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
+			err = fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
+			log.Errorf("%s", err)
+			return err
 		}
 	}
 
@@ -161,12 +170,11 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 
 		if ec, err := runner.RemoveRoles(); ec != 0 || err != nil {
-			return fmt.Errorf("fail removing roles (ec=%d): %s", ec, err)
+			err = fmt.Errorf("fail removing roles (ec=%d): %s", ec, err)
+			log.Errorf("%s", err)
+			return err
 		}
 	}
-
-	// Put payload data as result.
-	//r.Task.Result = &data
 
 	return nil
 }
@@ -179,5 +187,93 @@ type SetUserResourceHandler struct {
 
 // Handle performs user resource update based on the request payload.
 func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
+
+	res, err := json.Marshal(r.Task.Payload)
+	if err != nil {
+		log.Errorf("Marshal error: %s", err)
+		return err
+	}
+
+	var data task.SetUserResource
+
+	err = json.Unmarshal(res, &data)
+	if err != nil {
+		log.Errorf("Unmarshal error: %s", err)
+		return err
+	}
+
+	log.Debugf("payload data: %+v", data)
+
+	// setting project resource
+	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+	if err != nil {
+		log.Errorf("cannot load filer api: %s", err)
+		return err
+	}
+
+	// check if user exists on the system.
+	u, err := user.Lookup(data.UserID)
+	if err != nil {
+		log.Errorf("cannot find user %s: %s", data.UserID, err)
+		return err
+	}
+
+	// get user's primary group.
+	g, err := user.LookupGroupId(u.Gid)
+	if err != nil {
+		log.Errorf("cannot get user's primary group id %s: %s", u.Gid, err)
+		return err
+	}
+
+	// check if user's home dir is under the group namespace
+	gdir := filepath.Join("/home", g.Name)
+
+	if !strings.Contains(u.HomeDir, gdir) {
+		err = fmt.Errorf("user home dir %s not in group dir %s", u.HomeDir, gdir)
+		log.Errorf("%s", err)
+		return err
+	}
+
+	// create home if user's home dir doesn't exist
+	if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+		// call filer API to create qtree for user's home
+		if err := api.CreateHome(u.Name, g.Name, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to create home space for user %s: %s", u.Name, err)
+			return err
+		}
+		log.Debugf("home space created on %s at path %s", data.Storage.System, u.HomeDir)
+
+		// change owner and group for the homedir
+		nuid, _ := strconv.Atoi(u.Uid)
+		ngid, _ := strconv.Atoi(u.Gid)
+		if err := os.Chown(u.HomeDir, nuid, ngid); err != nil {
+			log.Errorf("fail to set owner of home space %s: %s", u.HomeDir, err)
+			return err
+		}
+
+	} else {
+		log.Warnf("skip home space creation as path already exists: %s", u.HomeDir)
+	}
+
+	// update storage quota
+	//    NOTE: get quota from the api instead of the `df` on the file system, given that the
+	//          `df` of the file system is always smaller than the actual quota set on the filer.
+	quota, err := api.GetHomeQuotaInBytes(u.Name, g.Name)
+	if err != nil {
+		log.Errorf("fail to get current home space quota: %s", err)
+		return err
+	}
+
+	if data.Storage.QuotaGb<<30 != quota {
+		// call filer API to set the new quota
+		if err := api.SetHomeQuota(u.Name, g.Name, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
+			return err
+		}
+		log.Debugf("quota of home space %s set from %d Gb to %d Gb", u.HomeDir, quota>>30, data.Storage.QuotaGb)
+	} else {
+		log.Warnf("quota of home space %s is already in right size, quota %d", u.HomeDir, quota>>30)
+	}
+
 	return nil
 }

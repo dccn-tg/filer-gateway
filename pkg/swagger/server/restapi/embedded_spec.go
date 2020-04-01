@@ -351,7 +351,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyUserResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -453,7 +453,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyUserResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -1145,7 +1145,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyUserResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {
@@ -1247,7 +1247,7 @@ func init() {
           "200": {
             "description": "success",
             "schema": {
-              "$ref": "#/definitions/responseBodyUserResource"
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {

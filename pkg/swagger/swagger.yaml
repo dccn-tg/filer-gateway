@@ -45,7 +45,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/responseBodyUserResource'
+            $ref: '#/definitions/responseBodyTaskResource'
         400:
           description: bad request
           schema:
@@ -87,7 +87,7 @@ paths:
         200:
           description: success
           schema:
-            $ref: '#/definitions/responseBodyUserResource'
+            $ref: '#/definitions/responseBodyTaskResource'
         400:
           description: bad request
           schema:

@@ -30,5 +30,8 @@ doc: swagger
 test_worker: build
 	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/Donders-Institute/filer-gateway/internal/worker/... 
 
+test_api-server: build
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/Donders-Institute/filer-gateway/internal/api-server/... 
+
 clean:
 	rm -rf bin

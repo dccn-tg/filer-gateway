@@ -25,7 +25,7 @@ type PatchUsersIDOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBodyUserResource `json:"body,omitempty"`
+	Payload *models.ResponseBodyTaskResource `json:"body,omitempty"`
 }
 
 // NewPatchUsersIDOK creates PatchUsersIDOK with default headers values
@@ -35,13 +35,13 @@ func NewPatchUsersIDOK() *PatchUsersIDOK {
 }
 
 // WithPayload adds the payload to the patch users Id o k response
-func (o *PatchUsersIDOK) WithPayload(payload *models.ResponseBodyUserResource) *PatchUsersIDOK {
+func (o *PatchUsersIDOK) WithPayload(payload *models.ResponseBodyTaskResource) *PatchUsersIDOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the patch users Id o k response
-func (o *PatchUsersIDOK) SetPayload(payload *models.ResponseBodyUserResource) {
+func (o *PatchUsersIDOK) SetPayload(payload *models.ResponseBodyTaskResource) {
 	o.Payload = payload
 }
 

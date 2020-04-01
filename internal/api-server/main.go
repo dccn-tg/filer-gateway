@@ -145,12 +145,16 @@ func main() {
 
 	// associate handler functions with implementations
 	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
-	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
-	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
+
 	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource())
 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handler.GetProjectMembers())
 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handler.GetProjectStorage())
+	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
+	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
+
 	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource())
+	api.PostUsersHandler = operations.PostUsersHandlerFunc(handler.CreateUserResource(ctx, bok))
+	api.PatchUsersIDHandler = operations.PatchUsersIDHandlerFunc(handler.UpdateUserResource(ctx, bok))
 
 	// configure API
 	server.ConfigureAPI()

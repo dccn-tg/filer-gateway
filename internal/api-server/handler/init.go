@@ -128,8 +128,13 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 	}
 }
 
-// CreateProject implements the project creation on filer systems.
+// CreateProject handles the project creation on filer by formulating it into an.
+// asynchronous task.
 //
+// task configuration:
+// - canceled if running more than 12 hours.
+// - no retry.
+// - result is kept for 7 days.
 func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
 	return func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
 		// construct task data from request data
@@ -165,7 +170,10 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 
 		// publish task to the queue, and set timeout to 12 hours
 		// TODO: the timeout should be optimized!!
-		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t, bokchoy.WithTimeout(12*time.Hour))
+		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t,
+			bokchoy.WithTimeout(12*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
 
 		if err != nil {
 			return operations.NewPostProjectsInternalServerError().WithPayload(
@@ -199,6 +207,10 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 //
 // The corresponding project directory on the filer should exist in advance.
 //
+// task configuration:
+// - canceled if running more than 12 hours.
+// - no retry.
+// - result is kept for 7 days.
 func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchProjectsIDParams, principle *models.Principle) middleware.Responder {
 	// Not implemented
 	return func(params operations.PatchProjectsIDParams, principle *models.Principle) middleware.Responder {
@@ -236,7 +248,10 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 
 		// publish task to the queue, and set timeout to 12 hours
 		// TODO: the timeout should be optimized!!
-		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t, bokchoy.WithTimeout(12*time.Hour))
+		task, err := bok.Queue(QueueSetProject).Publish(ctx, &t,
+			bokchoy.WithTimeout(12*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
 
 		if err != nil {
 			return operations.NewPatchProjectsIDInternalServerError().WithPayload(
@@ -250,6 +265,103 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 		taskStatus := task.StatusDisplay()
 
 		return operations.NewPatchProjectsIDOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID: models.TaskID(task.ID),
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
+			},
+		)
+	}
+}
+
+// CreateUserResource handles the request for creating user home space on the filer by
+// formulating the request into a asynchronous task.
+//
+// task configuration:
+// - canceled if running more than 1 hour.
+// - no retry.
+// - result is kept for 7 days.
+func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostUsersParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.PostUsersParams, principle *models.Principle) middleware.Responder {
+		// construct task data from request data
+		t := task.SetUserResource{
+			UserID: string(params.UserProvisionData.UserID),
+			Storage: task.Storage{
+				System:  *params.UserProvisionData.Storage.System,
+				QuotaGb: *params.UserProvisionData.Storage.QuotaGb,
+			},
+		}
+
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueSetUser).Publish(ctx, &t,
+			bokchoy.WithTimeout(1*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
+
+		if err != nil {
+			return operations.NewPostUsersInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		taskStatus := task.StatusDisplay()
+
+		return operations.NewPostUsersOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID: models.TaskID(task.ID),
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
+			},
+		)
+	}
+}
+
+// UpdateUserResource handles the request for updating user home space quota on the filer by
+// formulating the request into a asynchronous task.
+//
+// task configuration:
+// - canceled if running more than 1 hour.
+// - no retry.
+// - result is kept for 7 days.
+func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchUsersIDParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.PatchUsersIDParams, principle *models.Principle) middleware.Responder {
+		// construct task data from request data
+		t := task.SetUserResource{
+			UserID: params.ID,
+			Storage: task.Storage{
+				System:  *params.UserUpdateData.Storage.System,
+				QuotaGb: *params.UserUpdateData.Storage.QuotaGb,
+			},
+		}
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueSetUser).Publish(ctx, &t,
+			bokchoy.WithTimeout(1*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
+
+		if err != nil {
+			return operations.NewPostUsersInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		taskStatus := task.StatusDisplay()
+
+		return operations.NewPostUsersOK().WithPayload(
 			&models.ResponseBodyTaskResource{
 				TaskID: models.TaskID(task.ID),
 				TaskStatus: &models.TaskStatus{

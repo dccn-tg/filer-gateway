@@ -78,11 +78,7 @@ func main() {
 				},
 			},
 		},
-	}, bokchoy.WithMaxRetries(0), bokchoy.WithRetryIntervals([]time.Duration{
-		30 * time.Second,
-		60 * time.Second,
-		120 * time.Second,
-	}), bokchoy.WithLogger(logger), bokchoy.WithTTL(7*24*time.Hour), bokchoy.WithConcurrency(*nworkers))
+	}, bokchoy.WithLogger(logger), bokchoy.WithTTL(7*24*time.Hour), bokchoy.WithConcurrency(*nworkers))
 
 	if err != nil {
 		log.Errorf("cannot connect to db: %s", err)

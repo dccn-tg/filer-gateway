@@ -1,15 +1,14 @@
 #!/bin/bash
 
-source input2json.sh
+source common.sh
 
 #trap 'echo "interrupted"' SIGINT
 
 # curl command prefix
 CURL="curl -k -#"
 
-# filer gateway endpoint
-API_URL="http://localhost:8080/v1"
-
+# filer gateway connection detail
+[ -z $API_URL ] && API_URL="http://localhost:8080/v1"
 [ -z $API_KEY ] && API_KEY="demo"
 [ -z $API_USER ] && API_USER="demo"
 
@@ -58,7 +57,7 @@ function newProject() {
     echo -n "create project [y/N]:"
     read ans
     [ "${ans}" == "" ] && ans="n"
-    [ "${ans,,}" == "y" ] &&
+    [ "${ans,,}" == "n" ] && return 0 ||
         echo -n "password for api user ($API_USER): " > /dev/tty &&
         read -s pass &&
         out=$( ${CURL} -X POST -u "${API_USER}:${pass}" \
@@ -90,7 +89,7 @@ function setProject() {
     echo -n "update project [y/N]:"
     read ans
     [ "${ans}" == "" ] && ans="n"
-    [ "${ans,,}" == "y" ] && 
+    [ "${ans,,}" == "n" ] && return 0 ||
         echo -n "password for api user ($API_USER): " > /dev/tty &&
         read -s pass &&
         out=$( ${CURL} -X PATCH -u "${API_USER}:${pass}" \
@@ -107,6 +106,12 @@ function setProject() {
     [ "$id" == "null" ] && echo "cannot find task id" >&2 && return 1
 
     waitTask $id project
+}
+
+function getProject() {
+    echo -n "projectID: " > /dev/tty
+    read ans && [ "$ans" == "" ] && return 1
+    $CURL -X GET "${API_URL}/projects/$ans" | jq 
 }
 
 function waitTask() {
@@ -150,6 +155,7 @@ ops=$1
 
 case $ops in
 get)
+    getProject
     ;;
 new)
     newProject

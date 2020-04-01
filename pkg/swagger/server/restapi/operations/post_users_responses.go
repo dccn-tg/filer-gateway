@@ -25,7 +25,7 @@ type PostUsersOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBodyUserResource `json:"body,omitempty"`
+	Payload *models.ResponseBodyTaskResource `json:"body,omitempty"`
 }
 
 // NewPostUsersOK creates PostUsersOK with default headers values
@@ -35,13 +35,13 @@ func NewPostUsersOK() *PostUsersOK {
 }
 
 // WithPayload adds the payload to the post users o k response
-func (o *PostUsersOK) WithPayload(payload *models.ResponseBodyUserResource) *PostUsersOK {
+func (o *PostUsersOK) WithPayload(payload *models.ResponseBodyTaskResource) *PostUsersOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the post users o k response
-func (o *PostUsersOK) SetPayload(payload *models.ResponseBodyUserResource) {
+func (o *PostUsersOK) SetPayload(payload *models.ResponseBodyTaskResource) {
 	o.Payload = payload
 }
 
