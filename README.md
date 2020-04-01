@@ -62,16 +62,18 @@ Firstly start a Redis server.
 Start the API server as
 
 ```bash
-$ ./bin/filer-gateway-api [-v] [-p 8080] [-r localhost:6379]
+$ ./bin/filer-gateway-api [-v] [-p 8080] [-r localhost:6379] [-c api-server.yml]
 ```
 
-The HTTP service runs on port `8080`.
+By default, the HTTP service runs on port `8080`. Configurations for API authentication is specified by a configuration YAML file.  An example can be found in [api-server.yml](config/api-server.yml).
 
 Start a worker as
 
 ```bash
-$ ./bin/filer-gateway-worker [-v] [-r localhost:6379]
+$ ./bin/filer-gateway-worker [-v] [-r localhost:6379] [-c worker.yml]
 ```
+
+Details of connecting worker to filer API server are specified in a configuration YAML file. An example can be found in [worker.yml](config/worker.yml).
 
 ## API document
 
