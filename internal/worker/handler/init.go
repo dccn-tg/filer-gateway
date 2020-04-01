@@ -33,6 +33,7 @@ func getFilerAPI(system, configFile string) (filer.Filer, error) {
 		fConfig = cfg.NetApp
 	case "freenas":
 		fConfig = cfg.FreeNas
+	case "none":
 	default:
 		return nil, fmt.Errorf("unknown filer system: %s", system)
 	}
@@ -72,47 +73,54 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	log.Debugf("payload data: %+v", data)
 
-	// setting project resource
-	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
-	if err != nil {
-		log.Errorf("cannot load filer api: %s", err)
-		return err
-	}
-
-	// 1. create project namespace
+	// filesystem path of the project storage space
 	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
-	if _, err := os.Stat(ppath); os.IsNotExist(err) && data.Storage.QuotaGb > 0 {
-		// call filer API to create project volume and/or namespace
-		if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+
+	// only performs storage quota update when
+	// - requested quota is larger than 0
+	// - the storage system is not "none"
+	if data.Storage.QuotaGb > 0 && data.Storage.System != "none" {
+		// setting project resource
+		api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+		if err != nil {
+			log.Errorf("cannot load filer api: %s", err)
 			return err
 		}
-		log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
-	} else {
-		log.Warnf("skip project space creation as project path already exists: %s", ppath)
-	}
 
-	// 2. update project quota
-	//    NOTE: get quota from the api instead of the `df` on the file system, given that the
-	//          `df` of the file system is always smaller than the actual quota set on the filer.
-	quota, err := api.GetProjectQuotaInBytes(data.ProjectID)
-	if err != nil {
-		log.Errorf("%s", err.Error())
-		return err
-	}
+		// 1. create project namespace
+		if _, err := os.Stat(ppath); os.IsNotExist(err) {
+			// call filer API to create project volume and/or namespace
+			if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+				log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+				return err
+			}
+			log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
+		} else {
+			log.Warnf("skip project space creation as project path already exists: %s", ppath)
+		}
 
-	if data.Storage.QuotaGb<<30 != quota && data.Storage.QuotaGb > 0 {
-		// call filer API to set the new quota
-		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+		// 2. update project quota
+		//    NOTE: get quota from the api instead of the `df` on the file system, given that the
+		//          `df` of the file system is always smaller than the actual quota set on the filer.
+		quota, err := api.GetProjectQuotaInBytes(data.ProjectID)
+		if err != nil {
+			log.Errorf("%s", err.Error())
 			return err
 		}
-		log.Debugf("quota of project %s set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
-	} else {
-		log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
+
+		if data.Storage.QuotaGb<<30 != quota {
+			// call filer API to set the new quota
+			if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+				log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+				return err
+			}
+			log.Debugf("quota of project %s set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+		} else {
+			log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
+		}
 	}
 
-	// 3. set/delete project roles
+	// ACL setting on the filesystem path of the project storage.
 	managers := make([]string, 0)
 	contributors := make([]string, 0)
 	viewers := make([]string, 0)
@@ -131,6 +139,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
+	// set user acl
 	if len(managers)+len(contributors)+len(viewers) > 0 {
 		runner := acl.Runner{
 			Managers:     strings.Join(managers, ","),
@@ -152,7 +161,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// 4. delete user
+	// delete user acl
 	if len(udelete) > 0 {
 		udelstr := strings.Join(udelete, ",")
 		runner := acl.Runner{
@@ -204,13 +213,6 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	log.Debugf("payload data: %+v", data)
 
-	// setting project resource
-	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
-	if err != nil {
-		log.Errorf("cannot load filer api: %s", err)
-		return err
-	}
-
 	// check if user exists on the system.
 	u, err := user.Lookup(data.UserID)
 	if err != nil {
@@ -234,10 +236,17 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
-	// print a warning and return as successful task if the requested quota is less and equal to 0.
-	if data.Storage.QuotaGb <= 0 {
+	// skip quota setup for user's home space.
+	if data.Storage.QuotaGb <= 0 || data.Storage.System == "none" {
 		log.Warnf("skip setting quota to %d Gb for home space %d", data.Storage.QuotaGb, u.HomeDir)
 		return nil
+	}
+
+	// setting project resource
+	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+	if err != nil {
+		log.Errorf("cannot load filer api: %s", err)
+		return err
 	}
 
 	// create home if user's home dir doesn't exist

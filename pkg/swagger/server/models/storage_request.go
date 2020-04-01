@@ -22,9 +22,9 @@ type StorageRequest struct {
 	// Required: true
 	QuotaGb *int64 `json:"quotaGb"`
 
-	// the targeting filer on which the storage resource is allocated.
+	// the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
 	// Required: true
-	// Enum: [netapp freenas ceph]
+	// Enum: [netapp freenas ceph none]
 	System *string `json:"system"`
 }
 
@@ -59,7 +59,7 @@ var storageRequestTypeSystemPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["netapp","freenas","ceph"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["netapp","freenas","ceph","none"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -77,6 +77,9 @@ const (
 
 	// StorageRequestSystemCeph captures enum value "ceph"
 	StorageRequestSystemCeph string = "ceph"
+
+	// StorageRequestSystemNone captures enum value "none"
+	StorageRequestSystemNone string = "none"
 )
 
 // prop value enum

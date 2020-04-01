@@ -502,9 +502,9 @@ definitions:
     description: JSON object for storage resource data.
     properties:
       system:
-        description: the targeting filer on which the storage resource is allocated.
+        description: the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
         type: string
-        enum: [netapp, freenas, ceph]
+        enum: [netapp, freenas, ceph, none]
       quotaGb:
         description: storage quota in GiB.
         type: integer
@@ -519,7 +519,7 @@ definitions:
         description: userid of the member.
         type: string
       role:
-        description: role of the member.
+        description: role of the member. Use the value "none" in request data to remove user from the project membership.
         type: string
         enum: [manager, contributor, viewer, traverse, none]
     required:

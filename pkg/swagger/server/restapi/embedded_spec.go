@@ -398,7 +398,7 @@ func init() {
       ],
       "properties": {
         "role": {
-          "description": "role of the member.",
+          "description": "role of the member. Use the value \"none\" in request data to remove user from the project membership.",
           "type": "string",
           "enum": [
             "manager",
@@ -633,12 +633,13 @@ func init() {
           "type": "integer"
         },
         "system": {
-          "description": "the targeting filer on which the storage resource is allocated.",
+          "description": "the targeting filer system on which the storage resource is allocated. Use the value \"none\" to skip the storage resource setting.",
           "type": "string",
           "enum": [
             "netapp",
             "freenas",
-            "ceph"
+            "ceph",
+            "none"
           ]
         }
       }
@@ -1100,7 +1101,7 @@ func init() {
       ],
       "properties": {
         "role": {
-          "description": "role of the member.",
+          "description": "role of the member. Use the value \"none\" in request data to remove user from the project membership.",
           "type": "string",
           "enum": [
             "manager",
@@ -1335,12 +1336,13 @@ func init() {
           "type": "integer"
         },
         "system": {
-          "description": "the targeting filer on which the storage resource is allocated.",
+          "description": "the targeting filer system on which the storage resource is allocated. Use the value \"none\" to skip the storage resource setting.",
           "type": "string",
           "enum": [
             "netapp",
             "freenas",
-            "ceph"
+            "ceph",
+            "none"
           ]
         }
       }

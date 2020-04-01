@@ -18,7 +18,7 @@ import (
 // swagger:model member
 type Member struct {
 
-	// role of the member.
+	// role of the member. Use the value "none" in request data to remove user from the project membership.
 	// Required: true
 	// Enum: [manager contributor viewer traverse none]
 	Role *string `json:"role"`
