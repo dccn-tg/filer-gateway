@@ -237,8 +237,8 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	// create home if user's home dir doesn't exist
 	if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
 		// call filer API to create qtree for user's home
-		if err := api.CreateHome(u.Name, g.Name, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to create home space for user %s: %s", u.Name, err)
+		if err := api.CreateHome(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to create home space for user %s: %s", u.Username, err)
 			return err
 		}
 		log.Debugf("home space created on %s at path %s", data.Storage.System, u.HomeDir)
@@ -258,7 +258,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	// update storage quota
 	//    NOTE: get quota from the api instead of the `df` on the file system, given that the
 	//          `df` of the file system is always smaller than the actual quota set on the filer.
-	quota, err := api.GetHomeQuotaInBytes(u.Name, g.Name)
+	quota, err := api.GetHomeQuotaInBytes(u.Username, g.Name)
 	if err != nil {
 		log.Errorf("fail to get current home space quota: %s", err)
 		return err
@@ -266,7 +266,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	if data.Storage.QuotaGb<<30 != quota {
 		// call filer API to set the new quota
-		if err := api.SetHomeQuota(u.Name, g.Name, int(data.Storage.QuotaGb)); err != nil {
+		if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
 			log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
 			return err
 		}
