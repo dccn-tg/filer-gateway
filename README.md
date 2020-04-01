@@ -1,4 +1,4 @@
-# Gateway service for interfacing the DCCN filers
+# API gateway for DCCN filers
 
 ## Design and components
 
