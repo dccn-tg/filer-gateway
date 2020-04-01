@@ -86,3 +86,7 @@ $ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 
 The additional compose file `docker-compose.dev.yml` makes the API server exposed to the host network.
+
+## Demo scripts for client implementation
+
+A set of demo scripts is provided in the [demo](demo) folder as a reference for client implementation.  Check the [project.sh](demo/project.sh) for API calls concerning project storage; and [user.sh](demo/user.sh) for the API calls related to user's home storage.

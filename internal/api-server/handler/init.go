@@ -502,94 +502,94 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 	}
 }
 
-// GetProjectStorage implements retrival of project storage information.
-func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-	// implementation
-	return func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-		pid := params.ID
-		path, e := pid2path(pid)
-		if e != nil {
-			return operations.NewGetProjectsIDStorageNotFound().WithPayload(e.Error())
-		}
+// // GetProjectStorage implements retrival of project storage information.
+// func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) middleware.Responder {
+// 	// implementation
+// 	return func(params operations.GetProjectsIDStorageParams) middleware.Responder {
+// 		pid := params.ID
+// 		path, e := pid2path(pid)
+// 		if e != nil {
+// 			return operations.NewGetProjectsIDStorageNotFound().WithPayload(e.Error())
+// 		}
 
-		log.Debugf("get storage quota on %s\n", path)
+// 		log.Debugf("get storage quota on %s\n", path)
 
-		system, quota, usage, err := GetStorageQuota(path)
+// 		system, quota, usage, err := GetStorageQuota(path)
 
-		// Return response error based on error code.
-		if err != nil {
-			switch err.(*ResponseError).code {
-			case 404:
-				return operations.NewGetProjectsIDStorageNotFound().WithPayload(err.Error())
-			default:
-				return operations.NewGetProjectsIDStorageInternalServerError().WithPayload(
-					&models.ResponseBody500{
-						ErrorMessage: err.Error(),
-						ExitCode:     QuotaGettingError,
-					},
-				)
-			}
-		}
+// 		// Return response error based on error code.
+// 		if err != nil {
+// 			switch err.(*ResponseError).code {
+// 			case 404:
+// 				return operations.NewGetProjectsIDStorageNotFound().WithPayload(err.Error())
+// 			default:
+// 				return operations.NewGetProjectsIDStorageInternalServerError().WithPayload(
+// 					&models.ResponseBody500{
+// 						ErrorMessage: err.Error(),
+// 						ExitCode:     QuotaGettingError,
+// 					},
+// 				)
+// 			}
+// 		}
 
-		// return 200 success with storage quota information.
-		return operations.NewGetProjectsIDStorageOK().WithPayload(
-			&models.ResponseBodyProjectStorage{
-				ProjectID: models.ProjectID(pid),
-				Storage: &models.StorageResponse{
-					QuotaGb: &quota,
-					System:  &system,
-					UsageGb: &usage,
-				},
-			},
-		)
-	}
-}
+// 		// return 200 success with storage quota information.
+// 		return operations.NewGetProjectsIDStorageOK().WithPayload(
+// 			&models.ResponseBodyProjectStorage{
+// 				ProjectID: models.ProjectID(pid),
+// 				Storage: &models.StorageResponse{
+// 					QuotaGb: &quota,
+// 					System:  &system,
+// 					UsageGb: &usage,
+// 				},
+// 			},
+// 		)
+// 	}
+// }
 
-// GetProjectMembers implements retrival of project members and their roles from the project directory
-// on the filer.
-//
-// The corresponding project directory on the filer should exist in advance.
-//
-func GetProjectMembers() func(params operations.GetProjectsIDMembersParams) middleware.Responder {
+// // GetProjectMembers implements retrival of project members and their roles from the project directory
+// // on the filer.
+// //
+// // The corresponding project directory on the filer should exist in advance.
+// //
+// func GetProjectMembers() func(params operations.GetProjectsIDMembersParams) middleware.Responder {
 
-	// implementation
-	return func(params operations.GetProjectsIDMembersParams) middleware.Responder {
+// 	// implementation
+// 	return func(params operations.GetProjectsIDMembersParams) middleware.Responder {
 
-		pid := params.ID
+// 		pid := params.ID
 
-		path, e := pid2path(pid)
-		if e != nil {
-			return operations.NewGetProjectsIDMembersNotFound().WithPayload(e.Error())
-		}
+// 		path, e := pid2path(pid)
+// 		if e != nil {
+// 			return operations.NewGetProjectsIDMembersNotFound().WithPayload(e.Error())
+// 		}
 
-		log.Debugf("get project memebers on %s\n", path)
+// 		log.Debugf("get project memebers on %s\n", path)
 
-		members, err := getMemberRoles(path)
+// 		members, err := getMemberRoles(path)
 
-		// Return response error based on error code.
-		if err != nil {
-			switch err.(*ResponseError).code {
-			case 404:
-				return operations.NewGetProjectsIDMembersNotFound().WithPayload(err.Error())
-			default:
-				return operations.NewGetProjectsIDMembersInternalServerError().WithPayload(
-					&models.ResponseBody500{
-						ErrorMessage: err.Error(),
-						ExitCode:     RoleGettingError,
-					},
-				)
-			}
-		}
+// 		// Return response error based on error code.
+// 		if err != nil {
+// 			switch err.(*ResponseError).code {
+// 			case 404:
+// 				return operations.NewGetProjectsIDMembersNotFound().WithPayload(err.Error())
+// 			default:
+// 				return operations.NewGetProjectsIDMembersInternalServerError().WithPayload(
+// 					&models.ResponseBody500{
+// 						ErrorMessage: err.Error(),
+// 						ExitCode:     RoleGettingError,
+// 					},
+// 				)
+// 			}
+// 		}
 
-		// Return 200 and list of members as response body.
-		return operations.NewGetProjectsIDMembersOK().WithPayload(
-			&models.ResponseBodyProjectMembers{
-				ProjectID: models.ProjectID(pid),
-				Members:   models.Members(members),
-			},
-		)
-	}
-}
+// 		// Return 200 and list of members as response body.
+// 		return operations.NewGetProjectsIDMembersOK().WithPayload(
+// 			&models.ResponseBodyProjectMembers{
+// 				ProjectID: models.ProjectID(pid),
+// 				Members:   models.Members(members),
+// 			},
+// 		)
+// 	}
+// }
 
 // ResponseError is an internal error type for the API handler function to
 // determine which response error should be returned to the API client.

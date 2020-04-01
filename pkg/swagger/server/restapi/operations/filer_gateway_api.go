@@ -43,12 +43,6 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetProjectsIDHandler: GetProjectsIDHandlerFunc(func(params GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
 		}),
-		GetProjectsIDMembersHandler: GetProjectsIDMembersHandlerFunc(func(params GetProjectsIDMembersParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetProjectsIDMembers has not yet been implemented")
-		}),
-		GetProjectsIDStorageHandler: GetProjectsIDStorageHandlerFunc(func(params GetProjectsIDStorageParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
-		}),
 		GetTasksTypeIDHandler: GetTasksTypeIDHandlerFunc(func(params GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
 		}),
@@ -121,10 +115,6 @@ type FilerGatewayAPI struct {
 
 	// GetProjectsIDHandler sets the operation handler for the get projects ID operation
 	GetProjectsIDHandler GetProjectsIDHandler
-	// GetProjectsIDMembersHandler sets the operation handler for the get projects ID members operation
-	GetProjectsIDMembersHandler GetProjectsIDMembersHandler
-	// GetProjectsIDStorageHandler sets the operation handler for the get projects ID storage operation
-	GetProjectsIDStorageHandler GetProjectsIDStorageHandler
 	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
 	GetTasksTypeIDHandler GetTasksTypeIDHandler
 	// GetUsersIDHandler sets the operation handler for the get users ID operation
@@ -213,14 +203,6 @@ func (o *FilerGatewayAPI) Validate() error {
 
 	if o.GetProjectsIDHandler == nil {
 		unregistered = append(unregistered, "Operations.GetProjectsIDHandler")
-	}
-
-	if o.GetProjectsIDMembersHandler == nil {
-		unregistered = append(unregistered, "Operations.GetProjectsIDMembersHandler")
-	}
-
-	if o.GetProjectsIDStorageHandler == nil {
-		unregistered = append(unregistered, "Operations.GetProjectsIDStorageHandler")
 	}
 
 	if o.GetTasksTypeIDHandler == nil {
@@ -361,16 +343,6 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/projects/{id}"] = NewGetProjectsID(o.context, o.GetProjectsIDHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/projects/{id}/members"] = NewGetProjectsIDMembers(o.context, o.GetProjectsIDMembersHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/projects/{id}/storage"] = NewGetProjectsIDStorage(o.context, o.GetProjectsIDStorageHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

@@ -253,71 +253,71 @@ paths:
           schema:
             $ref: '#/definitions/responseBody500'
 
-  /projects/{id}/members:
-    get:
-      summary: retrieves project members and their filer roles.
+  # /projects/{id}/members:
+  #   get:
+  #     summary: retrieves project members and their filer roles.
 
-      produces:
-        - application/json
+  #     produces:
+  #       - application/json
 
-      parameters:
-        - in: path
-          name: id
-          description: project identifier
-          type: string
-          required: true
+  #     parameters:
+  #       - in: path
+  #         name: id
+  #         description: project identifier
+  #         type: string
+  #         required: true
 
-      responses:
-        200:
-          description: success
-          schema:
-            $ref: '#/definitions/responseBodyProjectMembers'
-        400:
-          description: bad request
-          schema:
-            $ref: '#/definitions/responseBody400'
-        404:
-          description: project not found
-          schema:
-            type: string
-            enum: [project not found]
-        500:
-          description: failure
-          schema:
-            $ref: '#/definitions/responseBody500'
+  #     responses:
+  #       200:
+  #         description: success
+  #         schema:
+  #           $ref: '#/definitions/responseBodyProjectMembers'
+  #       400:
+  #         description: bad request
+  #         schema:
+  #           $ref: '#/definitions/responseBody400'
+  #       404:
+  #         description: project not found
+  #         schema:
+  #           type: string
+  #           enum: [project not found]
+  #       500:
+  #         description: failure
+  #         schema:
+  #           $ref: '#/definitions/responseBody500'
 
-  /projects/{id}/storage:
-    get:
-      summary: retrieves storage resource information of a project.
+  # /projects/{id}/storage:
+  #   get:
+  #     summary: retrieves storage resource information of a project.
 
-      produces:
-        - application/json
+  #     produces:
+  #       - application/json
 
-      parameters:
-        - in: path
-          name: id
-          description: project identifier
-          type: string
-          required: true
+  #     parameters:
+  #       - in: path
+  #         name: id
+  #         description: project identifier
+  #         type: string
+  #         required: true
 
-      responses:
-        200:
-          description: success
-          schema:
-            $ref: '#/definitions/responseBodyProjectStorage'
-        400:
-          description: bad request
-          schema:
-            $ref: '#/definitions/responseBody400'
-        404:
-          description: project not found
-          schema:
-            type: string
-            enum: [project not found]
-        500:
-          description: failure
-          schema:
-            $ref: '#/definitions/responseBody500'
+  #     responses:
+  #       200:
+  #         description: success
+  #         schema:
+  #           $ref: '#/definitions/responseBodyProjectStorage'
+  #       400:
+  #         description: bad request
+  #         schema:
+  #           $ref: '#/definitions/responseBody400'
+  #       404:
+  #         description: project not found
+  #         schema:
+  #           type: string
+  #           enum: [project not found]
+  #       500:
+  #         description: failure
+  #         schema:
+  #           $ref: '#/definitions/responseBody500'
 
   /tasks/{type}/{id}:
     get:

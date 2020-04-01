@@ -57,16 +57,16 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
 		})
 	}
-	if api.GetProjectsIDMembersHandler == nil {
-		api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(func(params operations.GetProjectsIDMembersParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetProjectsIDMembers has not yet been implemented")
-		})
-	}
-	if api.GetProjectsIDStorageHandler == nil {
-		api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
-		})
-	}
+	// if api.GetProjectsIDMembersHandler == nil {
+	// 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(func(params operations.GetProjectsIDMembersParams) middleware.Responder {
+	// 		return middleware.NotImplemented("operation operations.GetProjectsIDMembers has not yet been implemented")
+	// 	})
+	// }
+	// if api.GetProjectsIDStorageHandler == nil {
+	// 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(func(params operations.GetProjectsIDStorageParams) middleware.Responder {
+	// 		return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
+	// 	})
+	// }
 	if api.GetTasksTypeIDHandler == nil {
 		api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(func(params operations.GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
