@@ -153,6 +153,7 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 			case acl.Manager.String():
 			case acl.Contributor.String():
 			case acl.Viewer.String():
+			case "none":
 			default:
 				// only accept setting for manager,contributor and viewer roles
 				return operations.NewPostProjectsBadRequest().WithPayload(
@@ -231,6 +232,7 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 			case acl.Manager.String():
 			case acl.Contributor.String():
 			case acl.Viewer.String():
+			case "none":
 			default:
 				// only accept setting for manager,contributor and viewer roles
 				return operations.NewPatchProjectsIDBadRequest().WithPayload(

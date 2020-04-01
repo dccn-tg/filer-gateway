@@ -81,7 +81,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// 1. create project namespace
 	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
-	if _, err := os.Stat(ppath); os.IsNotExist(err) {
+	if _, err := os.Stat(ppath); os.IsNotExist(err) && data.Storage.QuotaGb > 0 {
 		// call filer API to create project volume and/or namespace
 		if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
 			log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
@@ -101,7 +101,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
-	if data.Storage.QuotaGb<<30 != quota {
+	if data.Storage.QuotaGb<<30 != quota && data.Storage.QuotaGb > 0 {
 		// call filer API to set the new quota
 		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
 			log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
@@ -232,6 +232,12 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 		err = fmt.Errorf("user home dir %s not in group dir %s", u.HomeDir, gdir)
 		log.Errorf("%s", err)
 		return err
+	}
+
+	// print a warning and return as successful task if the requested quota is less and equal to 0.
+	if data.Storage.QuotaGb <= 0 {
+		log.Warnf("skip setting quota to %d Gb for home space %d", data.Storage.QuotaGb, u.HomeDir)
+		return nil
 	}
 
 	// create home if user's home dir doesn't exist
