@@ -35,11 +35,11 @@ async (w/ task id)|              |                | run
 
 The filer gateway consists of three components:
 
-- an __API server__ providing RESTful APIs for clients to get and set filer resources for project and user. The APIs are defined with [swagger](https://swagger.io/); and the server-side stubs are generated with [go-swagger](https://goswagger.io/).
+1. an __API server__ providing RESTful APIs for clients to get and set filer resources for project and user. The APIs are defined with [swagger](https://swagger.io/); and the server-side stubs are generated with [go-swagger](https://goswagger.io/).
 
-- a __key-value store__ maintains a list of asynchronous tasks created for POST/PATCH operations that will take too long for API client to wait. It is implemented with [Redis](https://redis.io/).
+1. a __key-value store__ maintaing a list of asynchronous tasks created for POST/PATCH operations that will take too long for API client to wait. It is implemented with [Redis](https://redis.io/).
 
-- __workers__ are distributable and concurrent processes respondible for executing asynchronous tasks in the background.
+1. __workers__ are distributable and concurrent processes respondible for executing asynchronous tasks in the background.
 
 Task management are implemented using [Bokchoy](https://github.com/thoas/bokchoy) given that the functionality it provides is just sufficient enough (and not too complicated) for the implementation of the filer gateway.
 
