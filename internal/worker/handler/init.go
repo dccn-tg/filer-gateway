@@ -114,7 +114,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 				log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
 				return err
 			}
-			log.Debugf("quota of project %s set from %d Gb to %d Gb", quota, data.Storage.QuotaGb)
+			log.Debugf("quota of project %s set from %d Gb to %d Gb", data.ProjectID, quota, data.Storage.QuotaGb)
 		} else {
 			log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
 		}
@@ -238,7 +238,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// skip quota setup for user's home space.
 	if data.Storage.QuotaGb <= 0 || data.Storage.System == "none" {
-		log.Warnf("skip setting quota to %d Gb for home space %d", data.Storage.QuotaGb, u.HomeDir)
+		log.Warnf("skip setting quota to %d Gb for home space %s", data.Storage.QuotaGb, u.HomeDir)
 		return nil
 	}
 
