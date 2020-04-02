@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
@@ -119,6 +120,9 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 			log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
 		}
 	}
+
+	// give few seconds sleep to allow the volume presented on the file system
+	time.Sleep(3 * time.Second)
 
 	// ACL setting on the filesystem path of the project storage.
 	managers := make([]string, 0)
@@ -261,6 +265,10 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 		// change owner and group for the homedir
 		nuid, _ := strconv.Atoi(u.Uid)
 		ngid, _ := strconv.Atoi(u.Gid)
+
+		// give few seconds sleep to allow the volume presented on the file system
+		time.Sleep(3 * time.Second)
+
 		if err := os.Chown(u.HomeDir, nuid, ngid); err != nil {
 			log.Errorf("fail to set owner of home space %s: %s", u.HomeDir, err)
 			return err
