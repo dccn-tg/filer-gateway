@@ -121,8 +121,21 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// give few seconds sleep to allow the volume presented on the file system
-	time.Sleep(3 * time.Second)
+	// wait the ppath to present on the filesystem up to 1 minute.  Sometimes it appears immeidately; but it can be that
+	// there is a significant delay between the volume creation and the path's availability to the host on which
+	// the filer-gateway api server is running.
+	tick := time.Now()
+	for {
+		if time.Since(tick) > time.Minute {
+			log.Errorf("timeout waiting for file path to be available: ", ppath)
+			break
+		}
+		if _, err := os.Stat(ppath); os.IsNotExist(err) {
+			time.Sleep(3 * time.Second)
+		} else {
+			break
+		}
+	}
 
 	// ACL setting on the filesystem path of the project storage.
 	managers := make([]string, 0)
@@ -266,8 +279,21 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 		nuid, _ := strconv.Atoi(u.Uid)
 		ngid, _ := strconv.Atoi(u.Gid)
 
-		// give few seconds sleep to allow the volume presented on the file system
-		time.Sleep(3 * time.Second)
+		// wait the home directory to present on the filesystem up to 1 minute.  Sometimes it appears immeidately; but it can be that
+		// there is a significant delay between the qtree creation and the path's availability to the host on which
+		// the filer-gateway api server is running.
+		tick := time.Now()
+		for {
+			if time.Since(tick) > time.Minute {
+				log.Errorf("timeout waiting for file path to be available: ", u.HomeDir)
+				break
+			}
+			if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+				time.Sleep(3 * time.Second)
+			} else {
+				break
+			}
+		}
 
 		if err := os.Chown(u.HomeDir, nuid, ngid); err != nil {
 			log.Errorf("fail to set owner of home space %s: %s", u.HomeDir, err)
