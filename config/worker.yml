@@ -7,6 +7,8 @@ netapp:
   projectGID: 1010
   projectMode: "volume"
   vserver: "atreides"
+  exportPolicyHome: "dccn-home-nfs-vpn"
+  exportPolicyProject: "dccn-projects"
 
 freenas:
   apiURL: https://freenas.dccn.nl/api/v2.0
