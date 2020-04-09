@@ -17,3 +17,4 @@ freenas:
   projectRoot: /project_freenas
   projectUser: project
   projectGroup: project_g
+  zfsDatasetPrefix: zpool001/project
