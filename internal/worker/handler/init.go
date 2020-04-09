@@ -117,6 +117,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 			break
 		}
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
+			log.Debugf("wait for file path to be available: ", ppath)
 			time.Sleep(3 * time.Second)
 		} else {
 			break
@@ -275,6 +276,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 				break
 			}
 			if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+				log.Debugf("wait for file path to be available: ", u.HomeDir)
 				time.Sleep(3 * time.Second)
 			} else {
 				break
