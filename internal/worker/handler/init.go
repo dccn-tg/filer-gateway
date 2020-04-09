@@ -101,23 +101,9 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 
 		// 2. update project quota
-		//    NOTE: get quota from the api instead of the `df` on the file system, given that the
-		//          `df` of the file system is always smaller than the actual quota set on the filer.
-		quota, err := api.GetProjectQuotaInBytes(data.ProjectID)
-		if err != nil {
-			log.Errorf("%s", err.Error())
+		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
 			return err
-		}
-
-		if data.Storage.QuotaGb<<30 != quota {
-			// call filer API to set the new quota
-			if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-				log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
-				return err
-			}
-			log.Debugf("quota of project %s set from %d Gb to %d Gb", data.ProjectID, quota, data.Storage.QuotaGb)
-		} else {
-			log.Warnf("quota of project %s is already in right size, quota %d", data.ProjectID, quota)
 		}
 	}
 
@@ -305,23 +291,9 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	// update storage quota
-	//    NOTE: get quota from the api instead of the `df` on the file system, given that the
-	//          `df` of the file system is always smaller than the actual quota set on the filer.
-	quota, err := api.GetHomeQuotaInBytes(u.Username, g.Name)
-	if err != nil {
-		log.Errorf("fail to get current home space quota: %s", err)
+	if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
+		log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
 		return err
-	}
-
-	if data.Storage.QuotaGb<<30 != quota {
-		// call filer API to set the new quota
-		if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
-			return err
-		}
-		log.Debugf("quota of home space %s set from %d Gb to %d Gb", u.HomeDir, quota>>30, data.Storage.QuotaGb)
-	} else {
-		log.Warnf("quota of home space %s is already in right size, quota %d", u.HomeDir, quota>>30)
 	}
 
 	return nil
