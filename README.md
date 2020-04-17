@@ -2,9 +2,14 @@
 
 The goal of this project is to provide an uniform API interface to interact with different filer systems at DCCN for managing storage resource for project and/or user's personal home directory.  Three systems are targeted at the moment (system is checked if the integration with it is implemented):
 
-- [x] NetApp
-- [ ] FreeNAS
-- [ ] Ceph
+- NetApp
+  * [x] Provision and update project space as ONTAP volume.
+  * [x] Provision and update project space as ONTAP qtree.
+  * [x] Provision and update home space as ONTAP qtree.
+- FreeNAS
+  * [x] Provision and update project space as ZFS dataset.
+- Ceph
+  * TBD
 
 ## Design and components
 
