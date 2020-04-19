@@ -9,12 +9,13 @@ import (
 	"encoding/json"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // StorageResponse JSON object for storage resource data.
+//
 // swagger:model storageResponse
 type StorageResponse struct {
 

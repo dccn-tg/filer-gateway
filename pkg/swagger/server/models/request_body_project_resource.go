@@ -7,12 +7,13 @@ package models
 
 import (
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // RequestBodyProjectResource JSON object describing resource to be set to the project.
+//
 // swagger:model requestBodyProjectResource
 type RequestBodyProjectResource struct {
 

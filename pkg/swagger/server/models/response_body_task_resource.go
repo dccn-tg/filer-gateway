@@ -7,12 +7,13 @@ package models
 
 import (
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ResponseBodyTaskResource JSON object containing scheduled task resource.
+//
 // swagger:model responseBodyTaskResource
 type ResponseBodyTaskResource struct {
 

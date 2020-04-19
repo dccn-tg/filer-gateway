@@ -7,12 +7,13 @@ package models
 
 import (
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ResponseBodyProjectStorage JSON object containing storage resource information of a project.
+//
 // swagger:model responseBodyProjectStorage
 type ResponseBodyProjectStorage struct {
 

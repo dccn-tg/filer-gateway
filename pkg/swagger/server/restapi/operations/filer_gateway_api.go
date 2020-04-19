@@ -38,29 +38,34 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+
+		JSONConsumer: runtime.JSONConsumer(),
+
+		JSONProducer: runtime.JSONProducer(),
+
 		GetProjectsIDHandler: GetProjectsIDHandlerFunc(func(params GetProjectsIDParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
+			return middleware.NotImplemented("operation GetProjectsID has not yet been implemented")
 		}),
 		GetTasksTypeIDHandler: GetTasksTypeIDHandlerFunc(func(params GetTasksTypeIDParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
+			return middleware.NotImplemented("operation GetTasksTypeID has not yet been implemented")
 		}),
 		GetUsersIDHandler: GetUsersIDHandlerFunc(func(params GetUsersIDParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetUsersID has not yet been implemented")
+			return middleware.NotImplemented("operation GetUsersID has not yet been implemented")
 		}),
 		PatchProjectsIDHandler: PatchProjectsIDHandlerFunc(func(params PatchProjectsIDParams, principal *models.Principle) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PatchProjectsID has not yet been implemented")
+			return middleware.NotImplemented("operation PatchProjectsID has not yet been implemented")
 		}),
 		PatchUsersIDHandler: PatchUsersIDHandlerFunc(func(params PatchUsersIDParams, principal *models.Principle) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PatchUsersID has not yet been implemented")
+			return middleware.NotImplemented("operation PatchUsersID has not yet been implemented")
 		}),
 		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams, principal *models.Principle) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
+			return middleware.NotImplemented("operation PostProjects has not yet been implemented")
 		}),
 		PostUsersHandler: PostUsersHandlerFunc(func(params PostUsersParams, principal *models.Principle) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PostUsers has not yet been implemented")
-		}), // Applies when the "X-API-Key" header is set
+			return middleware.NotImplemented("operation PostUsers has not yet been implemented")
+		}),
+
+		// Applies when the "X-API-Key" header is set
 		APIKeyHeaderAuth: func(token string) (*models.Principle, error) {
 			return nil, errors.NotImplemented("api key auth (apiKeyHeader) X-API-Key from header param [X-API-Key] has not yet been implemented")
 		},
@@ -68,7 +73,6 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		BasicAuthAuth: func(user string, pass string) (*models.Principle, error) {
 			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
 		},
-
 		// default authorizer is authorized meaning no requests are blocked
 		APIAuthorizer: security.Authorized(),
 	}
@@ -95,9 +99,11 @@ type FilerGatewayAPI struct {
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
+
 	// JSONConsumer registers a consumer for the following mime types:
 	//   - application/json
 	JSONConsumer runtime.Consumer
+
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
@@ -196,37 +202,30 @@ func (o *FilerGatewayAPI) Validate() error {
 	if o.APIKeyHeaderAuth == nil {
 		unregistered = append(unregistered, "XAPIKeyAuth")
 	}
-
 	if o.BasicAuthAuth == nil {
 		unregistered = append(unregistered, "BasicAuthAuth")
 	}
 
 	if o.GetProjectsIDHandler == nil {
-		unregistered = append(unregistered, "Operations.GetProjectsIDHandler")
+		unregistered = append(unregistered, "GetProjectsIDHandler")
 	}
-
 	if o.GetTasksTypeIDHandler == nil {
-		unregistered = append(unregistered, "Operations.GetTasksTypeIDHandler")
+		unregistered = append(unregistered, "GetTasksTypeIDHandler")
 	}
-
 	if o.GetUsersIDHandler == nil {
-		unregistered = append(unregistered, "Operations.GetUsersIDHandler")
+		unregistered = append(unregistered, "GetUsersIDHandler")
 	}
-
 	if o.PatchProjectsIDHandler == nil {
-		unregistered = append(unregistered, "Operations.PatchProjectsIDHandler")
+		unregistered = append(unregistered, "PatchProjectsIDHandler")
 	}
-
 	if o.PatchUsersIDHandler == nil {
-		unregistered = append(unregistered, "Operations.PatchUsersIDHandler")
+		unregistered = append(unregistered, "PatchUsersIDHandler")
 	}
-
 	if o.PostProjectsHandler == nil {
-		unregistered = append(unregistered, "Operations.PostProjectsHandler")
+		unregistered = append(unregistered, "PostProjectsHandler")
 	}
-
 	if o.PostUsersHandler == nil {
-		unregistered = append(unregistered, "Operations.PostUsersHandler")
+		unregistered = append(unregistered, "PostUsersHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -243,13 +242,10 @@ func (o *FilerGatewayAPI) ServeErrorFor(operationID string) func(http.ResponseWr
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *FilerGatewayAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-
 	result := make(map[string]runtime.Authenticator)
 	for name := range schemes {
 		switch name {
-
 		case "apiKeyHeader":
-
 			scheme := schemes[name]
 			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
 				return o.APIKeyHeaderAuth(token)
@@ -263,14 +259,11 @@ func (o *FilerGatewayAPI) AuthenticatorsFor(schemes map[string]spec.SecuritySche
 		}
 	}
 	return result
-
 }
 
 // Authorizer returns the registered authorizer
 func (o *FilerGatewayAPI) Authorizer() runtime.Authorizer {
-
 	return o.APIAuthorizer
-
 }
 
 // ConsumersFor gets the consumers for the specified media types.
@@ -334,7 +327,6 @@ func (o *FilerGatewayAPI) Context() *middleware.Context {
 
 func (o *FilerGatewayAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
-
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
@@ -343,37 +335,30 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/projects/{id}"] = NewGetProjectsID(o.context, o.GetProjectsIDHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/tasks/{type}/{id}"] = NewGetTasksTypeID(o.context, o.GetTasksTypeIDHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/{id}"] = NewGetUsersID(o.context, o.GetUsersIDHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/projects/{id}"] = NewPatchProjectsID(o.context, o.PatchProjectsIDHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/users/{id}"] = NewPatchUsersID(o.context, o.PatchUsersIDHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/projects"] = NewPostProjects(o.context, o.PostProjectsHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/users"] = NewPostUsers(o.context, o.PostUsersHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -402,4 +387,16 @@ func (o *FilerGatewayAPI) RegisterConsumer(mediaType string, consumer runtime.Co
 // RegisterProducer allows you to add (or override) a producer for a media type.
 func (o *FilerGatewayAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
+}
+
+// AddMiddlewareFor adds a http middleware to existing handler
+func (o *FilerGatewayAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+	um := strings.ToUpper(method)
+	if path == "/" {
+		path = ""
+	}
+	o.Init()
+	if h, ok := o.handlers[um][path]; ok {
+		o.handlers[method][path] = builder(h)
+	}
 }

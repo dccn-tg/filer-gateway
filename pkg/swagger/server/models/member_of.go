@@ -9,11 +9,12 @@ import (
 	"strconv"
 
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // MemberOf a list providing an overview of user's member roles in all active projects.
+//
 // swagger:model memberOf
 type MemberOf []*ProjectRole
 

@@ -7,12 +7,13 @@ package models
 
 import (
 	"github.com/go-openapi/errors"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ResponseBodyProjectMembers JSON object containing current list of members implemented on the filer.
+//
 // swagger:model responseBodyProjectMembers
 type ResponseBodyProjectMembers struct {
 
