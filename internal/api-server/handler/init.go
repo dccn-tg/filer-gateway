@@ -610,6 +610,8 @@ func pid2path(pid string) (string, error) {
 	if matched, _ := regexp.MatchString("^[0-9]{7,}", pid); matched {
 		// input pid is a project number
 		path = filepath.Join(PathProject, pid)
+	} else {
+		return path, fmt.Errorf("invalid project id: %s", pid)
 	}
 
 	// evaluate symlink to its absolute path.
