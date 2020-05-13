@@ -13,9 +13,10 @@ import (
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
 	"github.com/Donders-Institute/filer-gateway/internal/worker/config"
+	"github.com/Donders-Institute/filer-gateway/pkg/filer"
+
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/filer"
 	"github.com/thoas/bokchoy"
 )
 

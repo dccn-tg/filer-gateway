@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/filer"
+	"github.com/Donders-Institute/filer-gateway/pkg/filer"
 	"github.com/spf13/viper"
 )
 

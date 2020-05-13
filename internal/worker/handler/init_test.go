@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/filer"
+	"github.com/Donders-Institute/filer-gateway/pkg/filer"
 )
 
 func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {

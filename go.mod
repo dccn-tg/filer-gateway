@@ -3,7 +3,7 @@ module github.com/Donders-Institute/filer-gateway
 go 1.13
 
 require (
-	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200422135619-6a1163d2dc68
+	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200513115518-a8128be9bba1
 	github.com/go-openapi/errors v0.19.3
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.11
@@ -18,6 +18,6 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/thoas/bokchoy v0.2.0
 	go.mongodb.org/mongo-driver v1.3.0 // indirect
-	golang.org/x/net v0.0.0-20200226051749-491c5fce7268
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
 	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
 )
