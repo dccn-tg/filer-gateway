@@ -170,6 +170,9 @@ pipeline {
                     return params.PRODUCTION
                 }
             }
+            agent {
+                label 'swarm-manager'
+            }
             steps {
                 echo "production: true"
                 echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
@@ -197,15 +200,15 @@ pipeline {
 
                     // Remove remote tag (if any)
                     script {
-                        def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
+                        def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/filer-gateway.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
                         if (result != "") {
-                            sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                            sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/filer-gateway.git ${params.PRODUCTION_GITHUB_TAG}"
                             echo "Removed existing remote tag ${params.PRODUCTION_GITHUB_TAG}"
                         }
                     }
 
                     // Create remote tag
-                    sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                    sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/filer-gateway.git ${params.PRODUCTION_GITHUB_TAG}"
                     echo "Created remote tag ${params.PRODUCTION_GITHUB_TAG}"
                 }
 
