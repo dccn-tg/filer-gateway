@@ -1,6 +1,6 @@
 # filer-gateway demo scripts
 
-The demo scripts in this directory make use of [`curl`](https://curl.haxx.se/) and [`jq`](https://stedolan.github.io/jq/).
+The demo scripts are written in BASH.  They can be used to test the filer-gateway deployment and as a reference implementation.  The scripts require [`curl`](https://curl.haxx.se/) and [`jq`](https://stedolan.github.io/jq/).
 
 To use the scripts, you need to know the API URL, API key, API user and API password of your filer-gateway deployment; and set them accordingly via the following environment variables:
 
