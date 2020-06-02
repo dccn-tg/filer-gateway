@@ -82,7 +82,11 @@ Details of connecting worker to filer API server are specified in a configuratio
 
 ## API document
 
-The API document is embedded with the service.  The URL is http://localhost:8080/docs
+The API document is embedded with the service.
+
+- for development on localhost, the URL is http://localhost:8080/docs
+- for development on the TG playground, the URL is http://dccn-pl001.dccn.nl:8080/docs
+- for production, the URL is https://filer-gateway.dccn.nl/docs
 
 ## Using Docker
 
