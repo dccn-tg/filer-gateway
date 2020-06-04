@@ -266,7 +266,8 @@ func (filer NetApp) GetProjectQuotaInBytes(projectID string) (int64, error) {
 		return vol.Size, nil
 
 	case "qtree":
-		return 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+		return 0, nil
+		//return 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
 
 	default:
 		return 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
