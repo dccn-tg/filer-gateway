@@ -85,7 +85,7 @@ const (
 
 // prop value enum
 func (m *StorageRequest) validateSystemEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, storageRequestTypeSystemPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, storageRequestTypeSystemPropEnum, true); err != nil {
 		return err
 	}
 	return nil

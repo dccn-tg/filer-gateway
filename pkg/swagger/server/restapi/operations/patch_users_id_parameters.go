@@ -64,7 +64,7 @@ func (o *PatchUsersIDParams) BindRequest(r *http.Request, route *middleware.Matc
 		var body models.RequestBodyUserResource
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("userUpdateData", "body"))
+				res = append(res, errors.Required("userUpdateData", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("userUpdateData", "body", "", err))
 			}
@@ -79,7 +79,7 @@ func (o *PatchUsersIDParams) BindRequest(r *http.Request, route *middleware.Matc
 			}
 		}
 	} else {
-		res = append(res, errors.Required("userUpdateData", "body"))
+		res = append(res, errors.Required("userUpdateData", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

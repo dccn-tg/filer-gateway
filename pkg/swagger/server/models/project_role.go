@@ -85,7 +85,7 @@ const (
 
 // prop value enum
 func (m *ProjectRole) validateRoleEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, projectRoleTypeRolePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, projectRoleTypeRolePropEnum, true); err != nil {
 		return err
 	}
 	return nil

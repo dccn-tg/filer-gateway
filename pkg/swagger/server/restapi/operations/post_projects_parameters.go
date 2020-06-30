@@ -53,7 +53,7 @@ func (o *PostProjectsParams) BindRequest(r *http.Request, route *middleware.Matc
 		var body models.RequestBodyProjectProvision
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("projectProvisionData", "body"))
+				res = append(res, errors.Required("projectProvisionData", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("projectProvisionData", "body", "", err))
 			}
@@ -68,7 +68,7 @@ func (o *PostProjectsParams) BindRequest(r *http.Request, route *middleware.Matc
 			}
 		}
 	} else {
-		res = append(res, errors.Required("projectProvisionData", "body"))
+		res = append(res, errors.Required("projectProvisionData", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

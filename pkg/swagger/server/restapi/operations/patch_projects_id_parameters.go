@@ -64,7 +64,7 @@ func (o *PatchProjectsIDParams) BindRequest(r *http.Request, route *middleware.M
 		var body models.RequestBodyProjectResource
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("projectUpdateData", "body"))
+				res = append(res, errors.Required("projectUpdateData", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("projectUpdateData", "body", "", err))
 			}
@@ -79,7 +79,7 @@ func (o *PatchProjectsIDParams) BindRequest(r *http.Request, route *middleware.M
 			}
 		}
 	} else {
-		res = append(res, errors.Required("projectUpdateData", "body"))
+		res = append(res, errors.Required("projectUpdateData", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

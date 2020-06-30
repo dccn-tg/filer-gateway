@@ -4,20 +4,16 @@ go 1.13
 
 require (
 	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20200609070302-15b873168612
-	github.com/go-openapi/errors v0.19.3
-	github.com/go-openapi/loads v0.19.4
-	github.com/go-openapi/runtime v0.19.11
-	github.com/go-openapi/spec v0.19.6
-	github.com/go-openapi/strfmt v0.19.4
-	github.com/go-openapi/swag v0.19.7
-	github.com/go-openapi/validate v0.19.6
+	github.com/go-openapi/errors v0.19.6
+	github.com/go-openapi/loads v0.19.5
+	github.com/go-openapi/runtime v0.19.19
+	github.com/go-openapi/spec v0.19.8
+	github.com/go-openapi/strfmt v0.19.5
+	github.com/go-openapi/swag v0.19.9
+	github.com/go-openapi/validate v0.19.10
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/kr/text v0.2.0 // indirect
-	github.com/mailru/easyjson v0.7.1 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/onsi/ginkgo v1.13.0 // indirect
 	github.com/spf13/viper v1.3.2
 	github.com/thoas/bokchoy v0.2.0
-	go.mongodb.org/mongo-driver v1.3.0 // indirect
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
-	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
 )
