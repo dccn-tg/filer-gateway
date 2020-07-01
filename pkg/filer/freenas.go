@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	// FREENAS_API_NS_DATASET is the API namespace for FreeNAS ZFS datasets.
-	FREENAS_API_NS_DATASET string = "/pool/dataset"
+	// apiNsFreenasDataset is the API namespace for FreeNAS ZFS datasets.
+	apiNsFreenasDataset string = "/pool/dataset"
 
-	// FREENAS_API_NS_SHARING_NFS is the API namespace for FreeNAS NFS sharing.
-	FREENAS_API_NS_SHARING_NFS string = "/sharing/nfs"
+	// apiNsFreenasNfsShare is the API namespace for FreeNAS NFS sharing.
+	apiNsFreenasNfsShare string = "/sharing/nfs"
 )
 
 // FreeNasConfig implements the `Config` interface and extends it with configurations
@@ -44,16 +44,16 @@ type FreeNasConfig struct {
 	ZfsDatasetPrefix string
 }
 
-// GetApiURL returns the server URL of the OnTAP API.
-func (c FreeNasConfig) GetApiURL() string {
+// GetAPIURL returns the server URL of the OnTAP API.
+func (c FreeNasConfig) GetAPIURL() string {
 	return strings.TrimSuffix(c.ApiURL, "/")
 }
 
-// GetApiUser returns the username for the API basic authentication.
-func (c FreeNasConfig) GetApiUser() string { return c.ApiUser }
+// GetAPIUser returns the username for the API basic authentication.
+func (c FreeNasConfig) GetAPIUser() string { return c.ApiUser }
 
-// GetApiPass returns the password for the API basic authentication.
-func (c FreeNasConfig) GetApiPass() string { return c.ApiPass }
+// GetAPIPass returns the password for the API basic authentication.
+func (c FreeNasConfig) GetAPIPass() string { return c.ApiPass }
 
 // GetProjectRoot returns the filesystem root path in which directories of projects are located.
 func (c FreeNasConfig) GetProjectRoot() string { return c.ProjectRoot }
@@ -88,7 +88,7 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 		CaseSensitivity: "SENSITIVE",
 	}
 
-	if err := filer.createObject(&d, FREENAS_API_NS_DATASET); err != nil {
+	if err := filer.createObject(&d, apiNsFreenasDataset); err != nil {
 		return err
 	}
 
@@ -102,7 +102,7 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 	}
 
 	ns := strings.Join([]string{
-		FREENAS_API_NS_DATASET,
+		apiNsFreenasDataset,
 		"id",
 		filer.encodeProjectDatasetID(projectID),
 		"permission",
@@ -124,7 +124,7 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 		Paths:        []string{filepath.Join("/mnt", filer.config.ZfsDatasetPrefix, projectID)},
 	}
 
-	if err := filer.createObject(&s, FREENAS_API_NS_SHARING_NFS); err != nil {
+	if err := filer.createObject(&s, apiNsFreenasNfsShare); err != nil {
 		return err
 	}
 
@@ -149,7 +149,7 @@ func (filer FreeNas) SetProjectQuota(projectID string, quotaGiB int) error {
 	}
 
 	ns := strings.Join([]string{
-		FREENAS_API_NS_DATASET,
+		apiNsFreenasDataset,
 		"id",
 		filer.encodeProjectDatasetID(projectID),
 	}, "/")
@@ -199,7 +199,7 @@ func (filer FreeNas) getProjectDataset(projectID string) (*dataset, error) {
 	d := dataset{}
 
 	ns := strings.Join([]string{
-		FREENAS_API_NS_DATASET,
+		apiNsFreenasDataset,
 		"id",
 		filer.encodeProjectDatasetID(projectID),
 	}, "/")
@@ -215,9 +215,9 @@ func (filer FreeNas) getObject(nsAPI string, object interface{}) error {
 
 	c := newHTTPSClient(30*time.Second, true)
 
-	filer.config.GetApiURL()
+	filer.config.GetAPIURL()
 
-	href := strings.Join([]string{filer.config.GetApiURL(), nsAPI}, "")
+	href := strings.Join([]string{filer.config.GetAPIURL(), nsAPI}, "")
 
 	log.Debugf("href: %s", href)
 
@@ -228,7 +228,7 @@ func (filer FreeNas) getObject(nsAPI string, object interface{}) error {
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	res, err := c.Do(req)
 	if err != nil {
 		return err
@@ -259,7 +259,7 @@ func (filer FreeNas) getObject(nsAPI string, object interface{}) error {
 func (filer FreeNas) createObject(object interface{}, nsAPI string) error {
 	c := newHTTPSClient(10*time.Second, true)
 
-	href := strings.Join([]string{filer.config.GetApiURL(), nsAPI}, "")
+	href := strings.Join([]string{filer.config.GetAPIURL(), nsAPI}, "")
 
 	data, err := json.Marshal(object)
 
@@ -276,7 +276,7 @@ func (filer FreeNas) createObject(object interface{}, nsAPI string) error {
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	req.Header.Set("content-type", "application/json")
 
 	res, err := c.Do(req)
@@ -302,7 +302,7 @@ func (filer FreeNas) createObject(object interface{}, nsAPI string) error {
 func (filer FreeNas) updateObject(object interface{}, nsAPI string) error {
 	c := newHTTPSClient(10*time.Second, true)
 
-	href := strings.Join([]string{filer.config.GetApiURL(), nsAPI}, "")
+	href := strings.Join([]string{filer.config.GetAPIURL(), nsAPI}, "")
 
 	data, err := json.Marshal(object)
 
@@ -319,7 +319,7 @@ func (filer FreeNas) updateObject(object interface{}, nsAPI string) error {
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	req.Header.Set("content-type", "application/json")
 
 	res, err := c.Do(req)

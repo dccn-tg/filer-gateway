@@ -15,18 +15,18 @@ import (
 )
 
 const (
-	// NETAPP_API_NS_SVMS is the API namespace for OnTAP SVM items.
-	NETAPP_API_NS_SVMS string = "/svm/svms"
-	// NETAPP_API_NS_JOBS is the API namespace for OnTAP cluster job items.
-	NETAPP_API_NS_JOBS string = "/cluster/jobs"
-	// NETAPP_API_NS_VOLUMES is the API namespace for OnTAP volume items.
-	NETAPP_API_NS_VOLUMES string = "/storage/volumes"
-	// NETAPP_API_NS_AGGREGATES is the API namespace for OnTAP aggregate items.
-	NETAPP_API_NS_AGGREGATES string = "/storage/aggregates"
-	// NETAPP_API_NS_QTREES is the API namespace for OnTAP qtree items.
-	NETAPP_API_NS_QTREES string = "/storage/qtrees"
-	// NETAPP_API_NS_QUOTA_RULES is the API namespace for OnTAP quota rule items.
-	NETAPP_API_NS_QUOTA_RULES string = "/storage/quota/rules"
+	// apiNsNetappSvms is the API namespace for OnTAP SVM items.
+	apiNsNetappSvms string = "/svm/svms"
+	// apiNsNetappJobs is the API namespace for OnTAP cluster job items.
+	apiNsNetappJobs string = "/cluster/jobs"
+	// apiNsNetappVolumes is the API namespace for OnTAP volume items.
+	apiNsNetappVolumes string = "/storage/volumes"
+	// apiNsNetappAggregates is the API namespace for OnTAP aggregate items.
+	apiNsNetappAggregates string = "/storage/aggregates"
+	// apiNsNetappQtrees is the API namespace for OnTAP qtree items.
+	apiNsNetappQtrees string = "/storage/qtrees"
+	// apiNsNetappQuotaRules is the API namespace for OnTAP quota rule items.
+	apiNsNetappQuotaRules string = "/storage/quota/rules"
 )
 
 // NetAppConfig implements the `Config` interface and extends it with configurations
@@ -63,14 +63,14 @@ type NetAppConfig struct {
 	ExportPolicyProject string
 }
 
-// GetApiURL returns the server URL of the OnTAP API.
-func (c NetAppConfig) GetApiURL() string { return c.ApiURL }
+// GetAPIURL returns the server URL of the OnTAP API.
+func (c NetAppConfig) GetAPIURL() string { return c.ApiURL }
 
-// GetApiUser returns the username for the API basic authentication.
-func (c NetAppConfig) GetApiUser() string { return c.ApiUser }
+// GetAPIUser returns the username for the API basic authentication.
+func (c NetAppConfig) GetAPIUser() string { return c.ApiUser }
 
-// GetApiPass returns the password for the API basic authentication.
-func (c NetAppConfig) GetApiPass() string { return c.ApiPass }
+// GetAPIPass returns the password for the API basic authentication.
+func (c NetAppConfig) GetAPIPass() string { return c.ApiPass }
 
 // GetProjectRoot returns the filesystem root path in which directories of projects are located.
 func (c NetAppConfig) GetProjectRoot() string { return c.ProjectRoot }
@@ -98,7 +98,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		// check if volume with the same name doee not exist.
 		qry := url.Values{}
 		qry.Set("name", filer.volName(projectID))
-		records, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_VOLUMES)
+		records, err := filer.getRecordsByQuery(qry, apiNsNetappVolumes)
 		if err != nil {
 			return fmt.Errorf("fail to check volume %s: %s", projectID, err)
 		}
@@ -109,7 +109,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		// determine which aggregate should be used for creating the new volume.
 		quota := int64(quotaGiB << 30)
 		svm := SVM{}
-		if err := filer.getObjectByName(filer.config.Vserver, NETAPP_API_NS_SVMS, &svm); err != nil {
+		if err := filer.getObjectByName(filer.config.Vserver, apiNsNetappSvms, &svm); err != nil {
 			return fmt.Errorf("fail to get SVM %s: %s", filer.config.Vserver, err)
 		}
 		avail := int64(0)
@@ -119,7 +119,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 			aggr := Aggregate{}
 			href := strings.Join([]string{
 				"/api",
-				NETAPP_API_NS_AGGREGATES,
+				apiNsNetappAggregates,
 				record.UUID,
 			}, "/")
 			if err := filer.getObjectByHref(href, &aggr); err != nil {
@@ -165,7 +165,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		}
 
 		// blocking operation to create the volume.
-		if err := filer.createObject(&vol, NETAPP_API_NS_VOLUMES); err != nil {
+		if err := filer.createObject(&vol, apiNsNetappVolumes); err != nil {
 			return err
 		}
 
@@ -211,7 +211,7 @@ func (filer NetApp) SetProjectQuota(projectID string, quotaGiB int) error {
 		// check if volume with the same name already exists.
 		qry := url.Values{}
 		qry.Set("name", filer.volName(projectID))
-		records, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_VOLUMES)
+		records, err := filer.getRecordsByQuery(qry, apiNsNetappVolumes)
 		if err != nil {
 			return fmt.Errorf("fail to check volume %s: %s", projectID, err)
 		}
@@ -259,7 +259,7 @@ func (filer NetApp) GetProjectQuotaInBytes(projectID string) (int64, error) {
 		// check if volume with the same name already exists.
 		vol := Volume{}
 
-		if err := filer.getObjectByName(filer.volName(projectID), NETAPP_API_NS_VOLUMES, &vol); err != nil {
+		if err := filer.getObjectByName(filer.volName(projectID), apiNsNetappVolumes, &vol); err != nil {
 			return 0, fmt.Errorf("cannot get project volume %s: %s", projectID, err)
 		}
 
@@ -280,7 +280,7 @@ func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (int64, erro
 	qry.Set("volume.name", groupname)
 	qry.Set("qtree.name", username)
 
-	records, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_QUOTA_RULES)
+	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
 	if err != nil {
 		return 0, fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", groupname, username, err)
 	}
@@ -303,7 +303,7 @@ func (filer NetApp) createQtree(name, volume string, permission int, exportPolic
 	qry := url.Values{}
 	qry.Set("name", name)
 	qry.Set("volume.name", volume)
-	records, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_QTREES)
+	records, err := filer.getRecordsByQuery(qry, apiNsNetappQtrees)
 	if err != nil {
 		return fmt.Errorf("fail to check qtree %s of volume %s: %s", name, volume, err)
 	}
@@ -322,7 +322,7 @@ func (filer NetApp) createQtree(name, volume string, permission int, exportPolic
 	}
 
 	// blocking operation to create the qtree.
-	if err := filer.createObject(&qtree, NETAPP_API_NS_QTREES); err != nil {
+	if err := filer.createObject(&qtree, apiNsNetappQtrees); err != nil {
 		return err
 	}
 
@@ -336,7 +336,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	qry := url.Values{}
 	qry.Set("name", name)
 	qry.Set("volume.name", volume)
-	recQtrees, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_QTREES)
+	recQtrees, err := filer.getRecordsByQuery(qry, apiNsNetappQtrees)
 	if err != nil {
 		return fmt.Errorf("fail to check qtree %s of volume %s: %s", name, volume, err)
 	}
@@ -355,7 +355,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	qry = url.Values{}
 	qry.Set("volume.name", volume)
 	qry.Set("qtree.name", name)
-	recRules, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_QUOTA_RULES)
+	recRules, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
 	if err != nil {
 		return fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", volume, name, err)
 	}
@@ -411,7 +411,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 			Type:   "tree",
 			Space:  &QuotaLimit{HardLimit: int64(quotaGiB << 30)},
 		}
-		if err := filer.createObject(&qrule, NETAPP_API_NS_QUOTA_RULES); err != nil {
+		if err := filer.createObject(&qrule, apiNsNetappQuotaRules); err != nil {
 			return err
 		}
 	} else {
@@ -434,7 +434,7 @@ func (filer NetApp) getDefaultQuotaPolicy(volume string) (*QuotaRule, error) {
 	qry := url.Values{}
 	qry.Set("volume.name", volume)
 
-	records, err := filer.getRecordsByQuery(qry, NETAPP_API_NS_QUOTA_RULES)
+	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
 	if err != nil {
 		return &rule, fmt.Errorf("fail to check quota rule for volume %s: %s", volume, err)
 	}
@@ -485,7 +485,7 @@ func (filer NetApp) getRecordsByQuery(query url.Values, nsAPI string) ([]Record,
 
 	c := newHTTPSClient(30*time.Second, true)
 
-	href := strings.Join([]string{filer.config.GetApiURL(), "api", nsAPI}, "/")
+	href := strings.Join([]string{filer.config.GetAPIURL(), "api", nsAPI}, "/")
 
 	// create request
 	req, err := http.NewRequest("GET", href, nil)
@@ -496,7 +496,7 @@ func (filer NetApp) getRecordsByQuery(query url.Values, nsAPI string) ([]Record,
 	req.URL.RawQuery = query.Encode()
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	// NOTE: adding "Accept: application/json" to header can causes the API server
 	//       to not returning "_links" attribute containing API href to the object.
 	//       Therefore, it is not set here.
@@ -532,13 +532,13 @@ func (filer NetApp) delObjectByHref(href string) error {
 	c := newHTTPSClient(10*time.Second, true)
 
 	// create request
-	req, err := http.NewRequest("DELETE", strings.Join([]string{filer.config.GetApiURL(), href}, "/"), nil)
+	req, err := http.NewRequest("DELETE", strings.Join([]string{filer.config.GetAPIURL(), href}, "/"), nil)
 	if err != nil {
 		return err
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 
 	res, err := c.Do(req)
 
@@ -583,13 +583,13 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 	c := newHTTPSClient(10*time.Second, true)
 
 	// create request
-	req, err := http.NewRequest("GET", strings.Join([]string{filer.config.GetApiURL(), href}, "/"), nil)
+	req, err := http.NewRequest("GET", strings.Join([]string{filer.config.GetAPIURL(), href}, "/"), nil)
 	if err != nil {
 		return err
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	// NOTE: adding "Accept: application/json" to header can causes the API server
 	//       to not returning "_links" attribute containing API href to the object.
 	//       Therefore, it is not set here.
@@ -620,7 +620,7 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 func (filer NetApp) createObject(object interface{}, nsAPI string) error {
 	c := newHTTPSClient(10*time.Second, true)
 
-	href := strings.Join([]string{filer.config.GetApiURL(), "api", nsAPI}, "/")
+	href := strings.Join([]string{filer.config.GetAPIURL(), "api", nsAPI}, "/")
 
 	data, err := json.Marshal(object)
 
@@ -637,7 +637,7 @@ func (filer NetApp) createObject(object interface{}, nsAPI string) error {
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	req.Header.Set("content-type", "application/json")
 
 	res, err := c.Do(req)
@@ -685,7 +685,7 @@ func (filer NetApp) patchObject(object Record, data []byte) error {
 
 	c := newHTTPSClient(10*time.Second, true)
 
-	href := strings.Join([]string{filer.config.GetApiURL(), object.Link.Self.Href}, "/")
+	href := strings.Join([]string{filer.config.GetAPIURL(), object.Link.Self.Href}, "/")
 
 	// create request
 	req, err := http.NewRequest("PATCH", href, bytes.NewBuffer(data))
@@ -694,7 +694,7 @@ func (filer NetApp) patchObject(object Record, data []byte) error {
 	}
 
 	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetApiUser(), filer.config.GetApiPass())
+	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 	req.Header.Set("content-type", "application/json")
 
 	res, err := c.Do(req)

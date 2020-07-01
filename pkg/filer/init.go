@@ -32,6 +32,8 @@ func New(system string, config Config) Filer {
 		return NetApp{config: config.(NetAppConfig)}
 	case "freenas":
 		return FreeNas{config: config.(FreeNasConfig)}
+	case "cephfs":
+		return CephFs{config: config.(CephFsConfig)}
 	default:
 		return nil
 	}
@@ -40,9 +42,9 @@ func New(system string, config Config) Filer {
 // Config defines interfaces for retriving configuration parameters that are
 // common across different filer systems.
 type Config interface {
-	GetApiURL() string
-	GetApiUser() string
-	GetApiPass() string
+	GetAPIURL() string
+	GetAPIUser() string
+	GetAPIPass() string
 	GetProjectRoot() string
 }
 

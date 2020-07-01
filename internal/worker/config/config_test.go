@@ -17,7 +17,7 @@ func TestLoadConfig(t *testing.T) {
 
 	t.Logf("config data: %+v", cfg)
 
-	if cfg.NetApp.GetApiUser() != "gatewayadmin" {
+	if cfg.NetApp.GetAPIUser() != "gatewayadmin" {
 		t.Errorf("fail loading configuration: %s", pathCfg)
 	}
 }

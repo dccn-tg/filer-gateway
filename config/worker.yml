@@ -18,3 +18,8 @@ freenas:
   projectUser: project
   projectGroup: project_g
   zfsDatasetPrefix: zpool001/project
+
+cephfs:
+  projectRoot: /project_cephfs
+  projectUser: project
+  projectGroup: project_g
