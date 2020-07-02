@@ -7,7 +7,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -174,6 +177,14 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		if err := filer.createQtree(projectID, filer.config.VolumeProjectQtrees, 750, filer.config.ExportPolicyProject); err != nil {
 			return err
 		}
+
+		// set owner of the project directory
+		ppath := filepath.Join(filer.config.GetProjectRoot(), projectID)
+		if err := os.Chown(ppath, filer.config.ProjectUID, filer.config.ProjectGID); err != nil {
+			return fmt.Errorf("cannot set owner of %s: %s", ppath, err)
+		}
+
+		// set quota
 		return filer.SetProjectQuota(projectID, quotaGiB)
 
 	default:
@@ -190,6 +201,20 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 	if err := filer.createQtree(username, groupname, 700, filer.config.ExportPolicyHome); err != nil {
 		return err
 	}
+
+	// set owner of the home directory to the uid/gid of user `username`, assuming the home directory
+	// is `/home/groupname/username`.
+	u, err := user.Lookup(username)
+	if err != nil {
+		return err
+	}
+	uid, _ := strconv.Atoi(u.Uid)
+	gid, _ := strconv.Atoi(u.Gid)
+	hpath := filepath.Join("/home", groupname, username)
+	if err := os.Chown(hpath, uid, gid); err != nil {
+		return fmt.Errorf("cannot set owner of %s: %s", hpath, err)
+	}
+
 	return filer.SetHomeQuota(username, groupname, quotaGiB)
 }
 

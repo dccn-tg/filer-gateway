@@ -14,6 +14,7 @@ import (
 type Configuration struct {
 	NetApp  filer.NetAppConfig
 	FreeNas filer.FreeNasConfig
+	CephFs  filer.CephFsConfig
 }
 
 // LoadConfig reads configuration file `cpath` and returns the

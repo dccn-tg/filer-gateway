@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
@@ -28,9 +29,6 @@ import (
 var (
 	// PathProject is the top-leve directory in which directories of active projects are located.
 	PathProject string = "/project"
-
-	// PathProjectFreenas is the top-level mount point of project hosted on FreeNAS box.
-	PathProjectFreenas string = "/project_freenas"
 
 	// QueueSetProject is the queue name for setting project resources.
 	QueueSetProject string = "tasks.setProject"
@@ -377,7 +375,7 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 }
 
 // GetUserResource implements retrival of file resource for a user (i.e. storage).
-func GetUserResource() func(params operations.GetUsersIDParams) middleware.Responder {
+func GetUserResource(cfg config.Configuration) func(params operations.GetUsersIDParams) middleware.Responder {
 	return func(params operations.GetUsersIDParams) middleware.Responder {
 		uname := params.ID
 
@@ -398,7 +396,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 		}
 
 		// getting storage quota on the user's home directory
-		system, quota, usage, err := GetStorageQuota(u.HomeDir)
+		system, quota, usage, err := GetStorageQuota(cfg, u.HomeDir)
 
 		// Return response error based on error code.
 		if err != nil {
@@ -447,7 +445,7 @@ func GetUserResource() func(params operations.GetUsersIDParams) middleware.Respo
 }
 
 // GetProjectResource implements retrival of project resource (i.e. storage and members).
-func GetProjectResource() func(params operations.GetProjectsIDParams) middleware.Responder {
+func GetProjectResource(cfg config.Configuration) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
 		pid := params.ID
 		path, e := pid2path(pid)
@@ -456,7 +454,7 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 		}
 
 		// Get Storage Resource
-		system, quota, usage, err := GetStorageQuota(path)
+		system, quota, usage, err := GetStorageQuota(cfg, path)
 		// Return response error based on error code.
 		if err != nil {
 			switch err.(*ResponseError).code {
@@ -504,95 +502,6 @@ func GetProjectResource() func(params operations.GetProjectsIDParams) middleware
 	}
 }
 
-// // GetProjectStorage implements retrival of project storage information.
-// func GetProjectStorage() func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-// 	// implementation
-// 	return func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-// 		pid := params.ID
-// 		path, e := pid2path(pid)
-// 		if e != nil {
-// 			return operations.NewGetProjectsIDStorageNotFound().WithPayload(e.Error())
-// 		}
-
-// 		log.Debugf("get storage quota on %s\n", path)
-
-// 		system, quota, usage, err := GetStorageQuota(path)
-
-// 		// Return response error based on error code.
-// 		if err != nil {
-// 			switch err.(*ResponseError).code {
-// 			case 404:
-// 				return operations.NewGetProjectsIDStorageNotFound().WithPayload(err.Error())
-// 			default:
-// 				return operations.NewGetProjectsIDStorageInternalServerError().WithPayload(
-// 					&models.ResponseBody500{
-// 						ErrorMessage: err.Error(),
-// 						ExitCode:     QuotaGettingError,
-// 					},
-// 				)
-// 			}
-// 		}
-
-// 		// return 200 success with storage quota information.
-// 		return operations.NewGetProjectsIDStorageOK().WithPayload(
-// 			&models.ResponseBodyProjectStorage{
-// 				ProjectID: models.ProjectID(pid),
-// 				Storage: &models.StorageResponse{
-// 					QuotaGb: &quota,
-// 					System:  &system,
-// 					UsageGb: &usage,
-// 				},
-// 			},
-// 		)
-// 	}
-// }
-
-// // GetProjectMembers implements retrival of project members and their roles from the project directory
-// // on the filer.
-// //
-// // The corresponding project directory on the filer should exist in advance.
-// //
-// func GetProjectMembers() func(params operations.GetProjectsIDMembersParams) middleware.Responder {
-
-// 	// implementation
-// 	return func(params operations.GetProjectsIDMembersParams) middleware.Responder {
-
-// 		pid := params.ID
-
-// 		path, e := pid2path(pid)
-// 		if e != nil {
-// 			return operations.NewGetProjectsIDMembersNotFound().WithPayload(e.Error())
-// 		}
-
-// 		log.Debugf("get project memebers on %s\n", path)
-
-// 		members, err := getMemberRoles(path)
-
-// 		// Return response error based on error code.
-// 		if err != nil {
-// 			switch err.(*ResponseError).code {
-// 			case 404:
-// 				return operations.NewGetProjectsIDMembersNotFound().WithPayload(err.Error())
-// 			default:
-// 				return operations.NewGetProjectsIDMembersInternalServerError().WithPayload(
-// 					&models.ResponseBody500{
-// 						ErrorMessage: err.Error(),
-// 						ExitCode:     RoleGettingError,
-// 					},
-// 				)
-// 			}
-// 		}
-
-// 		// Return 200 and list of members as response body.
-// 		return operations.NewGetProjectsIDMembersOK().WithPayload(
-// 			&models.ResponseBodyProjectMembers{
-// 				ProjectID: models.ProjectID(pid),
-// 				Members:   models.Members(members),
-// 			},
-// 		)
-// 	}
-// }
-
 // ResponseError is an internal error type for the API handler function to
 // determine which response error should be returned to the API client.
 type ResponseError struct {
@@ -619,22 +528,25 @@ func pid2path(pid string) (string, error) {
 }
 
 // getStorageSystem retrives storage system based on the suffix of the path.
-func getStorageSystem(path string) string {
+func getStorageSystem(cfg config.Configuration, path string) string {
 
 	// evaluate symlink to its absolute path.
 	path, _ = filepath.EvalSymlinks(path)
 
-	system := "netapp"
-
-	if strings.HasPrefix(path, PathProjectFreenas) {
-		system = "freenas"
+	switch true {
+	case strings.HasPrefix(path, cfg.FreeNas.GetProjectRoot()):
+		return "freenas"
+	case strings.HasPrefix(path, cfg.CephFs.GetProjectRoot()):
+		return "cephfs"
+	case strings.HasPrefix(path, cfg.NetApp.GetProjectRoot()):
+		return "netapp"
+	default:
+		return "netapp"
 	}
-
-	return system
 }
 
 // GetStorageQuota retrives quota limitation and its usage on the path.
-func GetStorageQuota(path string) (system string, quota, usage int64, err error) {
+func GetStorageQuota(cfg config.Configuration, path string) (system string, quota, usage int64, err error) {
 
 	fi, e := os.Stat(path)
 
@@ -655,7 +567,7 @@ func GetStorageQuota(path string) (system string, quota, usage int64, err error)
 
 	quota = int64((stat.Blocks * uint64(stat.Bsize)) >> 30)
 	usage = int64(math.Round(float64(((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))) / gib))
-	system = getStorageSystem(path)
+	system = getStorageSystem(cfg, path)
 
 	log.Debugf("path: %s, quota: %d GiB, usage: %d GiB", path, quota, usage)
 

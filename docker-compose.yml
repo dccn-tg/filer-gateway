@@ -15,6 +15,7 @@ services:
       - ${HOME_VOL-/home}:/home:ro
       - ${PROJECT_VOL:-/project}:/project:ro
       - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:
@@ -31,6 +32,7 @@ services:
       - ${HOME_VOL-/home}:/home:rw
       - ${PROJECT_VOL:-/project}:/project:rw
       - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:rw
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:

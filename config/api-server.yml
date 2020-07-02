@@ -1,3 +1,9 @@
 apiKey: demo
 auth:
   demo: demo123
+netapp:
+  projectRoot: /project
+freenas:
+  projectRoot: /project_freenas
+cephfs:
+  projectRoot: /project_cephfs

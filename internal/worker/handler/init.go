@@ -35,6 +35,8 @@ func getFilerAPI(system, configFile string) (filer.Filer, error) {
 		fConfig = cfg.NetApp
 	case "freenas":
 		fConfig = cfg.FreeNas
+	case "cephfs":
+		fConfig = cfg.CephFs
 	case "none":
 	default:
 		return nil, fmt.Errorf("unknown filer system: %s", system)
