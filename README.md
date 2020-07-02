@@ -1,6 +1,6 @@
 # API gateway for DCCN filers
 
-The goal of this project is to provide an uniform API interface to interact with different filer systems at DCCN for managing storage resource for project and/or user's personal home directory.  Three systems are targeted at the moment (system is checked if the integration with it is implemented):
+The goal of this project is to provide an uniform API interface to interact with different filer systems at DCCN for managing storage resource for project and/or user's personal home directory.  There are three targeted filer systems at the moment:
 
 - NetApp
   * [x] Provision and update project space as ONTAP volume.
