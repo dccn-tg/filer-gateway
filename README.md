@@ -31,7 +31,7 @@ async (w/ task id)|              |                | run
  sync (w/ data)   |              |          |           |             |           |
                   +----^---------+          +-----+-----+             +-----------+
                        |                          |
-       get quota usage | get ACL                  | set ACL
+       get quota usage | get ACL                  | set ACL (also create dir, set quota for CephFS)
                        |                          |
                   +----+--------------------------v-------+
                   |                                       |
