@@ -9,7 +9,7 @@ The goal of this project is to provide an uniform API interface to interact with
 - FreeNAS
   * [x] Provision and update project space as ZFS dataset.
 - Ceph
-  * TBD
+  * [ ] Provision and update project space as CephFS directory.
 
 ## Design and components
 
@@ -48,7 +48,9 @@ The filer gateway consists of three components:
 
 Task management are implemented using [Bokchoy](https://github.com/thoas/bokchoy) given that the functionality it provides is just sufficient enough (and not too complicated) for the implementation of the filer gateway.
 
-Two filer interfaces are involved for the gateway to interact with the filer: the exported filesystem, and the filer APIs.  For retriving the ACL and quota usage of a filer directory, only the exported filesystem is used. For setting the ACL, the filesystem is used; while setting quota on the filer requires interaction with the filer administration interface and thus the filer API is utilized.
+For NetApp and FreeNAS, two filer interfaces are involved for the gateway to interact with the filer: the exported filesystem, and the filer APIs.  For retriving the ACL and quota usage of a filer directory, only the exported filesystem is used. For setting the ACL, the filesystem is used; while setting quota on the filer requires interaction with the filer administration interface and thus the filer API is utilized.
+
+For CephFS, only the file system interface is used given that all operations (create project directory, set quota and ACL) can be done via the filesystem as long as it is mounted with sufficient privilege.
 
 ## Build
 
