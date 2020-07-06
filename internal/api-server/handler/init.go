@@ -16,6 +16,7 @@ import (
 
 	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
+	"github.com/Donders-Institute/filer-gateway/pkg/filer"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
@@ -396,7 +397,7 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 		}
 
 		// getting storage quota on the user's home directory
-		system, quota, usage, err := GetStorageQuota(cfg, u.HomeDir)
+		system, quota, usage, err := getStorageQuota(cfg, u.HomeDir)
 
 		// Return response error based on error code.
 		if err != nil {
@@ -454,7 +455,7 @@ func GetProjectResource(cfg config.Configuration) func(params operations.GetProj
 		}
 
 		// Get Storage Resource
-		system, quota, usage, err := GetStorageQuota(cfg, path)
+		system, quota, usage, err := getStorageQuota(cfg, path)
 		// Return response error based on error code.
 		if err != nil {
 			switch err.(*ResponseError).code {
@@ -534,19 +535,19 @@ func getStorageSystem(cfg config.Configuration, path string) string {
 	path, _ = filepath.EvalSymlinks(path)
 
 	switch true {
-	case strings.HasPrefix(path, cfg.FreeNas.GetProjectRoot()):
+	case strings.HasPrefix(path, filer.New("freenas", cfg.FreeNas).GetProjectRoot()):
 		return "freenas"
-	case strings.HasPrefix(path, cfg.CephFs.GetProjectRoot()):
+	case strings.HasPrefix(path, filer.New("cephfs", cfg.CephFs).GetProjectRoot()):
 		return "cephfs"
-	case strings.HasPrefix(path, cfg.NetApp.GetProjectRoot()):
+	case strings.HasPrefix(path, filer.New("netapp", cfg.NetApp).GetProjectRoot()):
 		return "netapp"
 	default:
 		return "netapp"
 	}
 }
 
-// GetStorageQuota retrives quota limitation and its usage on the path.
-func GetStorageQuota(cfg config.Configuration, path string) (system string, quota, usage int64, err error) {
+// getStorageQuota retrives quota limitation and its usage on the path.
+func getStorageQuota(cfg config.Configuration, path string) (system string, quota, usage int64, err error) {
 
 	fi, e := os.Stat(path)
 
@@ -559,18 +560,25 @@ func GetStorageQuota(cfg config.Configuration, path string) (system string, quot
 		return
 	}
 
-	// Caution: the code below uses Linux system call to get quota and used space!!
-	var stat syscall.Statfs_t
-	syscall.Statfs(path, &stat)
-
-	gib := 1024. * 1024 * 1024
-
-	quota = int64((stat.Blocks * uint64(stat.Bsize)) >> 30)
-	usage = int64(math.Round(float64(((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))) / gib))
 	system = getStorageSystem(cfg, path)
 
-	log.Debugf("path: %s, quota: %d GiB, usage: %d GiB", path, quota, usage)
+	// special treatment for cephfs
+	if system == "cephfs" {
+		cephfs := filer.New("cephfs", cfg.CephFs)
+		quota, err = cephfs.(filer.CephFs).GetQuotaInBytes(path)
+		usage, err = cephfs.(filer.CephFs).GetUsageInBytes(path)
+	} else {
+		// Caution: the code below uses Linux system call to get quota and used space!!
+		var stat syscall.Statfs_t
+		syscall.Statfs(path, &stat)
 
+		gib := 1024. * 1024 * 1024
+
+		quota = int64((stat.Blocks * uint64(stat.Bsize)) >> 30)
+		usage = int64(math.Round(float64(((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))) / gib))
+	}
+
+	log.Debugf("path: %s, quota: %d GiB, usage: %d GiB", path, quota, usage)
 	return
 }
 

@@ -75,9 +75,6 @@ func (c NetAppConfig) GetAPIUser() string { return c.ApiUser }
 // GetAPIPass returns the password for the API basic authentication.
 func (c NetAppConfig) GetAPIPass() string { return c.ApiPass }
 
-// GetProjectRoot returns the filesystem root path in which directories of projects are located.
-func (c NetAppConfig) GetProjectRoot() string { return c.ProjectRoot }
-
 // NetApp implements Filer interface for NetApp OnTAP cluster.
 type NetApp struct {
 	config NetAppConfig
@@ -91,6 +88,11 @@ func (filer NetApp) volName(projectID string) string {
 		"project",
 		strings.ReplaceAll(projectID, ".", "_"),
 	}, "_")
+}
+
+// GetProjectRoot returns the root path in which projects are hosted on the NetApp filer.
+func (filer NetApp) GetProjectRoot() string {
+	return filer.config.ProjectRoot
 }
 
 // CreateProject provisions a project space on the filer with the given quota.
@@ -152,7 +154,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 			Nas: Nas{
 				UID:             filer.config.ProjectUID,
 				GID:             filer.config.ProjectGID,
-				Path:            filepath.Join(filer.config.GetProjectRoot(), projectID),
+				Path:            filepath.Join(filer.GetProjectRoot(), projectID),
 				SecurityStyle:   "unix",
 				UnixPermissions: 750,
 				ExportPolicy:    ExportPolicy{Name: filer.config.ExportPolicyProject},
@@ -179,7 +181,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		}
 
 		// set owner of the project directory
-		ppath := filepath.Join(filer.config.GetProjectRoot(), projectID)
+		ppath := filepath.Join(filer.GetProjectRoot(), projectID)
 		if err := os.Chown(ppath, filer.config.ProjectUID, filer.config.ProjectGID); err != nil {
 			return fmt.Errorf("cannot set owner of %s: %s", ppath, err)
 		}

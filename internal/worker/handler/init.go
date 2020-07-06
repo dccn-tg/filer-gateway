@@ -77,20 +77,20 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	log.Debugf("payload data: %+v", data)
 
+	// load filer api interface
+	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+	if err != nil {
+		log.Errorf("cannot load filer api: %s", err)
+		return err
+	}
+
 	// filesystem path of the project storage space
-	ppath := filepath.Join(hapi.PathProject, data.ProjectID)
+	ppath := filepath.Join(api.GetProjectRoot(), data.ProjectID)
 
 	// only performs storage quota update when
 	// - requested quota is larger than 0
 	// - the storage system is not "none"
 	if data.Storage.QuotaGb > 0 && data.Storage.System != "none" {
-		// setting project resource
-		api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
-		if err != nil {
-			log.Errorf("cannot load filer api: %s", err)
-			return err
-		}
-
 		// 1. create project namespace
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
 			// call filer API to create project volume and/or namespace
@@ -124,6 +124,15 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 			time.Sleep(3 * time.Second)
 		} else {
 			break
+		}
+	}
+
+	// make sure ppath is presented under the `api-server.ProjectRoot` directory.
+	spath := filepath.Join(hapi.PathProject, data.ProjectID)
+	if _, err := os.Stat(spath); os.IsNotExist(err) {
+		// make symlink to ppath
+		if err := os.Symlink(ppath, spath); err != nil {
+			log.Errorf("cannot make symlink %s -> %s: %s", spath, ppath, err)
 		}
 	}
 

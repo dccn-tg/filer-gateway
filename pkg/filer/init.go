@@ -42,10 +42,6 @@ func New(system string, config Config) Filer {
 // Config defines interfaces for retriving configuration parameters that are
 // common across different filer systems.
 type Config interface {
-	GetAPIURL() string
-	GetAPIUser() string
-	GetAPIPass() string
-	GetProjectRoot() string
 }
 
 // Filer defines the interfaces for provisioning and setting storage space
@@ -57,6 +53,7 @@ type Filer interface {
 	SetHomeQuota(username, groupname string, quotaGiB int) error
 	GetProjectQuotaInBytes(projectID string) (int64, error)
 	GetHomeQuotaInBytes(username, groupname string) (int64, error)
+	GetProjectRoot() string
 }
 
 // newHTTPSClient initiate a HTTPS client.

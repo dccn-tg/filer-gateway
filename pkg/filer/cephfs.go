@@ -25,34 +25,22 @@ type CephFsConfig struct {
 	ProjectGroup string
 }
 
-// GetAPIURL is a dummy implementation fo the Config interface given that
-// operations on CephFS doesn't use the API interface.
-func (c CephFsConfig) GetAPIURL() string {
-	return ""
-}
-
-// GetAPIUser is a dummy implementation fo the Config interface given that
-// operations on CephFS doesn't use the API interface.
-func (c CephFsConfig) GetAPIUser() string { return "" }
-
-// GetAPIPass is a dummy implementation fo the Config interface given that
-// operations on CephFS doesn't use the API interface.
-func (c CephFsConfig) GetAPIPass() string { return "" }
-
-// GetProjectRoot returns the filesystem root path in which directories of projects are located.
-func (c CephFsConfig) GetProjectRoot() string { return c.ProjectRoot }
-
 // CephFs implement the filer interface specific for the Ceph filesystem.
 type CephFs struct {
 	config CephFsConfig
 }
 
+// GetProjectRoot returns the root path in which projects are hosted on the CephFS system.
+func (filer CephFs) GetProjectRoot() string {
+	return filer.config.ProjectRoot
+}
+
 // CreateProject creates a new project directory on the Ceph filesystem mounted under
 // `CephFsConfig.GetProjectRoot()`.
-func (c CephFs) CreateProject(projectID string, quotaGiB int) error {
+func (filer CephFs) CreateProject(projectID string, quotaGiB int) error {
 
 	// create project directory with permission 770
-	ppath := filepath.Join(c.config.GetProjectRoot(), projectID)
+	ppath := filepath.Join(filer.GetProjectRoot(), projectID)
 
 	if _, err := os.Stat(ppath); os.IsNotExist(err) {
 		if err := os.Mkdir(ppath, 0770); err != nil {
@@ -66,7 +54,7 @@ func (c CephFs) CreateProject(projectID string, quotaGiB int) error {
 	}
 
 	// change owner of the project directory
-	u, err := user.Lookup(c.config.ProjectUser)
+	u, err := user.Lookup(filer.config.ProjectUser)
 	if err != nil {
 		return err
 	}
@@ -101,9 +89,9 @@ func (c CephFs) CreateProject(projectID string, quotaGiB int) error {
 // `cephfs.quota.max_bytes` of the project directory on the Ceph filesystem.
 //
 // See [here](https://docs.ceph.com/docs/master/cephfs/quota/) for more detail.
-func (c CephFs) SetProjectQuota(projectID string, quotaGiB int) error {
+func (filer CephFs) SetProjectQuota(projectID string, quotaGiB int) error {
 
-	ppath := filepath.Join(c.config.GetProjectRoot(), projectID)
+	ppath := filepath.Join(filer.GetProjectRoot(), projectID)
 
 	// state the dir again and make sure it is a directory.
 	if s, _ := os.Stat(ppath); !s.IsDir() {
@@ -121,20 +109,27 @@ func (c CephFs) SetProjectQuota(projectID string, quotaGiB int) error {
 	return nil
 }
 
-// GetProjectQuotaInBytes retrieves the value of the extended attribute `cephfs.quota.max_bytes`
-// from the project directory on the Ceph filesystem.
+// GetProjectQuotaInBytes gets the quota of the project `projectID` hosted on the Ceph filesystem.
+func (filer CephFs) GetProjectQuotaInBytes(projectID string) (int64, error) {
+
+	ppath := filepath.Join(filer.GetProjectRoot(), projectID)
+
+	return filer.GetQuotaInBytes(ppath)
+
+}
+
+// GetQuotaInBytes gets the quota specified on the given `path` on the Ceph filesystem.
+// It is done by retrieving the value of the extended attribute `cephfs.quota.max_bytes`
+// from a path.
 //
 // See [here](https://docs.ceph.com/docs/master/cephfs/quota/) for more detail.
-func (c CephFs) GetProjectQuotaInBytes(projectID string) (int64, error) {
-
-	ppath := filepath.Join(c.config.GetProjectRoot(), projectID)
-
+func (filer CephFs) GetQuotaInBytes(path string) (int64, error) {
 	// state the dir again and make sure it is a directory.
-	if s, _ := os.Stat(ppath); !s.IsDir() {
-		return -1, fmt.Errorf("not a valid directory: %s", ppath)
+	if s, _ := os.Stat(path); !s.IsDir() {
+		return -1, fmt.Errorf("not a valid directory: %s", path)
 	}
 
-	out, err := getfattr(ppath, []string{
+	out, err := getfattr(path, []string{
 		"--only-values",
 		"-n", "ceph.quota.max_bytes",
 	})
@@ -151,21 +146,47 @@ func (c CephFs) GetProjectQuotaInBytes(projectID string) (int64, error) {
 	return int64(qbytes >> 30), nil
 }
 
+// GetUsageInBytes gets the storage usage under the given `path` on the Ceph filesystem.
+// It is done by retrieving the extended attribute `ceph.dir.rbytes` from the path.
+//
+// See [here](https://blog.widodh.nl/2015/04/playing-with-cephfs-recursive-statistics/) for more detail.
+func (filer CephFs) GetUsageInBytes(path string) (int64, error) {
+	if s, _ := os.Stat(path); !s.IsDir() {
+		return -1, fmt.Errorf("not a valid directory: %s", path)
+	}
+
+	out, err := getfattr(path, []string{
+		"--only-values",
+		"-n", "ceph.dir.rbytes",
+	})
+
+	if err != nil {
+		return -1, nil
+	}
+
+	ubytes, err := strconv.Atoi(string(out))
+	if err != nil {
+		return -1, fmt.Errorf("cannot parse usage value: %s", out)
+	}
+
+	return int64(ubytes >> 30), nil
+}
+
 // CreateHome always returns an error with "not supported" message, given that
 // Ceph filesystem is not used for personal home directory.
-func (c CephFs) CreateHome(username, groupname string, quotaGiB int) error {
+func (filer CephFs) CreateHome(username, groupname string, quotaGiB int) error {
 	return fmt.Errorf("not supported")
 }
 
 // SetHomeQuota always returns an error with "not supported" message, given that
 // Ceph filesystem is not used for personal home directory.
-func (c CephFs) SetHomeQuota(username, groupname string, quotaGiB int) error {
+func (filer CephFs) SetHomeQuota(username, groupname string, quotaGiB int) error {
 	return fmt.Errorf("not supported")
 }
 
 // GetHomeQuotaInBytes always returns an error with "not supported" message, given that
 // Ceph filesystem is not used for personal home directory.
-func (c CephFs) GetHomeQuotaInBytes(username, groupname string) (int64, error) {
+func (filer CephFs) GetHomeQuotaInBytes(username, groupname string) (int64, error) {
 	return -1, fmt.Errorf("not supported")
 }
 

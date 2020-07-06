@@ -55,12 +55,14 @@ func (c FreeNasConfig) GetAPIUser() string { return c.ApiUser }
 // GetAPIPass returns the password for the API basic authentication.
 func (c FreeNasConfig) GetAPIPass() string { return c.ApiPass }
 
-// GetProjectRoot returns the filesystem root path in which directories of projects are located.
-func (c FreeNasConfig) GetProjectRoot() string { return c.ProjectRoot }
-
 // FreeNas implements `Filer` for FreeNAS system.
 type FreeNas struct {
 	config FreeNasConfig
+}
+
+// GetProjectRoot returns the root path in which projects are hosted on the FreeNas system.
+func (filer FreeNas) GetProjectRoot() string {
+	return filer.config.ProjectRoot
 }
 
 // CreateProject creates a new dataset on the FreeNAS system with the dataset size
