@@ -28,6 +28,7 @@ services:
       target: worker
     image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
     user: root
+    privileged: true
     volumes:
       - ${HOME_VOL-/home}:/home:rw
       - ${PROJECT_VOL:-/project}:/project:rw
