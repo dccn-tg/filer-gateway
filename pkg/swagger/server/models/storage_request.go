@@ -25,7 +25,7 @@ type StorageRequest struct {
 
 	// the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
 	// Required: true
-	// Enum: [netapp freenas ceph none]
+	// Enum: [netapp freenas cephfs none]
 	System *string `json:"system"`
 }
 
@@ -60,7 +60,7 @@ var storageRequestTypeSystemPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["netapp","freenas","ceph","none"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["netapp","freenas","cephfs","none"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -76,8 +76,8 @@ const (
 	// StorageRequestSystemFreenas captures enum value "freenas"
 	StorageRequestSystemFreenas string = "freenas"
 
-	// StorageRequestSystemCeph captures enum value "ceph"
-	StorageRequestSystemCeph string = "ceph"
+	// StorageRequestSystemCephfs captures enum value "cephfs"
+	StorageRequestSystemCephfs string = "cephfs"
 
 	// StorageRequestSystemNone captures enum value "none"
 	StorageRequestSystemNone string = "none"

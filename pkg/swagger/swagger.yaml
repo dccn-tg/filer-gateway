@@ -486,7 +486,7 @@ definitions:
       system:
         description: the targeting filer on which the storage resource is allocated.
         type: string
-        enum: [netapp, freenas, ceph]
+        enum: [netapp, freenas, cephfs]
       quotaGb:
         description: storage quota in GiB.
         type: integer
@@ -504,7 +504,7 @@ definitions:
       system:
         description: the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
         type: string
-        enum: [netapp, freenas, ceph, none]
+        enum: [netapp, freenas, cephfs, none]
       quotaGb:
         description: storage quota in GiB.
         type: integer

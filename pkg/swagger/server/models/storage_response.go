@@ -25,7 +25,7 @@ type StorageResponse struct {
 
 	// the targeting filer on which the storage resource is allocated.
 	// Required: true
-	// Enum: [netapp freenas ceph]
+	// Enum: [netapp freenas cephfs]
 	System *string `json:"system"`
 
 	// used quota size in GiB (not used for the request data).
@@ -68,7 +68,7 @@ var storageResponseTypeSystemPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["netapp","freenas","ceph"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["netapp","freenas","cephfs"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -84,8 +84,8 @@ const (
 	// StorageResponseSystemFreenas captures enum value "freenas"
 	StorageResponseSystemFreenas string = "freenas"
 
-	// StorageResponseSystemCeph captures enum value "ceph"
-	StorageResponseSystemCeph string = "ceph"
+	// StorageResponseSystemCephfs captures enum value "cephfs"
+	StorageResponseSystemCephfs string = "cephfs"
 )
 
 // prop value enum

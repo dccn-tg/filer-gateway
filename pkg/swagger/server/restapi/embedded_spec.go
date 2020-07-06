@@ -638,7 +638,7 @@ func init() {
           "enum": [
             "netapp",
             "freenas",
-            "ceph",
+            "cephfs",
             "none"
           ]
         }
@@ -662,7 +662,7 @@ func init() {
           "enum": [
             "netapp",
             "freenas",
-            "ceph"
+            "cephfs"
           ]
         },
         "usageGb": {
@@ -1341,7 +1341,7 @@ func init() {
           "enum": [
             "netapp",
             "freenas",
-            "ceph",
+            "cephfs",
             "none"
           ]
         }
@@ -1365,7 +1365,7 @@ func init() {
           "enum": [
             "netapp",
             "freenas",
-            "ceph"
+            "cephfs"
           ]
         },
         "usageGb": {
