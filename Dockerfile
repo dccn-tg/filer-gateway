@@ -24,7 +24,6 @@ ENTRYPOINT ["./filer-gateway-api"]
 FROM centos:7 as worker
 RUN yum install -y nfs4-acl-tools sssd-client attr acl && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root
-EXPOSE 8080
 VOLUME ["/project", "project_freenas", "/project_cephfs", "/home"]
 COPY --from=0 /tmp/filer-gateway/bin/filer-gateway-worker .
 
