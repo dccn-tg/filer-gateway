@@ -14,7 +14,7 @@ services:
       LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
       LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USER}
       LAUNCH_IMAGE_REPO_PASS: ${DOCKER_REGISTRY_PASSWORD}
-      LAUNCH_CONTAINER_NAME: "${STACK_NAME:-filer-gateway}_api-server"
+      LAUNCH_CONTAINER_NAME: "${STACK_NAME:-filer-gateway}_api"
       LAUNCH_PULL: "true"
       LAUNCH_PRIVILEGED: "true"
       LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home:ro -v ${PROJECT_VOL:-/project}:/project:ro -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro -v ${CFG_API_SERVER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-api-server.yml}:/run/secrets/filer-gateway-api-server.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
