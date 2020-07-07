@@ -94,7 +94,7 @@ pipeline {
                 //configFileProvider([configFile(fileId: 'filer-gateway-worker.yml', variable: 'WORKER_CFG')]) {
                 //    sh 'docker secret rm filer-gateway-worker.yml || true'
                 //    sh 'docker secret create filer-gateway-worker.yml $WORKER_CFG'
-                }
+                //}
 
                 withCredentials([
                     // Fill in runtime credentials
