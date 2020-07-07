@@ -29,8 +29,8 @@ services:
       LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
       LAUNCH_IMAGE_ARGS: "-v -r db:6379 -c /run/secrets/filer-gateway-worker.yml"
       LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
-      LAUNCH_IMAGE_REPO_USER: ${DOCKER_USERNAME}
-      LAUNCH_IMAGE_REPO_PASS: ${DOCKER_PASSWORD}
+      LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USE}
+      LAUNCH_IMAGE_REPO_PASS: ${DOCKER_REGISTRY_PASSWORD}
       LAUNCH_PULL: "true"
       LAUNCH_PRIVILEGED: "true"
       LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home -v ${PROJECT_VOL:-/project}:/project -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas -v ${CFG_WORKER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml}:/run/secrets/filer-gateway-worker.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
