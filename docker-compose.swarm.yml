@@ -5,25 +5,9 @@ services:
       - ${VOL_DB_DATA:-/mnt/docker/data/filer-gateway/db}:/data
     networks:
       default:
-      
-  api-server:
-    ports:
-      - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
-    networks:
-      default:
-      proxynet:
-        aliases:
-          - filer-gateway
-    secrets:
-      - filer-gateway-api-server.yml
-    command: -p 8080 -v -r db:6379 -c /run/secrets/filer-gateway-api-server.yml
 
 networks:
   default:
     attachable: true
   proxynet:
-    external: true
-
-secrets:
-  filer-gateway-api-server.yml:
     external: true

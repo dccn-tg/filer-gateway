@@ -88,18 +88,6 @@ pipeline {
                 
                 sleep(10)
 
-                // api-server configuration from config file plugin
-                configFileProvider([configFile(fileId: 'filer-gateway-api-server.yml', variable: 'API_SERVER_CFG')]) {
-                    sh 'docker secret rm filer-gateway-api-server.yml || true'
-                    sh 'docker secret create filer-gateway-api-server.yml $API_SERVER_CFG'
-                }
-
-                // worker configuration from config file plugin
-                //configFileProvider([configFile(fileId: 'filer-gateway-worker.yml', variable: 'WORKER_CFG')]) {
-                //    sh 'docker secret rm filer-gateway-worker.yml || true'
-                //    sh 'docker secret create filer-gateway-worker.yml $WORKER_CFG'
-                //}
-
                 withCredentials([
                     // Fill in runtime credentials
                     usernamePassword (
