@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
+        STACK_NAME = "filer-gateway"
     }
     
     options {
