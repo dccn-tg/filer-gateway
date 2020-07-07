@@ -18,7 +18,7 @@ services:
       LAUNCH_PULL: "true"
       LAUNCH_PRIVILEGED: "true"
       LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home:ro -v ${PROJECT_VOL:-/project}:/project:ro -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro -v ${CFG_API_SERVER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-api-server.yml}:/run/secrets/filer-gateway-api-server.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
-      LAUNCH_EXTRA_ARGS: "--network=proxynet --network=${STACK_NAME:-filer-gateway}_default --network-alias=filer-gateway -p ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080"
+      LAUNCH_EXTRA_ARGS: "--network=${STACK_NAME:-filer-gateway}_default --network-alias=filer-gateway -p ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080"
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
