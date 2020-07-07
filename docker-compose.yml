@@ -29,7 +29,7 @@ services:
       LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
       LAUNCH_IMAGE_ARGS: "-v -r db:6379 -c /run/secrets/filer-gateway-worker.yml"
       LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
-      LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USE}
+      LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USER}
       LAUNCH_IMAGE_REPO_PASS: ${DOCKER_REGISTRY_PASSWORD}
       LAUNCH_PULL: "true"
       LAUNCH_PRIVILEGED: "true"
