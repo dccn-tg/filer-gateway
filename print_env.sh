@@ -6,6 +6,12 @@ echo
 echo "# docker registry endpoint"
 echo "DOCKER_REGISTRY=$DOCKER_REGISTRY"
 echo 
+echo "# docker registry username"
+echo "DOCKER_USERNAME="
+echo 
+echo "# docker registry password"
+echo "DOCKER_PASSWORD="
+echo 
 echo "# volume for home directory"
 echo "HOME_VOL=$HOME_VOL"
 echo
@@ -20,3 +26,6 @@ echo "PROJECT_CEPHFS_VOL=$PROJECT_CEPHFS_VOL"
 echo
 echo '# service port for external client'
 echo "FILER_GATEWAY_EXTERNAL_PORT=$FILER_GATEWAY_EXTERNAL_PORT"
+echo
+echo "# stack name"
+echo "STACK_NAME=$STACK_NAME"
