@@ -21,7 +21,7 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                sh 'docker-compose -f docker-compose.build.yml build --parallel'
+                sh 'docker-compose build --parallel'
             }
         }
 
@@ -39,7 +39,7 @@ pipeline {
                     "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
                 ]) {
-                    sh 'docker-compose -f docker-compose.build.yml build --parallel'
+                    sh 'docker-compose build --parallel'
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
                         if (env.DOCKER_REGISTRY) {
                             sh (
                                 label: "Pushing images to repository '${env.DOCKER_REGISTRY}'",
-                                script: 'docker-compose -f docker-compose.build.yml push'
+                                script: 'docker-compose push'
                             )
                         }
                     }
@@ -104,7 +104,7 @@ pipeline {
 
                     // Use the same approach as for production
                     script {
-                        def statusCode = sh(script: "bash ./docker-deploy-development.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./start.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
                 }
@@ -223,7 +223,7 @@ pipeline {
                         )
                     ]) {
                         sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${params.PRODUCTION_DOCKER_REGISTRY}"
-                        sh 'docker-compose -f docker-compose.build.yml push'
+                        sh 'docker-compose push'
                         echo "Pushed images to ${DOCKER_REGISTRY}"
                     }
                 } 

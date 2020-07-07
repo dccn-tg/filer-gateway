@@ -6,43 +6,44 @@ services:
     command: --appendonly yes
 
   api-server:
-    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:latest
-
-    environment:
-      LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-api:${DOCKER_IMAGE_TAG:-latest}
-      LAUNCH_IMAGE_ARGS: "-p 8080 -v -r db:6379 -c /run/secrets/filer-gateway-api-server.yml"
-      LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
-      LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USER}
-      LAUNCH_IMAGE_REPO_PASS: ${DOCKER_REGISTRY_PASSWORD}
-      LAUNCH_CONTAINER_NAME: "${STACK_NAME:-filer-gateway}_api"
-      LAUNCH_PULL: "true"
-      LAUNCH_PRIVILEGED: "true"
-      LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home:ro -v ${PROJECT_VOL:-/project}:/project:ro -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro -v ${CFG_API_SERVER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-api-server.yml}:/run/secrets/filer-gateway-api-server.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
-      LAUNCH_EXTRA_ARGS: "--network=${STACK_NAME:-filer-gateway}_default --network-alias=filer-gateway -p ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080"
-
+    build:
+      context: ./
+      target: api-server
+    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-api:${DOCKER_IMAGE_TAG:-latest}
+    user: root
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - ${FILER_GATEWAY_EXTERNAL_PORT:-8080}:8080
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME_VOL-/home}:/home:ro
+      - ${PROJECT_VOL:-/project}:/project:ro
+      - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro
+      - ${CFG_API_SERVER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-api-server.yml}:/etc/filer-gateway/config.yml:ro
+      - /var/lib/sss/pipes:/var/lib/sss/pipes
+      - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:
       - db
+    command: -p 8080 -v -r db:6379 -c /etc/filer-gateway/config.yml
 
   worker:
-    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:latest
-
-    environment:
-      LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
-      LAUNCH_IMAGE_ARGS: "-v -r db:6379 -c /run/secrets/filer-gateway-worker.yml"
-      LAUNCH_CONTAINER_NAME: "${STACK_NAME:-filer-gateway}_worker"
-      LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
-      LAUNCH_IMAGE_REPO_USER: ${DOCKER_REGISTRY_USER}
-      LAUNCH_IMAGE_REPO_PASS: ${DOCKER_REGISTRY_PASSWORD}
-      LAUNCH_PULL: "true"
-      LAUNCH_PRIVILEGED: "true"
-      LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home -v ${PROJECT_VOL:-/project}:/project -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas -v ${CFG_WORKER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml}:/run/secrets/filer-gateway-worker.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
-      LAUNCH_EXTRA_ARGS: "--network=${STACK_NAME:-filer-gateway}_default"
-
+    build:
+      context: ./
+      target: worker
+    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
+    user: root
+    cap_add:
+      - SYS_ADMIN
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
+      - ${HOME_VOL-/home}:/home:rw
+      - ${PROJECT_VOL:-/project}:/project:rw
+      - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:rw
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:rw
+      - ${CFG_WORKER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml}:/etc/filer-gateway/config.yml:ro
+      - /var/lib/sss/pipes:/var/lib/sss/pipes
+      - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:
       - db
       - api-server
+    command: -v -r db:6379 -c /etc/filer-gateway/config.yml
