@@ -23,7 +23,7 @@ services:
     command: -p 8080 -v -r db:6379
 
   swarm-launcher:
-    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:${DOCKER_IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:latest
 
     environment:
       LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
