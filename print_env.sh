@@ -24,6 +24,9 @@ echo
 echo "# volume for project_cephfs directory"
 echo "PROJECT_CEPHFS_VOL=$PROJECT_CEPHFS_VOL"
 echo
+echo "# configuration file for filer-gateway-worker"
+echo "CFG_WORKER=$CFG_WORKER"
+echo
 echo '# service port for external client'
 echo "FILER_GATEWAY_EXTERNAL_PORT=$FILER_GATEWAY_EXTERNAL_PORT"
 echo

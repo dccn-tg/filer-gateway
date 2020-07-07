@@ -33,7 +33,7 @@ services:
       LAUNCH_IMAGE_REPO_PASS: ${DOCKER_PASSWORD}
       LAUNCH_PULL: "true"
       LAUNCH_PRIVILEGED: "true"
-      LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home -v ${PROJECT_VOL:-/project}:/project -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas -v /mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml:/run/secrets/filer-gateway-worker.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
+      LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home -v ${PROJECT_VOL:-/project}:/project -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas -v ${CFG_WORKER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml}:/run/secrets/filer-gateway-worker.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
       LAUNCH_EXTRA_ARGS: "--network ${STACK_NAME:-filer-gateway}_default"
 
     volumes:
