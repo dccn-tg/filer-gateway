@@ -102,6 +102,11 @@ pipeline {
 
                 withCredentials([
                     // Fill in runtime credentials
+                    usernamePassword (
+                        credentialsId: params.PLAYGROUND_DOCKER_REGISTRY_CREDENTIALS,
+                        usernameVariable: 'DOCKER_REGISTRY_USER',
+                        passwordVariable: 'DOCKER_REGISTRY_PASSWORD'
+                    )
                 ]) {
                     // Overwrite the env.sh file to be stored later as an artifact
                     script {
