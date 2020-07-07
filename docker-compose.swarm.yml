@@ -19,6 +19,8 @@ services:
     command: -p 8080 -v -r db:6379 -c /run/secrets/filer-gateway-api-server.yml
 
 networks:
+  default:
+    attachable: true
   proxynet:
     external: true
 
