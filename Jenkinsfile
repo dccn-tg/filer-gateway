@@ -81,9 +81,12 @@ pipeline {
             }
             steps {
 
-                sh 'docker stack rm filer-gateway'
+                script {
+                    def statusCode = sh(script: "bash ./stop.sh", returnStatus: true)
+                    echo "statusCode: ${statusCode}"
+                }
                 
-                sleep(30)
+                sleep(10)
 
                 // api-server configuration from config file plugin
                 configFileProvider([configFile(fileId: 'filer-gateway-api-server.yml', variable: 'API_SERVER_CFG')]) {
