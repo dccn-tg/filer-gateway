@@ -12,7 +12,7 @@ services:
     image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-api:${DOCKER_IMAGE_TAG:-latest}
     user: root
     volumes:
-      - ${HOME_VOL-/home}:/home:ro
+      - ${HOME_VOL:-/home}:/home:ro
       - ${PROJECT_VOL:-/project}:/project:ro
       - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:ro
       - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro
@@ -22,21 +22,23 @@ services:
       - db
     command: -p 8080 -v -r db:6379
 
-  worker:
-    build:
-      context: ./
-      target: worker
-    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
-    user: root
-    privileged: true
+  swarm-launcher:
+    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:${DOCKER_IMAGE_TAG:-latest}
+
+    environment:
+      LAUNCH_IMAGE: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
+      LAUNCH_IMAGE_ARGS: "-v -r db:6379 -c /run/secrets/filer-gateway-worker.yml"
+      LAUNCH_IMAGE_REPO: ${DOCKER_REGISTRY:-dccn} 
+      LAUNCH_IMAGE_REPO_USER: ${DOCKER_USERNAME}
+      LAUNCH_IMAGE_REPO_PASS: ${DOCKER_PASSWORD}
+      LAUNCH_PULL: "true"
+      LAUNCH_PRIVILEGED: "true"
+      LAUNCH_VOLUMES: "-v ${HOME_VOL:-/home}:/home -v ${PROJECT_VOL:-/project}:/project -v ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs -v ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas -v /mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml:/run/secrets/filer-gateway-worker.yml:ro -v /var/lib/sss/pipes:/var/lib/sss/pipes -v /var/lib/sss/mc:/var/lib/sss/mc:ro"
+      LAUNCH_EXTRA_ARGS: "--network ${STACK_NAME:-filer-gateway}_default"
+
     volumes:
-      - ${HOME_VOL-/home}:/home:rw
-      - ${PROJECT_VOL:-/project}:/project:rw
-      - ${PROJECT_FREENAS_VOL:-/project_freenas}:/project_freenas:rw
-      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:rw
-      - /var/lib/sss/pipes:/var/lib/sss/pipes
-      - /var/lib/sss/mc:/var/lib/sss/mc:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
     depends_on:
       - db
       - api-server
-    command: -v -r db:6379

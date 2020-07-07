@@ -18,17 +18,10 @@ services:
       - filer-gateway-api-server.yml
     command: -p 8080 -v -r db:6379 -c /run/secrets/filer-gateway-api-server.yml
 
-  worker:
-    secrets:
-      - filer-gateway-worker.yml
-    command: -v -r db:6379 -c /run/secrets/filer-gateway-worker.yml
-
 networks:
   proxynet:
     external: true
 
 secrets:
   filer-gateway-api-server.yml:
-    external: true
-  filer-gateway-worker.yml:
     external: true

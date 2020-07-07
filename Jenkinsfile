@@ -20,7 +20,7 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                sh 'docker-compose build --parallel'
+                sh 'docker-compose -f docker-compose.build.yml build --parallel'
             }
         }
 
@@ -38,7 +38,7 @@ pipeline {
                     "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
                 ]) {
-                    sh 'docker-compose build --parallel'
+                    sh 'docker-compose -f docker-compose.build.yml build --parallel'
                 }
             }
         }
@@ -61,7 +61,7 @@ pipeline {
                         if (env.DOCKER_REGISTRY) {
                             sh (
                                 label: "Pushing images to repository '${env.DOCKER_REGISTRY}'",
-                                script: 'docker-compose push'
+                                script: 'docker-compose -f docker-compose.build.yml push'
                             )
                         }
                     }
@@ -91,9 +91,9 @@ pipeline {
                 }
 
                 // worker configuration from config file plugin
-                configFileProvider([configFile(fileId: 'filer-gateway-worker.yml', variable: 'WORKER_CFG')]) {
-                    sh 'docker secret rm filer-gateway-worker.yml || true'
-                    sh 'docker secret create filer-gateway-worker.yml $WORKER_CFG'
+                //configFileProvider([configFile(fileId: 'filer-gateway-worker.yml', variable: 'WORKER_CFG')]) {
+                //    sh 'docker secret rm filer-gateway-worker.yml || true'
+                //    sh 'docker secret create filer-gateway-worker.yml $WORKER_CFG'
                 }
 
                 withCredentials([
