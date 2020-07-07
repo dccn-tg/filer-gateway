@@ -235,7 +235,7 @@ pipeline {
                         )
                     ]) {
                         sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${params.PRODUCTION_DOCKER_REGISTRY}"
-                        sh 'docker-compose push'
+                        sh 'docker-compose -f docker-compose.build.yml push'
                         echo "Pushed images to ${DOCKER_REGISTRY}"
                     }
                 } 
