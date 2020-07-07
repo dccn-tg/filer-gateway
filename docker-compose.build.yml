@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  api-server:
+    build:
+      context: ./
+      target: api-server
+    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-api:${DOCKER_IMAGE_TAG:-latest}
+
+  worker:
+    build:
+      context: ./
+      target: worker
+    image: ${DOCKER_REGISTRY:-dccn}/filer-gateway-worker:${DOCKER_IMAGE_TAG:-latest}
+
+  swarm-launcher:
+    build:
+      context: ./swarm-launcher
+    image: ${DOCKER_REGISTRY:-dccn}/swarm-launcher:latest
