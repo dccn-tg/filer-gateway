@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
-        STACK_NAME = "filer-gateway"
     }
     
     options {
@@ -129,11 +128,13 @@ pipeline {
                 // wait for 10 seconds
                 sleep 10
 
-                // check whether the api-server is responding to the api docs.
-                sh (
-                    label: 'checking if filer-gateway_api-server in running state',
-                    script: 'curl -s -o /dev/null -f http://localhost:8080/docs'
-                )
+                // check if containers are in running state
+                ['filer-gateway_api-server','filer-gateway_worker','filer-gateway_db'].each{
+                    container -> sh(
+                        label: "checking if ${container} in running state",
+                        script: "docker ps --format {{.Names}} --filter status=running --filter name=${container} | grep ${container}"
+                    )
+                }
             }
         }
 
