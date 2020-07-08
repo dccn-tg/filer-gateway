@@ -1,3 +1,18 @@
+@NonCPS
+def docker_ps_health_check(list) {
+    for (int i = 0; i < list.size(); i++) {
+        statusCode = sh(
+            returnStatus: true,
+            label: "checking if ${list[i]} in running state",
+            script: "docker ps --format {{.Names}} --filter status=running --filter name=${list[i]} | grep ${list[i]}"
+        )
+
+        if ( statusCode != 0 ) {
+            return statusCode
+        }
+    }
+}
+
 pipeline {
     agent any
 
@@ -7,21 +22,6 @@ pipeline {
     
     options {
         disableConcurrentBuilds()
-    }
-
-    @NonCPS
-    def docker_ps_health_check(list) {
-        for (int i = 0; i < list.size(); i++) {
-            statusCode = sh(
-                returnStatus: true,
-                label: "checking if ${list[i]} in running state",
-                script: "docker ps --format {{.Names}} --filter status=running --filter name=${list[i]} | grep ${list[i]}"
-            )
-
-            if ( statusCode != 0 ) {
-                return statusCode
-            }
-        }
     }
 
     stages {
