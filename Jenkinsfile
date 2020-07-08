@@ -212,7 +212,7 @@ pipeline {
         success {
             script {
                 // regenerate env.sh; but strip out the username/password
-                def statusCode = sh(returnStatus:true, script: "bash ./print_env.sh | sed 's/^DOCKER_REGISTRY_USER=.*$/DOCKER_REGISTRY_USER=/' | sed 's/^DOCKER_REGISTRY_PASSWORD=.*$/DOCKER_REGISTRY_PASSWORD=/' > env.sh")
+                def statusCode = sh(returnStatus:true, script: "bash ./print_env.sh | sed 's/^DOCKER_REGISTRY_USER=.*/DOCKER_REGISTRY_USER=/' | sed 's/^DOCKER_REGISTRY_PASSWORD=.*/DOCKER_REGISTRY_PASSWORD=/' > env.sh")
                 if ( statusCode != 0 ) {
                     echo "unable to generate env.sh file, check it manually."
                 }
