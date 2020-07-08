@@ -11,7 +11,7 @@ There are three targeted filer systems at the moment:
 - FreeNAS
   * [x] Provision and update project space as ZFS dataset.
 - Ceph
-  * [ ] Provision and update project space as CephFS directory.
+  * [x] Provision and update project space as CephFS directory.
 
 ## Design and components
 
@@ -94,19 +94,29 @@ The API document is embedded with the service.
 
 ## Using Docker
 
-To build the whole service stack (i.e. API server, key-value store, worker), one does:
+A [docker-compose.yml](docker-compose.yml) file is provided to build and deploy the whole service stack (i.e. API server, key-value store, worker) as containers.
+
+To build the containers, one does:
 
 ```bash
 $ docker-compose build --force-rm
 ```
 
-To run the service stack, use
+To run the containers, one first generates the `env.sh` file using the [print_env.sh](print_env.sh) script, e.g.
 
 ```bash
-$ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+$ ./print_env.sh > env.sh
 ```
 
-The additional compose file `docker-compose.dev.yml` makes the API server exposed to the host network.
+Changing the environment variables defined in the `env.sh` file accordingly, and starting the containers with:
+
+```bash
+$ docker-compose -p filer-gateway -f docker-compose.yml up -d
+```
+
+or use the provided [start.sh](start.sh) script.
+
+__NOTE:__ In theory, the service stack can also be deployed on a swarm cluster; however, due to the lack of support of the `cap_add` option when using the `docker stack deploy` command (see [this issue](https://github.com/moby/moby/issues/25885)), the CephFS interface will not function properly in the setting/getting the project manager role that is stored in the `trusted.managers` xattr.
 
 ## Demo scripts for client implementation
 
