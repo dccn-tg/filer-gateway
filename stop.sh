@@ -8,13 +8,13 @@ docker-compose -p filer-gateway down
 #
 #source env.sh
 #
-#docker stack rm ${STACK_NAME}
+#docker stack rm filer-gateway
 #
 #while true; do
-#    nc=$( cnt_containers ${STACK_NAME}_default )
+#    nc=$( cnt_containers filer-gateway_default )
 #    echo "containers attached to default network: $nc"
 #    [ $nc -gt 0 ] && sleep 1 || break
 #done
 #
-#echo "shutting down network ${STACK_NAME}_default ..."
-#docker network rm ${STACK_NAME}_default
+#echo "shutting down network filer-gateway_default ..."
+#docker network rm filer-gateway_default

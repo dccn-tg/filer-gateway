@@ -29,6 +29,3 @@ echo "CFG_WORKER=$CFG_WORKER"
 echo
 echo '# service port for external client'
 echo "FILER_GATEWAY_EXTERNAL_PORT=$FILER_GATEWAY_EXTERNAL_PORT"
-echo
-echo "# stack name"
-echo "STACK_NAME=$STACK_NAME"
