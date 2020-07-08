@@ -1,4 +1,3 @@
-@NonCPS
 def docker_ps_health_check(list) {
     for (int i = 0; i < list.size(); i++) {
         statusCode = sh(
