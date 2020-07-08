@@ -9,6 +9,21 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    @NonCPS
+    def docker_ps_health_check(list) {
+        for (int i = 0; i < list.size(); i++) {
+            statusCode = sh(
+                returnStatus: true,
+                label: "checking if ${list[i]} in running state",
+                script: "docker ps --format {{.Names}} --filter status=running --filter name=${list[i]} | grep ${list[i]}"
+            )
+
+            if ( statusCode != 0 ) {
+                return statusCode
+            }
+        }
+    }
+
     stages {
         // build containers.
         stage('Build') {
@@ -129,12 +144,7 @@ pipeline {
                 sleep 10
 
                 // check if containers are in running state
-                ['filer-gateway_api-server','filer-gateway_worker','filer-gateway_db'].each{
-                    container -> sh(
-                        label: "checking if ${container} in running state",
-                        script: "docker ps --format {{.Names}} --filter status=running --filter name=${container} | grep ${container}"
-                    )
-                }
+                docker_ps_health_check(['filer-gateway_api-server','filer-gateway_worker','filer-gateway_db'])
             }
         }
 
