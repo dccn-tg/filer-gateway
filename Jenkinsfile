@@ -11,6 +11,7 @@ pipeline {
     }
 
     stages {
+        // build containers.
         stage('Build') {
             when {
                 expression {
@@ -25,6 +26,7 @@ pipeline {
             }
         }
 
+        // build contains with tags ready for pushing to production registry.
         stage('Build (PRODUCTION)') {
             when {
                 expression {
@@ -44,6 +46,7 @@ pipeline {
             }
         }
 
+        // perform unit test, and push the containers to the test environment registry on success.
         stage('Unit tests') {
             when {
                 expression {
@@ -70,6 +73,7 @@ pipeline {
             }
         }
 
+        // deploying containers on the test environment.
         stage('Staging') {
              when {
                 expression {
@@ -111,28 +115,7 @@ pipeline {
             }
         }
 
-        // The following health check requires default network to be set "attachable". 
-        // stage('Health check') {
-        //      when {
-        //         expression {
-        //             return !params.PRODUCTION
-        //         }
-        //     }
-        //     agent {
-        //         docker {
-        //             image 'jwilder/dockerize'
-        //             args '--network filer-gateway_default'
-        //         }
-        //     }
-        //     steps {
-        //         sh (
-        //             label: 'Waiting for services to become available',
-        //             script: 'dockerize \
-        //                 -timeout 120s \
-        //                 -wait http://filer-gateway:8080'
-        //         )
-        //     }
-        // }
+        // check if containers are properly started on the test environment.
         stage('Health check') {
             when {
                 expression {
@@ -146,21 +129,15 @@ pipeline {
                 // wait for 10 seconds
                 sleep 10
 
-                // check whether the docker service reports running
+                // check whether the api-server is responding to the api docs.
                 sh (
                     label: 'checking if filer-gateway_api-server in running state',
-                    script: "docker service ps filer-gateway_api-server --format '{{.CurrentState}}' | grep '^Running'"
+                    script: 'curl -s -o /dev/null -f http://localhost:8080/docs'
                 )
             }
         }
 
-
-        // stage('Integration test') {
-        //     steps {
-        //         echo 'hi'
-        //     }
-        // }
-
+        // making release tag and push containers to production registry.
         stage('Tag and push (PRODUCTION)') {
             when {
                 expression {
@@ -233,7 +210,14 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts "docker-compose.yml, docker-compose.swarm.yml, env.sh"
+            script {
+                // regenerate env.sh; but strip out the username/password
+                def statusCode = sh(returnStatus:true, script: "bash ./print_env.sh | sed 's/^DOCKER_REGISTRY_USER=.*$/DOCKER_REGISTRY_USER=/' | sed 's/^DOCKER_REGISTRY_PASSWORD=.*$/DOCKER_REGISTRY_PASSWORD=/' > env.sh")
+                if ( statusCode != 0 ) {
+                    echo "unable to generate env.sh file, check it manually."
+                }
+            }
+            archiveArtifacts "docker-compose.yml, start.sh, stop.sh, env.sh"
         }
         always {
             echo 'cleaning'
