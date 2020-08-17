@@ -91,22 +91,21 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	// - requested quota is larger than 0
 	// - the storage system is not "none"
 	if data.Storage.QuotaGb > 0 && data.Storage.System != "none" {
-		// 1. create project namespace
+		// create project namespace or update project quota depending on whether the project directory exists.
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
 			// call filer API to create project volume and/or namespace
 			if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
 				log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
 				return err
 			}
-			log.Debugf("project space created on %s at path %s", data.Storage.System, ppath)
+			log.Debugf("project space created on %s at path %s with quota %d GB", data.Storage.System, ppath, data.Storage.QuotaGb)
 		} else {
-			log.Warnf("skip project space creation as project path already exists: %s", ppath)
-		}
-
-		// 2. update project quota
-		if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
-			return err
+			// call filer API to update project quota
+			if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
+				log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+				return err
+			}
+			log.Debugf("project space quota on %s at path %s updated to %d GB", data.Storage.System, ppath, data.Storage.QuotaGb)
 		}
 	}
 
