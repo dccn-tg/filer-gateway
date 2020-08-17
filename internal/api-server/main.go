@@ -83,6 +83,7 @@ func main() {
 	}
 
 	api := operations.NewFilerGatewayAPI(swaggerSpec)
+	api.UseRedoc()
 	server := restapi.NewServer(api)
 	defer func() {
 		if err := server.Shutdown(); err != nil {

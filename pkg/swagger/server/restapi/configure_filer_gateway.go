@@ -30,6 +30,10 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 	// Example:
 	// api.Logger = log.Printf
 
+	api.UseSwaggerUI()
+	// To continue using redoc as your UI, uncomment the following line
+	// api.UseRedoc()
+
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
@@ -57,16 +61,6 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
 		})
 	}
-	// if api.GetProjectsIDMembersHandler == nil {
-	// 	api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(func(params operations.GetProjectsIDMembersParams) middleware.Responder {
-	// 		return middleware.NotImplemented("operation operations.GetProjectsIDMembers has not yet been implemented")
-	// 	})
-	// }
-	// if api.GetProjectsIDStorageHandler == nil {
-	// 	api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(func(params operations.GetProjectsIDStorageParams) middleware.Responder {
-	// 		return middleware.NotImplemented("operation operations.GetProjectsIDStorage has not yet been implemented")
-	// 	})
-	// }
 	if api.GetTasksTypeIDHandler == nil {
 		api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(func(params operations.GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
@@ -126,5 +120,5 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return middleware.Redoc(middleware.RedocOpts{}, handler)
+	return handler
 }
