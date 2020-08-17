@@ -6,12 +6,6 @@ echo
 echo "# docker registry endpoint"
 echo "DOCKER_REGISTRY=$DOCKER_REGISTRY"
 echo 
-echo "# docker registry username"
-echo "DOCKER_REGISTRY_USER=$DOCKER_REGISTRY_USER"
-echo 
-echo "# docker registry password"
-echo "DOCKER_REGISTRY_PASSWORD=$DOCKER_REGISTRY_PASSWORD"
-echo 
 echo "# volume for home directory"
 echo "HOME_VOL=$HOME_VOL"
 echo
