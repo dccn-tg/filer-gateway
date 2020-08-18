@@ -25,7 +25,12 @@ services:
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:
       - db
-    command: -p 8080 -v -r db:6379 -c /etc/filer-gateway/config.yml
+    command: -p 8080 -r db:6379 -c /etc/filer-gateway/config.yml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
 
   worker:
     build:
@@ -46,4 +51,9 @@ services:
     depends_on:
       - db
       - api-server
-    command: -v -r db:6379 -c /etc/filer-gateway/config.yml
+    command: -r db:6379 -c /etc/filer-gateway/config.yml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
