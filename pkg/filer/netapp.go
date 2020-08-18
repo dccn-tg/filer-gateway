@@ -225,6 +225,18 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 	uid, _ := strconv.Atoi(u.Uid)
 	gid, _ := strconv.Atoi(u.Gid)
 	hpath := filepath.Join("/home", groupname, username)
+
+	// wait for hpath to appear up to 5 minutes.
+	t := time.Now()
+	for {
+		if _, err := os.Stat(hpath); os.IsNotExist(err) && time.Now().Sub(t) < 5*time.Minute {
+			log.Debugf("waiting for path to become available: %s", hpath)
+			time.Sleep(time.Second)
+			continue
+		}
+		break
+	}
+
 	if err := os.Chown(hpath, uid, gid); err != nil {
 		return fmt.Errorf("cannot set owner of %s: %s", hpath, err)
 	}
