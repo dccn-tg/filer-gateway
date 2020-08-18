@@ -186,7 +186,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		// wait for ppath to appear up to 5 minutes.
 		t := time.Now()
 		for {
-			if _, err := os.Stat(ppath); os.IsNotExist(err) && time.Now().Sub(t) < 5*time.Minute {
+			if _, err := os.Stat(ppath); os.IsNotExist(err) && time.Since(t) < 5*time.Minute {
 				log.Debugf("waiting for path to become available: %s", ppath)
 				time.Sleep(time.Second)
 				continue
@@ -229,7 +229,7 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 	// wait for hpath to appear up to 5 minutes.
 	t := time.Now()
 	for {
-		if _, err := os.Stat(hpath); os.IsNotExist(err) && time.Now().Sub(t) < 5*time.Minute {
+		if _, err := os.Stat(hpath); os.IsNotExist(err) && time.Since(t) < 5*time.Minute {
 			log.Debugf("waiting for path to become available: %s", hpath)
 			time.Sleep(time.Second)
 			continue
