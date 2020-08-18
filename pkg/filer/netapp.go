@@ -182,6 +182,18 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 
 		// set owner of the project directory
 		ppath := filepath.Join(filer.GetProjectRoot(), projectID)
+
+		// wait for ppath to appear up to 5 minutes.
+		t := time.Now()
+		for {
+			if _, err := os.Stat(ppath); os.IsNotExist(err) && time.Now().Sub(t) < 5*time.Minute {
+				log.Debugf("waiting for path to become available: %s", ppath)
+				time.Sleep(time.Second)
+				continue
+			}
+			break
+		}
+
 		if err := os.Chown(ppath, filer.config.ProjectUID, filer.config.ProjectGID); err != nil {
 			return fmt.Errorf("cannot set owner of %s: %s", ppath, err)
 		}
