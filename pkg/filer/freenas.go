@@ -86,7 +86,7 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 		RefReservation:  0,
 		Reservation:     0,
 		Snapdir:         "HIDDEN",
-		ShareType:       "UNIX",
+		ShareType:       "GENERIC",
 		CaseSensitivity: "SENSITIVE",
 	}
 
@@ -96,11 +96,14 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 
 	// set permission of the created dataset
 	p := permission{
-		User:      filer.config.ProjectUser,
-		Group:     filer.config.ProjectGroup,
-		Mode:      "0750",
-		ACL:       "UNIX",
-		Recursive: true,
+		User:  filer.config.ProjectUser,
+		Group: filer.config.ProjectGroup,
+		Mode:  "0750",
+		Options: permissionOptions{
+			Traverse:  false,
+			Resursive: true,
+			StripACL:  false,
+		},
 	}
 
 	ns := strings.Join([]string{
@@ -396,11 +399,20 @@ type datasetUpdate struct {
 
 // permission defines the JSON data structure for setting a dataset permission.
 type permission struct {
-	User      string `json:"user"`
-	Group     string `json:"group"`
-	Mode      string `json:"mode"`
-	ACL       string `json:"acl"`
-	Recursive bool   `json:"recursive"`
+	User    string            `json:"user"`
+	Group   string            `json:"group"`
+	Mode    string            `json:"mode"`
+	ACL     []permissionACL   `json:"acl"`
+	Options permissionOptions `json:"options"`
+}
+
+type permissionACL struct {
+}
+
+type permissionOptions struct {
+	Resursive bool `json:"recursive"`
+	Traverse  bool `json:"traverse"`
+	StripACL  bool `json:"stripacl"`
 }
 
 // {
