@@ -102,7 +102,7 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 		Options: permissionOptions{
 			Traverse:  false,
 			Resursive: true,
-			StripACL:  false,
+			StripACL:  true,
 		},
 	}
 
@@ -402,11 +402,7 @@ type permission struct {
 	User    string            `json:"user"`
 	Group   string            `json:"group"`
 	Mode    string            `json:"mode"`
-	ACL     []permissionACL   `json:"acl"`
 	Options permissionOptions `json:"options"`
-}
-
-type permissionACL struct {
 }
 
 type permissionOptions struct {
