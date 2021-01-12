@@ -143,7 +143,7 @@ func (filer CephFs) GetQuotaInBytes(path string) (int64, error) {
 		return -1, fmt.Errorf("cannot parse quota value: %s", out)
 	}
 
-	return int64(qbytes >> 30), nil
+	return int64(qbytes), nil
 }
 
 // GetUsageInBytes gets the storage usage under the given `path` on the Ceph filesystem.
@@ -169,7 +169,7 @@ func (filer CephFs) GetUsageInBytes(path string) (int64, error) {
 		return -1, fmt.Errorf("cannot parse usage value: %s", out)
 	}
 
-	return int64(ubytes >> 30), nil
+	return int64(ubytes), nil
 }
 
 // CreateHome always returns an error with "not supported" message, given that

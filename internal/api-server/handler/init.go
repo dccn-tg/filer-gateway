@@ -431,14 +431,16 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 		}
 
 		// return 200 success with storage quota information.
+		quotaGb := quota >> 30
+		usageMb := usage >> 20
 		return operations.NewGetUsersIDOK().WithPayload(
 			&models.ResponseBodyUserResource{
 				UserID:   models.UserID(uname),
 				MemberOf: memberOf,
 				Storage: &models.StorageResponse{
-					QuotaGb: &quota,
+					QuotaGb: &quotaGb,
 					System:  &system,
-					UsageGb: &usage,
+					UsageMb: &usageMb,
 				},
 			},
 		)
@@ -489,13 +491,16 @@ func GetProjectResource(cfg config.Configuration) func(params operations.GetProj
 		}
 
 		// return 200 success with storage quota information.
+		quotaGb := quota >> 30
+		usageMb := usage >> 20
+
 		return operations.NewGetProjectsIDOK().WithPayload(
 			&models.ResponseBodyProjectResource{
 				ProjectID: models.ProjectID(pid),
 				Storage: &models.StorageResponse{
-					QuotaGb: &quota,
+					QuotaGb: &quotaGb,
 					System:  &system,
-					UsageGb: &usage,
+					UsageMb: &usageMb,
 				},
 				Members: models.Members(members),
 			},
@@ -572,13 +577,11 @@ func getStorageQuota(cfg config.Configuration, path string) (system string, quot
 		var stat syscall.Statfs_t
 		syscall.Statfs(path, &stat)
 
-		gib := 1024. * 1024 * 1024
-
-		quota = int64((stat.Blocks * uint64(stat.Bsize)) >> 30)
-		usage = int64(math.Round(float64(((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))) / gib))
+		quota = int64(stat.Blocks * uint64(stat.Bsize))
+		usage = int64(math.Round(float64((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))))
 	}
 
-	log.Debugf("path: %s, quota: %d GiB, usage: %d GiB", path, quota, usage)
+	log.Debugf("path: %s, quota: %d bytes, usage: %d bytes", path, quota, usage)
 	return
 }
 

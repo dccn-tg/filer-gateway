@@ -649,11 +649,11 @@ func init() {
       "required": [
         "system",
         "quotaGb",
-        "usageGb"
+        "usageMb"
       ],
       "properties": {
         "quotaGb": {
-          "description": "storage quota in GiB.",
+          "description": "assigned storage quota in GiB.",
           "type": "integer"
         },
         "system": {
@@ -665,8 +665,8 @@ func init() {
             "cephfs"
           ]
         },
-        "usageGb": {
-          "description": "used quota size in GiB (not used for the request data).",
+        "usageMb": {
+          "description": "used storage quota in MiB.",
           "type": "integer"
         }
       }
@@ -1352,11 +1352,11 @@ func init() {
       "required": [
         "system",
         "quotaGb",
-        "usageGb"
+        "usageMb"
       ],
       "properties": {
         "quotaGb": {
-          "description": "storage quota in GiB.",
+          "description": "assigned storage quota in GiB.",
           "type": "integer"
         },
         "system": {
@@ -1368,8 +1368,8 @@ func init() {
             "cephfs"
           ]
         },
-        "usageGb": {
-          "description": "used quota size in GiB (not used for the request data).",
+        "usageMb": {
+          "description": "used storage quota in MiB.",
           "type": "integer"
         }
       }

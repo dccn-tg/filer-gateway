@@ -19,7 +19,7 @@ import (
 // swagger:model storageResponse
 type StorageResponse struct {
 
-	// storage quota in GiB.
+	// assigned storage quota in GiB.
 	// Required: true
 	QuotaGb *int64 `json:"quotaGb"`
 
@@ -28,9 +28,9 @@ type StorageResponse struct {
 	// Enum: [netapp freenas cephfs]
 	System *string `json:"system"`
 
-	// used quota size in GiB (not used for the request data).
+	// used storage quota in MiB.
 	// Required: true
-	UsageGb *int64 `json:"usageGb"`
+	UsageMb *int64 `json:"usageMb"`
 }
 
 // Validate validates this storage response
@@ -45,7 +45,7 @@ func (m *StorageResponse) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateUsageGb(formats); err != nil {
+	if err := m.validateUsageMb(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -110,9 +110,9 @@ func (m *StorageResponse) validateSystem(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *StorageResponse) validateUsageGb(formats strfmt.Registry) error {
+func (m *StorageResponse) validateUsageMb(formats strfmt.Registry) error {
 
-	if err := validate.Required("usageGb", "body", m.UsageGb); err != nil {
+	if err := validate.Required("usageMb", "body", m.UsageMb); err != nil {
 		return err
 	}
 
