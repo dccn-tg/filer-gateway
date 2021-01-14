@@ -14,6 +14,7 @@ require (
 	github.com/go-openapi/validate v0.19.10
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/onsi/ginkgo v1.14.2 // indirect
+	github.com/rs/cors v1.7.0
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.7.0
 	github.com/square/go-jose v2.5.1+incompatible
