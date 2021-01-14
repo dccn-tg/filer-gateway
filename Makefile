@@ -10,7 +10,7 @@ ifndef GO111MODULE
 	GO111MODULE := on
 endif
 
-all: swagger build
+all: build
 
 build: api-server worker
 
