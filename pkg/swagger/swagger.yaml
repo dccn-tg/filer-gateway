@@ -30,7 +30,7 @@ paths:
     get:
       summary: endpoint for API server health check.
       security:
-        - oauth2: []
+        - oauth2: [filer-gateway]
       consumes:
         - application/json
       produces:

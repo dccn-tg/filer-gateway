@@ -30,7 +30,9 @@ func init() {
       "get": {
         "security": [
           {
-            "oauth2": []
+            "oauth2": [
+              "filer-gateway"
+            ]
           }
         ],
         "consumes": [
@@ -774,7 +776,9 @@ func init() {
       "get": {
         "security": [
           {
-            "oauth2": []
+            "oauth2": [
+              "filer-gateway"
+            ]
           }
         ],
         "consumes": [
