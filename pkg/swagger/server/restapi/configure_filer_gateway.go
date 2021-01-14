@@ -50,12 +50,22 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
 		}
 	}
+	if api.Oauth2Auth == nil {
+		api.Oauth2Auth = func(token string, scopes []string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("oauth2 bearer auth (oauth2) has not yet been implemented")
+		}
+	}
 
 	// Set your custom authorizer if needed. Default one is security.Authorized()
 	// Expected interface runtime.Authorizer
 	//
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
+	if api.GetPingHandler == nil {
+		api.GetPingHandler = operations.GetPingHandlerFunc(func(params operations.GetPingParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetPing has not yet been implemented")
+		})
+	}
 	if api.GetProjectsIDHandler == nil {
 		api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(func(params operations.GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")

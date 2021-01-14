@@ -68,6 +68,13 @@ var responseNotImplemented = models.ResponseBody500{
 	ExitCode:     NotImplementedError,
 }
 
+// GetPing returns dummy string for health check, including the authentication.
+func GetPing(cfg config.Configuration) func(params operations.GetPingParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.GetPingParams, principle *models.Principle) middleware.Responder {
+		return operations.NewGetPingOK().WithPayload("pong")
+	}
+}
+
 // GetTask retrieves task status.
 func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.GetTasksTypeIDParams) middleware.Responder {
 	return func(params operations.GetTasksTypeIDParams) middleware.Responder {

@@ -26,6 +26,39 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/ping": {
+      "get": {
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "endpoint for API server health check.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pong"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
     "/projects": {
       "post": {
         "security": [
@@ -717,6 +750,14 @@ func init() {
     },
     "basicAuth": {
       "type": "basic"
+    },
+    "oauth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
+      "scopes": {
+        "project-database-core-api": "general access scope for filer-gateway APIs"
+      }
     }
   }
 }`))
@@ -729,6 +770,39 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/ping": {
+      "get": {
+        "security": [
+          {
+            "oauth2": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "endpoint for API server health check.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pong"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
     "/projects": {
       "post": {
         "security": [
@@ -1420,6 +1494,14 @@ func init() {
     },
     "basicAuth": {
       "type": "basic"
+    },
+    "oauth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
+      "scopes": {
+        "project-database-core-api": "general access scope for filer-gateway APIs"
+      }
     }
   }
 }`))

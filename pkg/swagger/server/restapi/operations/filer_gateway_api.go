@@ -44,6 +44,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation GetPing has not yet been implemented")
+		}),
 		GetProjectsIDHandler: GetProjectsIDHandlerFunc(func(params GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetProjectsID has not yet been implemented")
 		}),
@@ -73,6 +76,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		// Applies when the Authorization header is set with the Basic scheme
 		BasicAuthAuth: func(user string, pass string) (*models.Principle, error) {
 			return nil, errors.NotImplemented("basic auth  (basicAuth) has not yet been implemented")
+		},
+		Oauth2Auth: func(token string, scopes []string) (*models.Principle, error) {
+			return nil, errors.NotImplemented("oauth2 bearer auth (oauth2) has not yet been implemented")
 		},
 		// default authorizer is authorized meaning no requests are blocked
 		APIAuthorizer: security.Authorized(),
@@ -118,9 +124,15 @@ type FilerGatewayAPI struct {
 	// it performs authentication with basic auth
 	BasicAuthAuth func(string, string) (*models.Principle, error)
 
+	// Oauth2Auth registers a function that takes an access token and a collection of required scopes and returns a principal
+	// it performs authentication based on an oauth2 bearer token provided in the request
+	Oauth2Auth func(string, []string) (*models.Principle, error)
+
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// GetPingHandler sets the operation handler for the get ping operation
+	GetPingHandler GetPingHandler
 	// GetProjectsIDHandler sets the operation handler for the get projects ID operation
 	GetProjectsIDHandler GetProjectsIDHandler
 	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
@@ -217,7 +229,13 @@ func (o *FilerGatewayAPI) Validate() error {
 	if o.BasicAuthAuth == nil {
 		unregistered = append(unregistered, "BasicAuthAuth")
 	}
+	if o.Oauth2Auth == nil {
+		unregistered = append(unregistered, "Oauth2Auth")
+	}
 
+	if o.GetPingHandler == nil {
+		unregistered = append(unregistered, "GetPingHandler")
+	}
 	if o.GetProjectsIDHandler == nil {
 		unregistered = append(unregistered, "GetProjectsIDHandler")
 	}
@@ -266,6 +284,11 @@ func (o *FilerGatewayAPI) AuthenticatorsFor(schemes map[string]spec.SecuritySche
 		case "basicAuth":
 			result[name] = o.BasicAuthenticator(func(username, password string) (interface{}, error) {
 				return o.BasicAuthAuth(username, password)
+			})
+
+		case "oauth2":
+			result[name] = o.BearerAuthenticator(name, func(token string, scopes []string) (interface{}, error) {
+				return o.Oauth2Auth(token, scopes)
 			})
 
 		}
@@ -343,6 +366,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/ping"] = NewGetPing(o.context, o.GetPingHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -12,11 +12,12 @@ import (
 // Configuration is the data structure for marshaling the
 // config.yml file using the viper configuration framework.
 type Configuration struct {
-	ApiKey  string
-	Auth    map[string]string
-	NetApp  filer.NetAppConfig
-	FreeNas filer.FreeNasConfig
-	CephFs  filer.CephFsConfig
+	ApiKey       string
+	Auth         map[string]string
+	JwksEndpoint string
+	NetApp       filer.NetAppConfig
+	FreeNas      filer.FreeNasConfig
+	CephFs       filer.CephFsConfig
 }
 
 // LoadConfig reads configuration file `cpath` and returns the

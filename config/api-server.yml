@@ -1,6 +1,7 @@
 apiKey: demo
 auth:
   demo: demo123
+jwksEndpoint: https://auth-dev.dccn.nl/.well-known/openid-configuration/jwks 
 netapp:
   projectRoot: /project
 freenas:

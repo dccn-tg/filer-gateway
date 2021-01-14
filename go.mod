@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Donders-Institute/tg-toolset-golang v0.0.0-20201202104114-808bfe996dfa
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-openapi/errors v0.19.6
 	github.com/go-openapi/loads v0.19.5
 	github.com/go-openapi/runtime v0.19.20
@@ -13,7 +14,9 @@ require (
 	github.com/go-openapi/validate v0.19.10
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/onsi/ginkgo v1.14.2 // indirect
+	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.7.0
+	github.com/square/go-jose v2.5.1+incompatible
 	github.com/thoas/bokchoy v0.2.0
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 )

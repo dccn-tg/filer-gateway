@@ -16,8 +16,36 @@ securityDefinitions:
     in: header
     name: X-API-Key
 
+  oauth2:
+    type: oauth2
+    flow: application
+    tokenUrl: 'https://auth-dev.dccn.nl/connect/token'
+    scopes:
+      project-database-core-api: general access scope for filer-gateway APIs
+
 # API paths
 paths:
+
+  /ping:
+    get:
+      summary: endpoint for API server health check.
+      security:
+        - oauth2: []
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: success
+          schema:
+            type: string
+            enum: [pong]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+          description: failure
 
   /users:
     post:
