@@ -33,6 +33,10 @@ func init() {
             "oauth2": [
               "filer-gateway"
             ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
           }
         ],
         "consumes": [
@@ -64,6 +68,11 @@ func init() {
     "/projects": {
       "post": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
@@ -159,6 +168,11 @@ func init() {
       },
       "patch": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
@@ -268,6 +282,11 @@ func init() {
       "post": {
         "security": [
           {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
+          {
             "apiKeyHeader": [],
             "basicAuth": []
           }
@@ -362,6 +381,11 @@ func init() {
       },
       "patch": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
@@ -779,6 +803,10 @@ func init() {
             "oauth2": [
               "filer-gateway"
             ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
           }
         ],
         "consumes": [
@@ -810,6 +838,11 @@ func init() {
     "/projects": {
       "post": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
@@ -905,6 +938,11 @@ func init() {
       },
       "patch": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
@@ -1014,6 +1052,11 @@ func init() {
       "post": {
         "security": [
           {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
+          {
             "apiKeyHeader": [],
             "basicAuth": []
           }
@@ -1108,6 +1151,11 @@ func init() {
       },
       "patch": {
         "security": [
+          {
+            "oauth2": [
+              "filer-gateway"
+            ]
+          },
           {
             "apiKeyHeader": [],
             "basicAuth": []
