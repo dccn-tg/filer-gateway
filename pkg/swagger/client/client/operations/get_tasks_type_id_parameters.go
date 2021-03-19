@@ -16,64 +16,79 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetTasksTypeIDParams creates a new GetTasksTypeIDParams object
-// with the default values initialized.
+// NewGetTasksTypeIDParams creates a new GetTasksTypeIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetTasksTypeIDParams() *GetTasksTypeIDParams {
-	var ()
 	return &GetTasksTypeIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetTasksTypeIDParamsWithTimeout creates a new GetTasksTypeIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetTasksTypeIDParamsWithTimeout(timeout time.Duration) *GetTasksTypeIDParams {
-	var ()
 	return &GetTasksTypeIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetTasksTypeIDParamsWithContext creates a new GetTasksTypeIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetTasksTypeIDParamsWithContext(ctx context.Context) *GetTasksTypeIDParams {
-	var ()
 	return &GetTasksTypeIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetTasksTypeIDParamsWithHTTPClient creates a new GetTasksTypeIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetTasksTypeIDParamsWithHTTPClient(client *http.Client) *GetTasksTypeIDParams {
-	var ()
 	return &GetTasksTypeIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetTasksTypeIDParams contains all the parameters to send to the API endpoint
-for the get tasks type ID operation typically these are written to a http.Request
+/* GetTasksTypeIDParams contains all the parameters to send to the API endpoint
+   for the get tasks type ID operation.
+
+   Typically these are written to a http.Request.
 */
 type GetTasksTypeIDParams struct {
 
-	/*ID
-	  task identifier
+	/* ID.
 
+	   task identifier
 	*/
 	ID string
-	/*Type
-	  task type
 
+	/* Type.
+
+	   task type
 	*/
 	Type string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get tasks type ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetTasksTypeIDParams) WithDefaults() *GetTasksTypeIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get tasks type ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetTasksTypeIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get tasks type ID params

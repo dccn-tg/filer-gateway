@@ -18,64 +18,79 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/client/models"
 )
 
-// NewPatchProjectsIDParams creates a new PatchProjectsIDParams object
-// with the default values initialized.
+// NewPatchProjectsIDParams creates a new PatchProjectsIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewPatchProjectsIDParams() *PatchProjectsIDParams {
-	var ()
 	return &PatchProjectsIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewPatchProjectsIDParamsWithTimeout creates a new PatchProjectsIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewPatchProjectsIDParamsWithTimeout(timeout time.Duration) *PatchProjectsIDParams {
-	var ()
 	return &PatchProjectsIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewPatchProjectsIDParamsWithContext creates a new PatchProjectsIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewPatchProjectsIDParamsWithContext(ctx context.Context) *PatchProjectsIDParams {
-	var ()
 	return &PatchProjectsIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewPatchProjectsIDParamsWithHTTPClient creates a new PatchProjectsIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewPatchProjectsIDParamsWithHTTPClient(client *http.Client) *PatchProjectsIDParams {
-	var ()
 	return &PatchProjectsIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*PatchProjectsIDParams contains all the parameters to send to the API endpoint
-for the patch projects ID operation typically these are written to a http.Request
+/* PatchProjectsIDParams contains all the parameters to send to the API endpoint
+   for the patch projects ID operation.
+
+   Typically these are written to a http.Request.
 */
 type PatchProjectsIDParams struct {
 
-	/*ID
-	  project identifier
+	/* ID.
 
+	   project identifier
 	*/
 	ID string
-	/*ProjectUpdateData
-	  data for project update
 
+	/* ProjectUpdateData.
+
+	   data for project update
 	*/
 	ProjectUpdateData *models.RequestBodyProjectResource
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the patch projects ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *PatchProjectsIDParams) WithDefaults() *PatchProjectsIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the patch projects ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *PatchProjectsIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the patch projects ID params
@@ -145,7 +160,6 @@ func (o *PatchProjectsIDParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	if err := r.SetPathParam("id", o.ID); err != nil {
 		return err
 	}
-
 	if o.ProjectUpdateData != nil {
 		if err := r.SetBodyParam(o.ProjectUpdateData); err != nil {
 			return err

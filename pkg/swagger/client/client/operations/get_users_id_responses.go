@@ -47,7 +47,6 @@ func (o *GetUsersIDReader) ReadResponse(response runtime.ClientResponse, consume
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -58,7 +57,7 @@ func NewGetUsersIDOK() *GetUsersIDOK {
 	return &GetUsersIDOK{}
 }
 
-/*GetUsersIDOK handles this case with default header values.
+/* GetUsersIDOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -69,7 +68,6 @@ type GetUsersIDOK struct {
 func (o *GetUsersIDOK) Error() string {
 	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK  %+v", 200, o.Payload)
 }
-
 func (o *GetUsersIDOK) GetPayload() *models.ResponseBodyUserResource {
 	return o.Payload
 }
@@ -91,7 +89,7 @@ func NewGetUsersIDBadRequest() *GetUsersIDBadRequest {
 	return &GetUsersIDBadRequest{}
 }
 
-/*GetUsersIDBadRequest handles this case with default header values.
+/* GetUsersIDBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -102,7 +100,6 @@ type GetUsersIDBadRequest struct {
 func (o *GetUsersIDBadRequest) Error() string {
 	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *GetUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -124,7 +121,7 @@ func NewGetUsersIDNotFound() *GetUsersIDNotFound {
 	return &GetUsersIDNotFound{}
 }
 
-/*GetUsersIDNotFound handles this case with default header values.
+/* GetUsersIDNotFound describes a response with status code 404, with default header values.
 
 user not found
 */
@@ -135,7 +132,6 @@ type GetUsersIDNotFound struct {
 func (o *GetUsersIDNotFound) Error() string {
 	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdNotFound  %+v", 404, o.Payload)
 }
-
 func (o *GetUsersIDNotFound) GetPayload() string {
 	return o.Payload
 }
@@ -155,7 +151,7 @@ func NewGetUsersIDInternalServerError() *GetUsersIDInternalServerError {
 	return &GetUsersIDInternalServerError{}
 }
 
-/*GetUsersIDInternalServerError handles this case with default header values.
+/* GetUsersIDInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -166,7 +162,6 @@ type GetUsersIDInternalServerError struct {
 func (o *GetUsersIDInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetUsersIDInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

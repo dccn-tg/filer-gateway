@@ -31,7 +31,7 @@ func NewGetPing(ctx *middleware.Context, handler GetPingHandler) *GetPing {
 	return &GetPing{Context: ctx, Handler: handler}
 }
 
-/*GetPing swagger:route GET /ping getPing
+/* GetPing swagger:route GET /ping getPing
 
 endpoint for API server health check.
 
@@ -47,7 +47,6 @@ func (o *GetPing) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewGetPingParams()
-
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -67,7 +66,6 @@ func (o *GetPing) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	res := o.Handler.Handle(Params, principal) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

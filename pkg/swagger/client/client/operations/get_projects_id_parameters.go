@@ -16,59 +16,73 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetProjectsIDParams creates a new GetProjectsIDParams object
-// with the default values initialized.
+// NewGetProjectsIDParams creates a new GetProjectsIDParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetProjectsIDParams() *GetProjectsIDParams {
-	var ()
 	return &GetProjectsIDParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetProjectsIDParamsWithTimeout creates a new GetProjectsIDParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetProjectsIDParamsWithTimeout(timeout time.Duration) *GetProjectsIDParams {
-	var ()
 	return &GetProjectsIDParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetProjectsIDParamsWithContext creates a new GetProjectsIDParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetProjectsIDParamsWithContext(ctx context.Context) *GetProjectsIDParams {
-	var ()
 	return &GetProjectsIDParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetProjectsIDParamsWithHTTPClient creates a new GetProjectsIDParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetProjectsIDParamsWithHTTPClient(client *http.Client) *GetProjectsIDParams {
-	var ()
 	return &GetProjectsIDParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetProjectsIDParams contains all the parameters to send to the API endpoint
-for the get projects ID operation typically these are written to a http.Request
+/* GetProjectsIDParams contains all the parameters to send to the API endpoint
+   for the get projects ID operation.
+
+   Typically these are written to a http.Request.
 */
 type GetProjectsIDParams struct {
 
-	/*ID
-	  project identifier
+	/* ID.
 
+	   project identifier
 	*/
 	ID string
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get projects ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetProjectsIDParams) WithDefaults() *GetProjectsIDParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get projects ID params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetProjectsIDParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get projects ID params

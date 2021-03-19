@@ -35,7 +35,6 @@ func (o *GetPingReader) ReadResponse(response runtime.ClientResponse, consumer r
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -46,7 +45,7 @@ func NewGetPingOK() *GetPingOK {
 	return &GetPingOK{}
 }
 
-/*GetPingOK handles this case with default header values.
+/* GetPingOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -57,7 +56,6 @@ type GetPingOK struct {
 func (o *GetPingOK) Error() string {
 	return fmt.Sprintf("[GET /ping][%d] getPingOK  %+v", 200, o.Payload)
 }
-
 func (o *GetPingOK) GetPayload() string {
 	return o.Payload
 }
@@ -77,7 +75,7 @@ func NewGetPingInternalServerError() *GetPingInternalServerError {
 	return &GetPingInternalServerError{}
 }
 
-/*GetPingInternalServerError handles this case with default header values.
+/* GetPingInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -88,7 +86,6 @@ type GetPingInternalServerError struct {
 func (o *GetPingInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /ping][%d] getPingInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetPingInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

@@ -41,7 +41,6 @@ func (o *GetTasksTypeIDReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -52,7 +51,7 @@ func NewGetTasksTypeIDOK() *GetTasksTypeIDOK {
 	return &GetTasksTypeIDOK{}
 }
 
-/*GetTasksTypeIDOK handles this case with default header values.
+/* GetTasksTypeIDOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -63,7 +62,6 @@ type GetTasksTypeIDOK struct {
 func (o *GetTasksTypeIDOK) Error() string {
 	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdOK  %+v", 200, o.Payload)
 }
-
 func (o *GetTasksTypeIDOK) GetPayload() *models.ResponseBodyTaskResource {
 	return o.Payload
 }
@@ -85,7 +83,7 @@ func NewGetTasksTypeIDBadRequest() *GetTasksTypeIDBadRequest {
 	return &GetTasksTypeIDBadRequest{}
 }
 
-/*GetTasksTypeIDBadRequest handles this case with default header values.
+/* GetTasksTypeIDBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -96,7 +94,6 @@ type GetTasksTypeIDBadRequest struct {
 func (o *GetTasksTypeIDBadRequest) Error() string {
 	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *GetTasksTypeIDBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -118,7 +115,7 @@ func NewGetTasksTypeIDInternalServerError() *GetTasksTypeIDInternalServerError {
 	return &GetTasksTypeIDInternalServerError{}
 }
 
-/*GetTasksTypeIDInternalServerError handles this case with default header values.
+/* GetTasksTypeIDInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -129,7 +126,6 @@ type GetTasksTypeIDInternalServerError struct {
 func (o *GetTasksTypeIDInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetTasksTypeIDInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

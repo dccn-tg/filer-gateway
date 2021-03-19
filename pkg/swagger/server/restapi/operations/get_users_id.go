@@ -29,7 +29,7 @@ func NewGetUsersID(ctx *middleware.Context, handler GetUsersIDHandler) *GetUsers
 	return &GetUsersID{Context: ctx, Handler: handler}
 }
 
-/*GetUsersID swagger:route GET /users/{id} getUsersId
+/* GetUsersID swagger:route GET /users/{id} getUsersId
 
 get filer resource for an existing user.
 
@@ -45,14 +45,12 @@ func (o *GetUsersID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewGetUsersIDParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

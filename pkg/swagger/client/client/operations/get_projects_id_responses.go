@@ -47,7 +47,6 @@ func (o *GetProjectsIDReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -58,7 +57,7 @@ func NewGetProjectsIDOK() *GetProjectsIDOK {
 	return &GetProjectsIDOK{}
 }
 
-/*GetProjectsIDOK handles this case with default header values.
+/* GetProjectsIDOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -69,7 +68,6 @@ type GetProjectsIDOK struct {
 func (o *GetProjectsIDOK) Error() string {
 	return fmt.Sprintf("[GET /projects/{id}][%d] getProjectsIdOK  %+v", 200, o.Payload)
 }
-
 func (o *GetProjectsIDOK) GetPayload() *models.ResponseBodyProjectResource {
 	return o.Payload
 }
@@ -91,7 +89,7 @@ func NewGetProjectsIDBadRequest() *GetProjectsIDBadRequest {
 	return &GetProjectsIDBadRequest{}
 }
 
-/*GetProjectsIDBadRequest handles this case with default header values.
+/* GetProjectsIDBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -102,7 +100,6 @@ type GetProjectsIDBadRequest struct {
 func (o *GetProjectsIDBadRequest) Error() string {
 	return fmt.Sprintf("[GET /projects/{id}][%d] getProjectsIdBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *GetProjectsIDBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -124,7 +121,7 @@ func NewGetProjectsIDNotFound() *GetProjectsIDNotFound {
 	return &GetProjectsIDNotFound{}
 }
 
-/*GetProjectsIDNotFound handles this case with default header values.
+/* GetProjectsIDNotFound describes a response with status code 404, with default header values.
 
 project not found
 */
@@ -135,7 +132,6 @@ type GetProjectsIDNotFound struct {
 func (o *GetProjectsIDNotFound) Error() string {
 	return fmt.Sprintf("[GET /projects/{id}][%d] getProjectsIdNotFound  %+v", 404, o.Payload)
 }
-
 func (o *GetProjectsIDNotFound) GetPayload() string {
 	return o.Payload
 }
@@ -155,7 +151,7 @@ func NewGetProjectsIDInternalServerError() *GetProjectsIDInternalServerError {
 	return &GetProjectsIDInternalServerError{}
 }
 
-/*GetProjectsIDInternalServerError handles this case with default header values.
+/* GetProjectsIDInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -166,7 +162,6 @@ type GetProjectsIDInternalServerError struct {
 func (o *GetProjectsIDInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /projects/{id}][%d] getProjectsIdInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *GetProjectsIDInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

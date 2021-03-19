@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -13,12 +14,14 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/validate"
 
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 )
 
 // NewPatchUsersIDParams creates a new PatchUsersIDParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewPatchUsersIDParams() PatchUsersIDParams {
 
 	return PatchUsersIDParams{}
@@ -74,6 +77,11 @@ func (o *PatchUsersIDParams) BindRequest(r *http.Request, route *middleware.Matc
 				res = append(res, err)
 			}
 
+			ctx := validate.WithOperationRequest(context.Background())
+			if err := body.ContextValidate(ctx, route.Formats); err != nil {
+				res = append(res, err)
+			}
+
 			if len(res) == 0 {
 				o.UserUpdateData = &body
 			}
@@ -96,7 +104,6 @@ func (o *PatchUsersIDParams) bindID(rawData []string, hasKey bool, formats strfm
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.ID = raw
 
 	return nil

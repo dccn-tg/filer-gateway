@@ -41,7 +41,6 @@ func (o *PostUsersReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -52,7 +51,7 @@ func NewPostUsersOK() *PostUsersOK {
 	return &PostUsersOK{}
 }
 
-/*PostUsersOK handles this case with default header values.
+/* PostUsersOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -63,7 +62,6 @@ type PostUsersOK struct {
 func (o *PostUsersOK) Error() string {
 	return fmt.Sprintf("[POST /users][%d] postUsersOK  %+v", 200, o.Payload)
 }
-
 func (o *PostUsersOK) GetPayload() *models.ResponseBodyTaskResource {
 	return o.Payload
 }
@@ -85,7 +83,7 @@ func NewPostUsersBadRequest() *PostUsersBadRequest {
 	return &PostUsersBadRequest{}
 }
 
-/*PostUsersBadRequest handles this case with default header values.
+/* PostUsersBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -96,7 +94,6 @@ type PostUsersBadRequest struct {
 func (o *PostUsersBadRequest) Error() string {
 	return fmt.Sprintf("[POST /users][%d] postUsersBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *PostUsersBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -118,7 +115,7 @@ func NewPostUsersInternalServerError() *PostUsersInternalServerError {
 	return &PostUsersInternalServerError{}
 }
 
-/*PostUsersInternalServerError handles this case with default header values.
+/* PostUsersInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -129,7 +126,6 @@ type PostUsersInternalServerError struct {
 func (o *PostUsersInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /users][%d] postUsersInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *PostUsersInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

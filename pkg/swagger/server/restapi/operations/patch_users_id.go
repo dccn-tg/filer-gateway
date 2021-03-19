@@ -31,7 +31,7 @@ func NewPatchUsersID(ctx *middleware.Context, handler PatchUsersIDHandler) *Patc
 	return &PatchUsersID{Context: ctx, Handler: handler}
 }
 
-/*PatchUsersID swagger:route PATCH /users/{id} patchUsersId
+/* PatchUsersID swagger:route PATCH /users/{id} patchUsersId
 
 update filer resource for an existing user.
 
@@ -47,7 +47,6 @@ func (o *PatchUsersID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewPatchUsersIDParams()
-
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -67,7 +66,6 @@ func (o *PatchUsersID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	res := o.Handler.Handle(Params, principal) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

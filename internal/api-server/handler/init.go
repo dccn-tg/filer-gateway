@@ -121,9 +121,11 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 			taskErr = fmt.Sprintf("%s", task.Error)
 		}
 
+		tid := models.TaskID(task.ID)
+
 		return operations.NewGetTasksTypeIDOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID: models.TaskID(task.ID),
+				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{
 					Status: &taskStatus,
 					Result: &taskRslt,
@@ -143,9 +145,10 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 // - result is kept for 7 days.
 func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
 	return func(params operations.PostProjectsParams, principle *models.Principle) middleware.Responder {
+
 		// construct task data from request data
 		t := task.SetProjectResource{
-			ProjectID: string(params.ProjectProvisionData.ProjectID),
+			ProjectID: string(*params.ProjectProvisionData.ProjectID),
 			Storage: task.Storage{
 				System:  *params.ProjectProvisionData.Storage.System,
 				QuotaGb: *params.ProjectProvisionData.Storage.QuotaGb,
@@ -193,9 +196,11 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 
 		taskStatus := task.StatusDisplay()
 
+		tid := models.TaskID(task.ID)
+
 		return operations.NewPostProjectsOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID: models.TaskID(task.ID),
+				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{
 					Status: &taskStatus,
 					Result: nil,
@@ -272,9 +277,11 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 
 		taskStatus := task.StatusDisplay()
 
+		tid := models.TaskID(task.ID)
+
 		return operations.NewPatchProjectsIDOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID: models.TaskID(task.ID),
+				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{
 					Status: &taskStatus,
 					Result: nil,
@@ -296,7 +303,7 @@ func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 	return func(params operations.PostUsersParams, principle *models.Principle) middleware.Responder {
 		// construct task data from request data
 		t := task.SetUserResource{
-			UserID: string(params.UserProvisionData.UserID),
+			UserID: string(*params.UserProvisionData.UserID),
 			Storage: task.Storage{
 				System:  *params.UserProvisionData.Storage.System,
 				QuotaGb: *params.UserProvisionData.Storage.QuotaGb,
@@ -321,9 +328,11 @@ func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 
 		taskStatus := task.StatusDisplay()
 
+		tid := models.TaskID(task.ID)
+
 		return operations.NewPostUsersOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID: models.TaskID(task.ID),
+				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{
 					Status: &taskStatus,
 					Result: nil,
@@ -369,9 +378,11 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 
 		taskStatus := task.StatusDisplay()
 
+		tid := models.TaskID(task.ID)
+
 		return operations.NewPostUsersOK().WithPayload(
 			&models.ResponseBodyTaskResource{
-				TaskID: models.TaskID(task.ID),
+				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{
 					Status: &taskStatus,
 					Result: nil,
@@ -440,9 +451,12 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 		// return 200 success with storage quota information.
 		quotaGb := quota >> 30
 		usageMb := usage >> 20
+
+		uid := models.UserID(uname)
+
 		return operations.NewGetUsersIDOK().WithPayload(
 			&models.ResponseBodyUserResource{
-				UserID:   models.UserID(uname),
+				UserID:   &uid,
 				MemberOf: memberOf,
 				Storage: &models.StorageResponse{
 					QuotaGb: &quotaGb,
@@ -457,8 +471,8 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 // GetProjectResource implements retrival of project resource (i.e. storage and members).
 func GetProjectResource(cfg config.Configuration) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
-		pid := params.ID
-		path, e := pid2path(pid)
+		pnumber := params.ID
+		path, e := pid2path(pnumber)
 		if e != nil {
 			return operations.NewGetProjectsIDNotFound().WithPayload(e.Error())
 		}
@@ -501,9 +515,11 @@ func GetProjectResource(cfg config.Configuration) func(params operations.GetProj
 		quotaGb := quota >> 30
 		usageMb := usage >> 20
 
+		pid := models.ProjectID(pnumber)
+
 		return operations.NewGetProjectsIDOK().WithPayload(
 			&models.ResponseBodyProjectResource{
-				ProjectID: models.ProjectID(pid),
+				ProjectID: &pid,
 				Storage: &models.StorageResponse{
 					QuotaGb: &quotaGb,
 					System:  &system,

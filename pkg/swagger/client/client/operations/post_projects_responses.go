@@ -41,7 +41,6 @@ func (o *PostProjectsReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -52,7 +51,7 @@ func NewPostProjectsOK() *PostProjectsOK {
 	return &PostProjectsOK{}
 }
 
-/*PostProjectsOK handles this case with default header values.
+/* PostProjectsOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -63,7 +62,6 @@ type PostProjectsOK struct {
 func (o *PostProjectsOK) Error() string {
 	return fmt.Sprintf("[POST /projects][%d] postProjectsOK  %+v", 200, o.Payload)
 }
-
 func (o *PostProjectsOK) GetPayload() *models.ResponseBodyTaskResource {
 	return o.Payload
 }
@@ -85,7 +83,7 @@ func NewPostProjectsBadRequest() *PostProjectsBadRequest {
 	return &PostProjectsBadRequest{}
 }
 
-/*PostProjectsBadRequest handles this case with default header values.
+/* PostProjectsBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -96,7 +94,6 @@ type PostProjectsBadRequest struct {
 func (o *PostProjectsBadRequest) Error() string {
 	return fmt.Sprintf("[POST /projects][%d] postProjectsBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *PostProjectsBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -118,7 +115,7 @@ func NewPostProjectsInternalServerError() *PostProjectsInternalServerError {
 	return &PostProjectsInternalServerError{}
 }
 
-/*PostProjectsInternalServerError handles this case with default header values.
+/* PostProjectsInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -129,7 +126,6 @@ type PostProjectsInternalServerError struct {
 func (o *PostProjectsInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /projects][%d] postProjectsInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *PostProjectsInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

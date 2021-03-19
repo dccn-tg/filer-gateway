@@ -66,6 +66,29 @@ func init() {
       }
     },
     "/projects": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources for all existing project.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyProjects"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -646,6 +669,13 @@ func init() {
         }
       }
     },
+    "responseBodyProjects": {
+      "description": "JSON list containing a list of project resources.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/responseBodyProjectResource"
+      }
+    },
     "responseBodyTaskResource": {
       "description": "JSON object containing scheduled task resource.",
       "required": [
@@ -780,6 +810,7 @@ func init() {
     "oauth2": {
       "type": "oauth2",
       "flow": "application",
+      "authorizationUrl": "",
       "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
       "scopes": {
         "filer-gateway": "general access scope for filer-gateway APIs"
@@ -836,6 +867,29 @@ func init() {
       }
     },
     "/projects": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources for all existing project.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyProjects"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -1416,6 +1470,13 @@ func init() {
         }
       }
     },
+    "responseBodyProjects": {
+      "description": "JSON list containing a list of project resources.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/responseBodyProjectResource"
+      }
+    },
     "responseBodyTaskResource": {
       "description": "JSON object containing scheduled task resource.",
       "required": [
@@ -1550,6 +1611,7 @@ func init() {
     "oauth2": {
       "type": "oauth2",
       "flow": "application",
+      "authorizationUrl": "",
       "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
       "scopes": {
         "filer-gateway": "general access scope for filer-gateway APIs"

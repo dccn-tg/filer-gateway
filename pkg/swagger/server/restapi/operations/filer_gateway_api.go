@@ -47,6 +47,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation GetPing has not yet been implemented")
 		}),
+		GetProjectsHandler: GetProjectsHandlerFunc(func(params GetProjectsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetProjects has not yet been implemented")
+		}),
 		GetProjectsIDHandler: GetProjectsIDHandlerFunc(func(params GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetProjectsID has not yet been implemented")
 		}),
@@ -101,9 +104,11 @@ type FilerGatewayAPI struct {
 	// BasicAuthenticator generates a runtime.Authenticator from the supplied basic auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BasicAuthenticator func(security.UserPassAuthentication) runtime.Authenticator
+
 	// APIKeyAuthenticator generates a runtime.Authenticator from the supplied token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	APIKeyAuthenticator func(string, string, security.TokenAuthentication) runtime.Authenticator
+
 	// BearerAuthenticator generates a runtime.Authenticator from the supplied bearer token auth function.
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
@@ -133,6 +138,8 @@ type FilerGatewayAPI struct {
 
 	// GetPingHandler sets the operation handler for the get ping operation
 	GetPingHandler GetPingHandler
+	// GetProjectsHandler sets the operation handler for the get projects operation
+	GetProjectsHandler GetProjectsHandler
 	// GetProjectsIDHandler sets the operation handler for the get projects ID operation
 	GetProjectsIDHandler GetProjectsIDHandler
 	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
@@ -147,6 +154,7 @@ type FilerGatewayAPI struct {
 	PostProjectsHandler PostProjectsHandler
 	// PostUsersHandler sets the operation handler for the post users operation
 	PostUsersHandler PostUsersHandler
+
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -235,6 +243,9 @@ func (o *FilerGatewayAPI) Validate() error {
 
 	if o.GetPingHandler == nil {
 		unregistered = append(unregistered, "GetPingHandler")
+	}
+	if o.GetProjectsHandler == nil {
+		unregistered = append(unregistered, "GetProjectsHandler")
 	}
 	if o.GetProjectsIDHandler == nil {
 		unregistered = append(unregistered, "GetProjectsIDHandler")
@@ -370,6 +381,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/ping"] = NewGetPing(o.context, o.GetPingHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/projects"] = NewGetProjects(o.context, o.GetProjectsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -31,7 +31,7 @@ func NewPostUsers(ctx *middleware.Context, handler PostUsersHandler) *PostUsers 
 	return &PostUsers{Context: ctx, Handler: handler}
 }
 
-/*PostUsers swagger:route POST /users postUsers
+/* PostUsers swagger:route POST /users postUsers
 
 provision filer resource for a new user.
 
@@ -47,7 +47,6 @@ func (o *PostUsers) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewPostUsersParams()
-
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -67,7 +66,6 @@ func (o *PostUsers) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	res := o.Handler.Handle(Params, principal) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

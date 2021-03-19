@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -19,7 +21,7 @@ type ResponseBodyTaskResource struct {
 
 	// task ID
 	// Required: true
-	TaskID TaskID `json:"taskID"`
+	TaskID *TaskID `json:"taskID"`
 
 	// task status
 	// Required: true
@@ -46,11 +48,21 @@ func (m *ResponseBodyTaskResource) Validate(formats strfmt.Registry) error {
 
 func (m *ResponseBodyTaskResource) validateTaskID(formats strfmt.Registry) error {
 
-	if err := m.TaskID.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("taskID")
-		}
+	if err := validate.Required("taskID", "body", m.TaskID); err != nil {
 		return err
+	}
+
+	if err := validate.Required("taskID", "body", m.TaskID); err != nil {
+		return err
+	}
+
+	if m.TaskID != nil {
+		if err := m.TaskID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("taskID")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -64,6 +76,52 @@ func (m *ResponseBodyTaskResource) validateTaskStatus(formats strfmt.Registry) e
 
 	if m.TaskStatus != nil {
 		if err := m.TaskStatus.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("taskStatus")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this response body task resource based on the context it is used
+func (m *ResponseBodyTaskResource) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateTaskID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTaskStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ResponseBodyTaskResource) contextValidateTaskID(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TaskID != nil {
+		if err := m.TaskID.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("taskID")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ResponseBodyTaskResource) contextValidateTaskStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TaskStatus != nil {
+		if err := m.TaskStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskStatus")
 			}

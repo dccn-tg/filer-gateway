@@ -29,7 +29,7 @@ func NewGetTasksTypeID(ctx *middleware.Context, handler GetTasksTypeIDHandler) *
 	return &GetTasksTypeID{Context: ctx, Handler: handler}
 }
 
-/*GetTasksTypeID swagger:route GET /tasks/{type}/{id} getTasksTypeId
+/* GetTasksTypeID swagger:route GET /tasks/{type}/{id} getTasksTypeId
 
 query background task status
 
@@ -45,14 +45,12 @@ func (o *GetTasksTypeID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewGetTasksTypeIDParams()
-
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
 		o.Context.Respond(rw, r, route.Produces, route, err)
 		return
 	}
 
 	res := o.Handler.Handle(Params) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

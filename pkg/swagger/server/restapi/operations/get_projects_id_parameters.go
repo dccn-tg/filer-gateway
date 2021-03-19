@@ -14,7 +14,8 @@ import (
 )
 
 // NewGetProjectsIDParams creates a new GetProjectsIDParams object
-// no default values defined in spec.
+//
+// There are no default values defined in the spec.
 func NewGetProjectsIDParams() GetProjectsIDParams {
 
 	return GetProjectsIDParams{}
@@ -49,7 +50,6 @@ func (o *GetProjectsIDParams) BindRequest(r *http.Request, route *middleware.Mat
 	if err := o.bindID(rID, rhkID, route.Formats); err != nil {
 		res = append(res, err)
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -65,7 +65,6 @@ func (o *GetProjectsIDParams) bindID(rawData []string, hasKey bool, formats strf
 
 	// Required: true
 	// Parameter is provided by construction from the route
-
 	o.ID = raw
 
 	return nil

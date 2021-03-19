@@ -14,13 +14,13 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Members a list of project members.
+// ResponseBodyProjects JSON list containing a list of project resources.
 //
-// swagger:model members
-type Members []*Member
+// swagger:model responseBodyProjects
+type ResponseBodyProjects []*ResponseBodyProjectResource
 
-// Validate validates this members
-func (m Members) Validate(formats strfmt.Registry) error {
+// Validate validates this response body projects
+func (m ResponseBodyProjects) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
@@ -45,8 +45,8 @@ func (m Members) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this members based on the context it is used
-func (m Members) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this response body projects based on the context it is used
+func (m ResponseBodyProjects) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

@@ -31,7 +31,7 @@ func NewPatchProjectsID(ctx *middleware.Context, handler PatchProjectsIDHandler)
 	return &PatchProjectsID{Context: ctx, Handler: handler}
 }
 
-/*PatchProjectsID swagger:route PATCH /projects/{id} patchProjectsId
+/* PatchProjectsID swagger:route PATCH /projects/{id} patchProjectsId
 
 update filer resource for an existing project.
 
@@ -47,7 +47,6 @@ func (o *PatchProjectsID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		r = rCtx
 	}
 	var Params = NewPatchProjectsIDParams()
-
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)
@@ -67,7 +66,6 @@ func (o *PatchProjectsID) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	res := o.Handler.Handle(Params, principal) // actually handle the request
-
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
 }

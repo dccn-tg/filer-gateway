@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
+
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -27,7 +29,7 @@ type ResponseBodyUserResource struct {
 
 	// user ID
 	// Required: true
-	UserID UserID `json:"userID"`
+	UserID *UserID `json:"userID"`
 }
 
 // Validate validates this response body user resource
@@ -88,11 +90,83 @@ func (m *ResponseBodyUserResource) validateStorage(formats strfmt.Registry) erro
 
 func (m *ResponseBodyUserResource) validateUserID(formats strfmt.Registry) error {
 
-	if err := m.UserID.Validate(formats); err != nil {
+	if err := validate.Required("userID", "body", m.UserID); err != nil {
+		return err
+	}
+
+	if err := validate.Required("userID", "body", m.UserID); err != nil {
+		return err
+	}
+
+	if m.UserID != nil {
+		if err := m.UserID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("userID")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this response body user resource based on the context it is used
+func (m *ResponseBodyUserResource) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateMemberOf(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateStorage(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUserID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ResponseBodyUserResource) contextValidateMemberOf(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.MemberOf.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("userID")
+			return ve.ValidateName("memberOf")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *ResponseBodyUserResource) contextValidateStorage(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Storage != nil {
+		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("storage")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ResponseBodyUserResource) contextValidateUserID(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.UserID != nil {
+		if err := m.UserID.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("userID")
+			}
+			return err
+		}
 	}
 
 	return nil

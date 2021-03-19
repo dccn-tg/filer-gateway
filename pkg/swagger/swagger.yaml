@@ -169,6 +169,25 @@ paths:
             $ref: '#/definitions/responseBody500'
 
   /projects:
+    get:
+      summary: get filer resources for all existing project.
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyProjects'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
     post:
       summary: provision filer resource for a new project.
 
@@ -449,6 +468,12 @@ definitions:
       - projectID
       - storage
       - members
+
+  responseBodyProjects:
+    description: JSON list containing a list of project resources.
+    type: array
+    items:
+      $ref: '#/definitions/responseBodyProjectResource'
 
   responseBodyProjectMembers:
     description: JSON object containing current list of members implemented on the filer.

@@ -25,23 +25,28 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter) (*GetPingOK, error)
+	GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetPingOK, error)
 
-	GetProjectsID(params *GetProjectsIDParams) (*GetProjectsIDOK, error)
+	GetProjects(params *GetProjectsParams, opts ...ClientOption) (*GetProjectsOK, error)
 
-	GetTasksTypeID(params *GetTasksTypeIDParams) (*GetTasksTypeIDOK, error)
+	GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption) (*GetProjectsIDOK, error)
 
-	GetUsersID(params *GetUsersIDParams) (*GetUsersIDOK, error)
+	GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOption) (*GetTasksTypeIDOK, error)
 
-	PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter) (*PatchProjectsIDOK, error)
+	GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*GetUsersIDOK, error)
 
-	PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter) (*PatchUsersIDOK, error)
+	PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, error)
 
-	PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter) (*PostProjectsOK, error)
+	PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, error)
 
-	PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter) (*PostUsersOK, error)
+	PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostProjectsOK, error)
+
+	PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostUsersOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -49,13 +54,12 @@ type ClientService interface {
 /*
   GetPing endpoints for API server health check
 */
-func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter) (*GetPingOK, error) {
+func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetPingOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPingParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPing",
 		Method:             "GET",
 		PathPattern:        "/ping",
@@ -67,7 +71,12 @@ func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoW
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -82,15 +91,52 @@ func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoW
 }
 
 /*
+  GetProjects gets filer resources for all existing project
+*/
+func (a *Client) GetProjects(params *GetProjectsParams, opts ...ClientOption) (*GetProjectsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetProjectsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetProjects",
+		Method:             "GET",
+		PathPattern:        "/projects",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetProjectsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetProjectsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetProjects: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
   GetProjectsID gets filer resource for an existing project
 */
-func (a *Client) GetProjectsID(params *GetProjectsIDParams) (*GetProjectsIDOK, error) {
+func (a *Client) GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption) (*GetProjectsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetProjectsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetProjectsID",
 		Method:             "GET",
 		PathPattern:        "/projects/{id}",
@@ -101,7 +147,12 @@ func (a *Client) GetProjectsID(params *GetProjectsIDParams) (*GetProjectsIDOK, e
 		Reader:             &GetProjectsIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -118,13 +169,12 @@ func (a *Client) GetProjectsID(params *GetProjectsIDParams) (*GetProjectsIDOK, e
 /*
   GetTasksTypeID queries background task status
 */
-func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams) (*GetTasksTypeIDOK, error) {
+func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOption) (*GetTasksTypeIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetTasksTypeIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetTasksTypeID",
 		Method:             "GET",
 		PathPattern:        "/tasks/{type}/{id}",
@@ -135,7 +185,12 @@ func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams) (*GetTasksTypeIDOK
 		Reader:             &GetTasksTypeIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +207,12 @@ func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams) (*GetTasksTypeIDOK
 /*
   GetUsersID gets filer resource for an existing user
 */
-func (a *Client) GetUsersID(params *GetUsersIDParams) (*GetUsersIDOK, error) {
+func (a *Client) GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*GetUsersIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetUsersIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetUsersID",
 		Method:             "GET",
 		PathPattern:        "/users/{id}",
@@ -169,7 +223,12 @@ func (a *Client) GetUsersID(params *GetUsersIDParams) (*GetUsersIDOK, error) {
 		Reader:             &GetUsersIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -186,13 +245,12 @@ func (a *Client) GetUsersID(params *GetUsersIDParams) (*GetUsersIDOK, error) {
 /*
   PatchProjectsID updates filer resource for an existing project
 */
-func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter) (*PatchProjectsIDOK, error) {
+func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPatchProjectsIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PatchProjectsID",
 		Method:             "PATCH",
 		PathPattern:        "/projects/{id}",
@@ -204,7 +262,12 @@ func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -221,13 +284,12 @@ func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime
 /*
   PatchUsersID updates filer resource for an existing user
 */
-func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter) (*PatchUsersIDOK, error) {
+func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPatchUsersIDParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PatchUsersID",
 		Method:             "PATCH",
 		PathPattern:        "/users/{id}",
@@ -239,7 +301,12 @@ func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.Clien
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -256,13 +323,12 @@ func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.Clien
 /*
   PostProjects provisions filer resource for a new project
 */
-func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter) (*PostProjectsOK, error) {
+func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostProjectsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostProjectsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PostProjects",
 		Method:             "POST",
 		PathPattern:        "/projects",
@@ -274,7 +340,12 @@ func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.Clien
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -291,13 +362,12 @@ func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.Clien
 /*
   PostUsers provisions filer resource for a new user
 */
-func (a *Client) PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter) (*PostUsersOK, error) {
+func (a *Client) PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostUsersOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostUsersParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "PostUsers",
 		Method:             "POST",
 		PathPattern:        "/users",
@@ -309,7 +379,12 @@ func (a *Client) PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthI
 		AuthInfo:           authInfo,
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

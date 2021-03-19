@@ -47,7 +47,6 @@ func (o *PatchUsersIDReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return nil, result
-
 	default:
 		return nil, runtime.NewAPIError("response status code does not match any response statuses defined for this endpoint in the swagger spec", response, response.Code())
 	}
@@ -58,7 +57,7 @@ func NewPatchUsersIDOK() *PatchUsersIDOK {
 	return &PatchUsersIDOK{}
 }
 
-/*PatchUsersIDOK handles this case with default header values.
+/* PatchUsersIDOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -69,7 +68,6 @@ type PatchUsersIDOK struct {
 func (o *PatchUsersIDOK) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK  %+v", 200, o.Payload)
 }
-
 func (o *PatchUsersIDOK) GetPayload() *models.ResponseBodyTaskResource {
 	return o.Payload
 }
@@ -91,7 +89,7 @@ func NewPatchUsersIDBadRequest() *PatchUsersIDBadRequest {
 	return &PatchUsersIDBadRequest{}
 }
 
-/*PatchUsersIDBadRequest handles this case with default header values.
+/* PatchUsersIDBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -102,7 +100,6 @@ type PatchUsersIDBadRequest struct {
 func (o *PatchUsersIDBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest  %+v", 400, o.Payload)
 }
-
 func (o *PatchUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -124,7 +121,7 @@ func NewPatchUsersIDNotFound() *PatchUsersIDNotFound {
 	return &PatchUsersIDNotFound{}
 }
 
-/*PatchUsersIDNotFound handles this case with default header values.
+/* PatchUsersIDNotFound describes a response with status code 404, with default header values.
 
 user not found
 */
@@ -135,7 +132,6 @@ type PatchUsersIDNotFound struct {
 func (o *PatchUsersIDNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound  %+v", 404, o.Payload)
 }
-
 func (o *PatchUsersIDNotFound) GetPayload() string {
 	return o.Payload
 }
@@ -155,7 +151,7 @@ func NewPatchUsersIDInternalServerError() *PatchUsersIDInternalServerError {
 	return &PatchUsersIDInternalServerError{}
 }
 
-/*PatchUsersIDInternalServerError handles this case with default header values.
+/* PatchUsersIDInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -166,7 +162,6 @@ type PatchUsersIDInternalServerError struct {
 func (o *PatchUsersIDInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError  %+v", 500, o.Payload)
 }
-
 func (o *PatchUsersIDInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }
