@@ -468,6 +468,19 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 	}
 }
 
+// GetProjects implements retrival of resources of all projects implemented on the filer, under path of
+// `handler.PathProject`.
+func GetProjects(cfg config.Configuration) func(params operations.GetProjectsParams) middleware.Responder {
+	return func(params operations.GetProjectsParams) middleware.Responder {
+		return operations.NewGetProjectsInternalServerError().WithPayload(
+			&models.ResponseBody500{
+				ErrorMessage: "not implemented",
+				ExitCode:     NotImplementedError,
+			},
+		)
+	}
+}
+
 // GetProjectResource implements retrival of project resource (i.e. storage and members).
 func GetProjectResource(cfg config.Configuration) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {

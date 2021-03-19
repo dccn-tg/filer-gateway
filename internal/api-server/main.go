@@ -222,6 +222,8 @@ func main() {
 	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(cfg))
 	// api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handler.GetProjectMembers())
 	// api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handler.GetProjectStorage())
+
+	api.GetProjectsHandler = operations.GetProjectsHandlerFunc(handler.GetProjects(cfg))
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
 	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
 
