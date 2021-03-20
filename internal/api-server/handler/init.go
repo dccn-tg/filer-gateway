@@ -436,15 +436,13 @@ func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func
 		var memberOf = make([]*models.ProjectRole, 0)
 		for k, v := range cache.store {
 			for _, m := range v.members {
-
-				if *m.UserID != uname {
-					continue
+				if *m.UserID == uname {
+					memberOf = append(memberOf, &models.ProjectRole{
+						ProjectID: &k,
+						Role:      m.Role,
+					})
+					break
 				}
-
-				memberOf = append(memberOf, &models.ProjectRole{
-					ProjectID: &k,
-					Role:      m.Role,
-				})
 			}
 		}
 
