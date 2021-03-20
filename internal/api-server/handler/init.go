@@ -493,7 +493,7 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 			go func() {
 				defer wg.Done()
 				for pnumber := range pnumbers {
-					if r, err := cache.getProjectResource(pnumber); err != nil {
+					if r, err := cache.getProjectResource(pnumber); err == nil {
 						resources <- struct {
 							pnumber  string
 							resource *projectResource
@@ -501,6 +501,8 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 							pnumber,
 							r,
 						}
+					} else {
+						log.Errorf("%s", err)
 					}
 				}
 			}()
