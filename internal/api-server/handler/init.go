@@ -394,7 +394,7 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 }
 
 // GetUserResource implements retrival of file resource for a user (i.e. storage).
-func GetUserResource(cfg config.Configuration) func(params operations.GetUsersIDParams) middleware.Responder {
+func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func(params operations.GetUsersIDParams) middleware.Responder {
 	return func(params operations.GetUsersIDParams) middleware.Responder {
 		uname := params.ID
 
@@ -432,19 +432,19 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 			}
 		}
 
-		// getting user's membership on all active projects
-		memberOf, err := getMemberOf(uname)
-		if err != nil {
-			switch err.(*ResponseError).code {
-			case 404:
-				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
-			default:
-				return operations.NewGetUsersIDInternalServerError().WithPayload(
-					&models.ResponseBody500{
-						ErrorMessage: err.Error(),
-						ExitCode:     MemberOfGettingError,
-					},
-				)
+		// getting user's membership on all active projects from the cache
+		var memberOf = make([]*models.ProjectRole, 0)
+		for k, v := range cache.store {
+			for _, m := range v.members {
+
+				if *m.UserID != uname {
+					continue
+				}
+
+				memberOf = append(memberOf, &models.ProjectRole{
+					ProjectID: &k,
+					Role:      m.Role,
+				})
 			}
 		}
 
@@ -728,98 +728,4 @@ func getMemberRoles(path string) ([]*models.Member, error) {
 	}
 
 	return members, nil
-}
-
-// getMemberOf scans through all projects' top-level directories to find out
-// the membership of the user `uid`.
-func getMemberOf(uid string) ([]*models.ProjectRole, error) {
-
-	nworkers := runtime.NumCPU()
-
-	dirs := make(chan string, nworkers*2)
-	members := make(chan *models.ProjectRole)
-
-	wg := sync.WaitGroup{}
-	for i := 0; i < nworkers; i++ {
-		wg.Add(1)
-		go findUserMember(uid, dirs, members, &wg)
-	}
-
-	// go routine to list all directories in the /project folder
-	go func(path string) {
-		// close the dirs channel on exit
-		defer close(dirs)
-
-		objs, err := fp.ListDir(path)
-		if err != nil {
-			log.Errorf("cannot get content of path: %s", path)
-			return
-		}
-
-		for _, obj := range objs {
-			dirs <- obj
-		}
-
-	}(PathProject)
-
-	// go routine to wait for all workers to complete and close the members channel.
-	go func() {
-		wg.Wait()
-		close(members)
-	}()
-
-	// making up the output from the data in the members channel.
-	memberOf := make([]*models.ProjectRole, 0)
-	for member := range members {
-		memberOf = append(memberOf, member)
-	}
-
-	return memberOf, nil
-}
-
-// findUserMember is a worker function that scan through each entry in `dirs`, and search for a member role
-// of a given user `uid`.
-func findUserMember(uid string, dirs chan string, members chan *models.ProjectRole, wg *sync.WaitGroup) {
-
-	defer wg.Done()
-
-	for dir := range dirs {
-
-		log.Debugf("finding user member for %s in %s", uid, dir)
-
-		// get all members of the dir
-		runner := acl.Runner{
-			RootPath:   dir,
-			FollowLink: true,
-			SkipFiles:  true,
-			Nthreads:   1,
-		}
-
-		chanOut, err := runner.GetRoles(false)
-		if err != nil {
-			log.Errorf("cannot get role for path %s: %s", dir, err)
-			continue
-		}
-
-		// feed members channel if the user in question is in the list.
-		for o := range chanOut {
-			for r, users := range o.RoleMap {
-				if r == acl.System {
-					continue
-				}
-				rstr := r.String()
-				pid := filepath.Base(dir)
-				for _, u := range users {
-					if u == uid {
-						members <- &models.ProjectRole{
-							ProjectID: &pid,
-							Role:      &rstr,
-						}
-						break
-					}
-					continue
-				}
-			}
-		}
-	}
 }
