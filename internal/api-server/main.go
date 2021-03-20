@@ -88,6 +88,7 @@ func main() {
 		Config:  cfg,
 		Context: ctx,
 	}
+	cache.Init()
 
 	// Initialize Swagger
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
