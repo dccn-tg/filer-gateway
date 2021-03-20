@@ -41,8 +41,9 @@ func (c *ProjectResourceCache) Init() {
 			case <-ticker.C:
 				log.Infof("refreshing cache")
 				c.refresh()
+				log.Infof("cache refreshed")
 			case <-c.Context.Done():
-				log.Infof("stopping cache refresh")
+				log.Infof("cache refresh stopped")
 				return
 			}
 		}
@@ -110,17 +111,18 @@ func (c *ProjectResourceCache) refresh() {
 		close(resources)
 	}()
 
-	// clean up the store
-	c.mutex.Lock()
-	c.store = make(map[string]*projectResource)
-	c.mutex.Unlock()
+	// new data map
+	d := make(map[string]*projectResource)
 
 	// merge resources into internal store
 	for r := range resources {
-		c.mutex.Lock()
-		c.store[r.pnumber] = r.resource
-		c.mutex.Unlock()
+		d[r.pnumber] = r.resource
 	}
+
+	// set store to new data map
+	c.mutex.Lock()
+	c.store = d
+	c.mutex.Unlock()
 }
 
 // getProjectResource finds and returns project resource from the cache.
