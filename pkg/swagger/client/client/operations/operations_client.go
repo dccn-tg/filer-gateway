@@ -91,7 +91,7 @@ func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoW
 }
 
 /*
-  GetProjects gets filer resources for all existing project
+  GetProjects gets filer resources of all projects
 */
 func (a *Client) GetProjects(params *GetProjectsParams, opts ...ClientOption) (*GetProjectsOK, error) {
 	// TODO: Validate the params before sending

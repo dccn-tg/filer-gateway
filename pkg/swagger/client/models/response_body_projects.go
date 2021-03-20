@@ -17,26 +17,18 @@ import (
 // ResponseBodyProjects JSON list containing a list of project resources.
 //
 // swagger:model responseBodyProjects
-type ResponseBodyProjects []*ResponseBodyProjectResource
+type ResponseBodyProjects struct {
+
+	// projects
+	Projects []*ResponseBodyProjectResource `json:"projects"`
+}
 
 // Validate validates this response body projects
-func (m ResponseBodyProjects) Validate(formats strfmt.Registry) error {
+func (m *ResponseBodyProjects) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	for i := 0; i < len(m); i++ {
-		if swag.IsZero(m[i]) { // not required
-			continue
-		}
-
-		if m[i] != nil {
-			if err := m[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName(strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+	if err := m.validateProjects(formats); err != nil {
+		res = append(res, err)
 	}
 
 	if len(res) > 0 {
@@ -45,16 +37,20 @@ func (m ResponseBodyProjects) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this response body projects based on the context it is used
-func (m ResponseBodyProjects) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
+func (m *ResponseBodyProjects) validateProjects(formats strfmt.Registry) error {
+	if swag.IsZero(m.Projects) { // not required
+		return nil
+	}
 
-	for i := 0; i < len(m); i++ {
+	for i := 0; i < len(m.Projects); i++ {
+		if swag.IsZero(m.Projects[i]) { // not required
+			continue
+		}
 
-		if m[i] != nil {
-			if err := m[i].ContextValidate(ctx, formats); err != nil {
+		if m.Projects[i] != nil {
+			if err := m.Projects[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName(strconv.Itoa(i))
+					return ve.ValidateName("projects" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -62,8 +58,55 @@ func (m ResponseBodyProjects) ContextValidate(ctx context.Context, formats strfm
 
 	}
 
+	return nil
+}
+
+// ContextValidate validate this response body projects based on the context it is used
+func (m *ResponseBodyProjects) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateProjects(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ResponseBodyProjects) contextValidateProjects(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Projects); i++ {
+
+		if m.Projects[i] != nil {
+			if err := m.Projects[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("projects" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ResponseBodyProjects) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ResponseBodyProjects) UnmarshalBinary(b []byte) error {
+	var res ResponseBodyProjects
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
 	return nil
 }

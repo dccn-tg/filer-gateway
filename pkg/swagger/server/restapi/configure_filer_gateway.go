@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-
 	"github.com/rs/cors"
 
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"

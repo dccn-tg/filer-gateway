@@ -470,28 +470,86 @@ func GetUserResource(cfg config.Configuration) func(params operations.GetUsersID
 
 // GetProjects implements retrival of resources of all projects implemented on the filer, under path of
 // `handler.PathProject`.
-func GetProjects(cfg config.Configuration) func(params operations.GetProjectsParams) middleware.Responder {
+func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjectsParams) middleware.Responder {
 	return func(params operations.GetProjectsParams) middleware.Responder {
-		return operations.NewGetProjectsInternalServerError().WithPayload(
-			&models.ResponseBody500{
-				ErrorMessage: "not implemented",
-				ExitCode:     NotImplementedError,
+
+		// max. 4 concurrent workers (because we are already getting data from cache)
+		nworkers := 4
+		if nworkers > runtime.NumCPU() {
+			nworkers = runtime.NumCPU()
+		}
+
+		// list all directories in `handler.PathProject`
+		pnumbers := make(chan string, nworkers*2)
+		resources := make(chan struct {
+			pnumber  string
+			resource *projectResource
+		})
+
+		wg := sync.WaitGroup{}
+		// start concurrent workers to get project resources from the cache.
+		for i := 0; i < nworkers; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for pnumber := range pnumbers {
+					if r, err := cache.getProjectResource(pnumber); err != nil {
+						resources <- struct {
+							pnumber  string
+							resource *projectResource
+						}{
+							pnumber,
+							r,
+						}
+					}
+				}
+			}()
+		}
+
+		// go routine to get all project numbers in the `PathProject` directory
+		go func(path string) {
+			// close the dirs channel on exit
+			defer close(pnumbers)
+			objs, err := fp.ListDir(path)
+			if err != nil {
+				log.Errorf("cannot get content of path: %s", path)
+				return
+			}
+			for _, obj := range objs {
+				pnumbers <- filepath.Base(obj)
+			}
+		}(PathProject)
+
+		// go routine to wait for all workers to complete and close the resources channel.
+		go func() {
+			wg.Wait()
+			close(resources)
+		}()
+
+		projects := make([]*models.ResponseBodyProjectResource, 0)
+		for r := range resources {
+			pid := models.ProjectID(r.pnumber)
+			projects = append(projects, &models.ResponseBodyProjectResource{
+				ProjectID: &pid,
+				Storage:   r.resource.storage,
+				Members:   r.resource.members,
+			})
+		}
+
+		return operations.NewGetProjectsOK().WithPayload(
+			&models.ResponseBodyProjects{
+				Projects: projects,
 			},
 		)
 	}
 }
 
 // GetProjectResource implements retrival of project resource (i.e. storage and members).
-func GetProjectResource(cfg config.Configuration) func(params operations.GetProjectsIDParams) middleware.Responder {
+func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
-		pnumber := params.ID
-		path, e := pid2path(pnumber)
-		if e != nil {
-			return operations.NewGetProjectsIDNotFound().WithPayload(e.Error())
-		}
 
-		// Get Storage Resource
-		system, quota, usage, err := getStorageQuota(cfg, path)
+		r, err := cache.getProjectResource(params.ID)
+
 		// Return response error based on error code.
 		if err != nil {
 			switch err.(*ResponseError).code {
@@ -507,41 +565,48 @@ func GetProjectResource(cfg config.Configuration) func(params operations.GetProj
 			}
 		}
 
-		// Get project memeber and roles.
-		members, err := getMemberRoles(path)
-		// Return response error based on error code.
-		if err != nil {
-			switch err.(*ResponseError).code {
-			case 404:
-				return operations.NewGetProjectsIDNotFound().WithPayload(err.Error())
-			default:
-				return operations.NewGetProjectsIDInternalServerError().WithPayload(
-					&models.ResponseBody500{
-						ErrorMessage: err.Error(),
-						ExitCode:     QuotaGettingError,
-					},
-				)
-			}
-		}
-
-		// return 200 success with storage quota information.
-		quotaGb := quota >> 30
-		usageMb := usage >> 20
-
-		pid := models.ProjectID(pnumber)
+		pid := models.ProjectID(params.ID)
 
 		return operations.NewGetProjectsIDOK().WithPayload(
 			&models.ResponseBodyProjectResource{
 				ProjectID: &pid,
-				Storage: &models.StorageResponse{
-					QuotaGb: &quotaGb,
-					System:  &system,
-					UsageMb: &usageMb,
-				},
-				Members: models.Members(members),
+				Storage:   r.storage,
+				Members:   r.members,
 			},
 		)
 	}
+}
+
+// getProjectResource retrieves storage resource and access roles of a given project.
+func getProjectResource(pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
+
+	path, err := pid2path(pnumber)
+
+	if err != nil {
+		return nil, nil, &ResponseError{code: 404, err: err.Error()}
+	}
+
+	// Get Storage Resource
+	system, quota, usage, err := getStorageQuota(cfg, path)
+	// Return response error based on error code.
+	if err != nil {
+		return nil, nil, err
+	}
+
+	members, err := getMemberRoles(path)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	quotaGb := quota >> 30
+	usageMb := usage >> 20
+	storage := &models.StorageResponse{
+		QuotaGb: &quotaGb,
+		System:  &system,
+		UsageMb: &usageMb,
+	}
+
+	return storage, members, nil
 }
 
 // ResponseError is an internal error type for the API handler function to

@@ -31,6 +31,8 @@ var (
 	optsPort    *int
 	redisAddr   *string
 	configFile  *string
+
+	cache handler.ProjectResourceCache
 )
 
 func init() {
@@ -79,6 +81,14 @@ func main() {
 		log.Fatalf("fail to load configuration: %s", *configFile)
 	}
 
+	// initialize Cache
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	cache = handler.ProjectResourceCache{
+		Config:  cfg,
+		Context: ctx,
+	}
+
 	// Initialize Swagger
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
@@ -102,7 +112,6 @@ func main() {
 	// initiate blochy queue for setting project roles
 	var logger logging.Logger
 
-	ctx := context.Background()
 	bok, err := bokchoy.New(ctx, bokchoy.Config{
 		Broker: bokchoy.BrokerConfig{
 			Type: "redis",
@@ -219,11 +228,11 @@ func main() {
 
 	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
 
-	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(cfg))
+	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(&cache))
 	// api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handler.GetProjectMembers())
 	// api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handler.GetProjectStorage())
 
-	api.GetProjectsHandler = operations.GetProjectsHandlerFunc(handler.GetProjects(cfg))
+	api.GetProjectsHandler = operations.GetProjectsHandlerFunc(handler.GetProjects(&cache))
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
 	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
 
@@ -236,6 +245,8 @@ func main() {
 
 	// Start server which listening
 	if err := server.Serve(); err != nil {
+		// call context's cancel function to stop background processes (cache and bokchoy)
+		cancel()
 		log.Fatalf("%s", err)
 	}
 }

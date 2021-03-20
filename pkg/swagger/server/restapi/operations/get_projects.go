@@ -31,7 +31,7 @@ func NewGetProjects(ctx *middleware.Context, handler GetProjectsHandler) *GetPro
 
 /* GetProjects swagger:route GET /projects getProjects
 
-get filer resources for all existing project.
+get filer resources of all projects.
 
 */
 type GetProjects struct {

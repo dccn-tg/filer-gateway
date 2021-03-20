@@ -73,7 +73,7 @@ func init() {
         "produces": [
           "application/json"
         ],
-        "summary": "get filer resources for all existing project.",
+        "summary": "get filer resources of all projects.",
         "responses": {
           "200": {
             "description": "success",
@@ -671,9 +671,13 @@ func init() {
     },
     "responseBodyProjects": {
       "description": "JSON list containing a list of project resources.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/responseBodyProjectResource"
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyProjectResource"
+          }
+        }
       }
     },
     "responseBodyTaskResource": {
@@ -874,7 +878,7 @@ func init() {
         "produces": [
           "application/json"
         ],
-        "summary": "get filer resources for all existing project.",
+        "summary": "get filer resources of all projects.",
         "responses": {
           "200": {
             "description": "success",
@@ -1472,9 +1476,13 @@ func init() {
     },
     "responseBodyProjects": {
       "description": "JSON list containing a list of project resources.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/responseBodyProjectResource"
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyProjectResource"
+          }
+        }
       }
     },
     "responseBodyTaskResource": {
