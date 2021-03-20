@@ -435,12 +435,17 @@ func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func
 		// getting user's membership on all active projects from the cache
 		var memberOf = make([]*models.ProjectRole, 0)
 		for k, v := range cache.store {
+
+			log.Infof("project number: %s", k)
+
 			for _, m := range v.members {
 				if *m.UserID == uname {
 					memberOf = append(memberOf, &models.ProjectRole{
 						ProjectID: &k,
 						Role:      m.Role,
 					})
+
+					log.Infof("project: %s match: %+v", k, m)
 					break
 				}
 			}
