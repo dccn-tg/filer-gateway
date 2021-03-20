@@ -53,6 +53,7 @@ func (c *ProjectResourceCache) Init() {
 
 // refresh update the cache with up-to-data project resources.
 func (c *ProjectResourceCache) refresh() {
+
 	nworkers := runtime.NumCPU()
 
 	pnumbers := make(chan string, nworkers*2)
@@ -108,6 +109,11 @@ func (c *ProjectResourceCache) refresh() {
 		wg.Wait()
 		close(resources)
 	}()
+
+	// clean up the store
+	c.mutex.Lock()
+	c.store = make(map[string]*projectResource)
+	c.mutex.Unlock()
 
 	// merge resources into internal store
 	for r := range resources {
