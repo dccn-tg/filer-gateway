@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/thoas/bokchoy"
 	"github.com/thoas/bokchoy/logging"
 	"github.com/thoas/bokchoy/middleware"
@@ -20,7 +21,7 @@ import (
 var (
 	//optsConfig  *string
 	optsVerbose *bool
-	redisAddr   *string
+	redisURL    *string
 	nworkers    *int
 	configFile  *string
 )
@@ -29,7 +30,7 @@ func init() {
 	//optsConfig = flag.String("c", "config.yml", "set the `path` of the configuration file")
 	optsVerbose = flag.Bool("v", false, "print debug messages")
 	nworkers = flag.Int("p", 4, "`number` of global concurrent workers")
-	redisAddr = flag.String("r", "redis:6379", "redis service `address`")
+	redisURL = flag.String("r", "redis://redis:6379", "redis service `address`")
 	configFile = flag.String("c", os.Getenv("FILER_GATEWAY_WORKER_CONFIG"), "configurateion file `path`")
 
 	flag.Usage = usage
@@ -67,6 +68,12 @@ func main() {
 	// initiate blochy queue for setting project roles
 	var logger logging.Logger
 
+	// redis client instance for notifying cache update
+	redisOpts, err := redis.ParseURL(*redisURL)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	ctx := context.Background()
 	bok, err := bokchoy.New(ctx, bokchoy.Config{
 		Broker: bokchoy.BrokerConfig{
@@ -74,7 +81,7 @@ func main() {
 			Redis: bokchoy.RedisConfig{
 				Type: "client",
 				Client: bokchoy.RedisClientConfig{
-					Addr: *redisAddr,
+					Addr: redisOpts.Addr,
 				},
 			},
 		},

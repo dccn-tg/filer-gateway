@@ -30,7 +30,7 @@ var (
 	//optsConfig  *string
 	optsVerbose *bool
 	optsPort    *int
-	redisAddr   *string
+	redisURL    *string
 	configFile  *string
 
 	cache handler.ProjectResourceCache
@@ -40,7 +40,7 @@ func init() {
 	//optsConfig = flag.String("c", "config.yml", "set the `path` of the configuration file")
 	optsVerbose = flag.Bool("v", false, "print debug messages")
 	optsPort = flag.Int("p", 8080, "specify the service `port` number")
-	redisAddr = flag.String("r", "redis:6379", "redis service `address`")
+	redisURL = flag.String("r", "redis://redis:6379", "redis service `address`")
 	configFile = flag.String("c", os.Getenv("FILER_GATEWAY_APISERVER_CONFIG"), "configurateion file `path`")
 
 	flag.Usage = usage
@@ -83,7 +83,7 @@ func main() {
 	}
 
 	// redis client instance for notifying cache update
-	opt, err := redis.ParseURL(*redisAddr)
+	redisOpts, err := redis.ParseURL(*redisURL)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
@@ -92,7 +92,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	pubsub := redis.NewClient(opt).Subscribe(ctx, "api_cache_update")
+	pubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_cache_update")
 	cache = handler.ProjectResourceCache{
 		Config:   cfg,
 		Context:  ctx,
@@ -138,7 +138,7 @@ func main() {
 			Redis: bokchoy.RedisConfig{
 				Type: "client",
 				Client: bokchoy.RedisClientConfig{
-					Addr: *redisAddr,
+					Addr: redisOpts.Addr,
 				},
 			},
 		},
