@@ -11,6 +11,7 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	"github.com/go-redis/redis/v8"
 )
 
 type projectResource struct {
@@ -21,14 +22,27 @@ type projectResource struct {
 // ProjectResourceCache is an in-memory store for caching `projectResource` of all existing projects
 // on the filer.
 type ProjectResourceCache struct {
-	Config  config.Configuration
+
+	// Config is the general API server configuration.
+	Config config.Configuration
+
+	// Context is the API server context.
 	Context context.Context
-	store   map[string]*projectResource
-	mutex   sync.Mutex
+
+	// Notifier is the redis channel subscription via which
+	// a refresh on a given project can be triggered on-demand.
+	Notifier <-chan *redis.Message
+
+	// IsStopped indicates whether the cache service is stopped.
+	IsStopped bool
+	store     map[string]*projectResource
+	mutex     sync.Mutex
 }
 
 // init initializes the cache with first reload.
 func (c *ProjectResourceCache) Init() {
+
+	c.IsStopped = false
 
 	// first refresh
 	c.refresh()
@@ -42,8 +56,11 @@ func (c *ProjectResourceCache) Init() {
 				log.Infof("refreshing cache")
 				c.refresh()
 				log.Infof("cache refreshed")
+			case m := <-c.Notifier:
+				log.Infof("cache update request received: %s", m)
 			case <-c.Context.Done():
 				log.Infof("cache refresh stopped")
+				c.IsStopped = true
 				return
 			}
 		}

@@ -12,8 +12,8 @@ require (
 	github.com/go-openapi/strfmt v0.20.0
 	github.com/go-openapi/swag v0.19.14
 	github.com/go-openapi/validate v0.20.2
+	github.com/go-redis/redis/v8 v8.7.1
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/onsi/ginkgo v1.14.2 // indirect
 	github.com/rs/cors v1.7.0
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.7.1

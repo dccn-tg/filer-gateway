@@ -15,6 +15,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/loads"
+	"github.com/go-redis/redis/v8"
 	"github.com/s12v/go-jwks"
 	"github.com/square/go-jose"
 
@@ -81,12 +82,21 @@ func main() {
 		log.Fatalf("fail to load configuration: %s", *configFile)
 	}
 
+	// redis client instance for notifying cache update
+	opt, err := redis.ParseURL(*redisAddr)
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+
 	// initialize Cache
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
+
+	pubsub := redis.NewClient(opt).Subscribe(ctx, "api_cache_update")
 	cache = handler.ProjectResourceCache{
-		Config:  cfg,
-		Context: ctx,
+		Config:   cfg,
+		Context:  ctx,
+		Notifier: pubsub.Channel(),
 	}
 	cache.Init()
 
@@ -99,7 +109,16 @@ func main() {
 	api := operations.NewFilerGatewayAPI(swaggerSpec)
 	api.UseRedoc()
 	server := restapi.NewServer(api)
+
+	// actions to take when the main program exists.
 	defer func() {
+		// stop the redis Pub/Sub for cache refresh notification.
+		pubsub.Close()
+
+		// stop all background services of the context.
+		cancel()
+
+		// stop API server.
 		if err := server.Shutdown(); err != nil {
 			// error handle
 			log.Fatalf("%s", err)
@@ -244,10 +263,8 @@ func main() {
 	// configure API
 	server.ConfigureAPI()
 
-	// Start server which listening
+	// Start API server
 	if err := server.Serve(); err != nil {
-		// call context's cancel function to stop background processes (cache and bokchoy)
-		cancel()
 		log.Fatalf("%s", err)
 	}
 }
