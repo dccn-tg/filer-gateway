@@ -492,7 +492,7 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 			go func() {
 				defer wg.Done()
 				for pnumber := range pnumbers {
-					if r, err := cache.getProjectResource(pnumber); err == nil {
+					if r, err := cache.getProjectResource(pnumber, false); err == nil {
 						resources <- struct {
 							pnumber  string
 							resource *projectResource
@@ -549,7 +549,7 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
 
-		r, err := cache.getProjectResource(params.ID)
+		r, err := cache.getProjectResource(params.ID, false)
 
 		// Return response error based on error code.
 		if err != nil {

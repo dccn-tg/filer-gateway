@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -17,6 +18,11 @@ import (
 type projectResource struct {
 	storage *models.StorageResponse
 	members []*models.Member
+}
+
+// UpdatePayload is the data structure of the cache update payload.
+type UpdatePayload struct {
+	ProjectNumber string `json:"project"`
 }
 
 // ProjectResourceCache is an in-memory store for caching `projectResource` of all existing projects
@@ -57,7 +63,19 @@ func (c *ProjectResourceCache) Init() {
 				c.refresh()
 				log.Infof("cache refreshed")
 			case m := <-c.Notifier:
-				log.Infof("cache update request received: %s", m)
+				// interpret request payload
+				p := UpdatePayload{}
+				if err := json.Unmarshal([]byte(m.Payload), &p); err != nil {
+					log.Errorf("unknown update payload: %s", m.Payload)
+					continue
+				}
+				// perform cache update
+				if _, err := c.getProjectResource(p.ProjectNumber, true); err != nil {
+					log.Errorf("fail to update cache for project %s: %s", p.ProjectNumber, err)
+					continue
+				}
+				log.Infof("cache updated for project: %s", p.ProjectNumber)
+
 			case <-c.Context.Done():
 				log.Infof("cache refresh stopped")
 				c.IsStopped = true
@@ -144,8 +162,8 @@ func (c *ProjectResourceCache) refresh() {
 
 // getProjectResource finds and returns project resource from the cache.
 // An error is returned if the project doesn't exist in cache.
-func (c *ProjectResourceCache) getProjectResource(pnumber string) (*projectResource, error) {
-	if r, ok := c.store[pnumber]; !ok {
+func (c *ProjectResourceCache) getProjectResource(pnumber string, force bool) (*projectResource, error) {
+	if r, ok := c.store[pnumber]; !ok || force {
 
 		// not found in cache, try fetch from the filer.
 		storage, members, err := getProjectResource(pnumber, c.Config)
