@@ -75,6 +75,7 @@ func main() {
 	}
 
 	ctx := context.Background()
+
 	bok, err := bokchoy.New(ctx, bokchoy.Config{
 		Broker: bokchoy.BrokerConfig{
 			Type: "redis",
@@ -97,7 +98,10 @@ func main() {
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetProject`
 	bok.Queue(hapi.QueueSetProject).Handle(
-		&hworker.SetProjectResourceHandler{ConfigFile: *configFile},
+		&hworker.SetProjectResourceHandler{
+			ConfigFile:        *configFile,
+			ApiNotifierClient: redis.NewClient(redisOpts),
+		},
 	)
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetUser`

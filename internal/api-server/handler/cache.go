@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
+	"github.com/Donders-Institute/filer-gateway/internal/task"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
@@ -18,11 +19,6 @@ import (
 type projectResource struct {
 	storage *models.StorageResponse
 	members []*models.Member
-}
-
-// UpdatePayload is the data structure of the cache update payload.
-type UpdatePayload struct {
-	ProjectNumber string `json:"project"`
 }
 
 // ProjectResourceCache is an in-memory store for caching `projectResource` of all existing projects
@@ -64,7 +60,7 @@ func (c *ProjectResourceCache) Init() {
 				log.Infof("cache refreshed")
 			case m := <-c.Notifier:
 				// interpret request payload
-				p := UpdatePayload{}
+				p := task.UpdatePayload{}
 				if err := json.Unmarshal([]byte(m.Payload), &p); err != nil {
 					log.Errorf("unknown update payload: %s", m.Payload)
 					continue

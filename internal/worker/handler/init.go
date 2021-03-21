@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -14,6 +15,8 @@ import (
 	"github.com/Donders-Institute/filer-gateway/internal/task"
 	"github.com/Donders-Institute/filer-gateway/internal/worker/config"
 	"github.com/Donders-Institute/filer-gateway/pkg/filer"
+
+	"github.com/go-redis/redis/v8"
 
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
@@ -55,7 +58,8 @@ type TaskResults struct {
 // SetProjectResourceHandler implements `bokchoy.Handler` for applying update on project resource.
 type SetProjectResourceHandler struct {
 	// Configuration file for the worker
-	ConfigFile string
+	ConfigFile        string
+	ApiNotifierClient *redis.Client
 }
 
 // Handle performs project resource update based on the request payload.
@@ -198,6 +202,15 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 			log.Errorf("%s", err)
 			return err
 		}
+	}
+
+	// notify api server to update cache for the project
+	p := task.UpdatePayload{
+		ProjectNumber: data.ProjectID,
+	}
+
+	if m, err := json.Marshal(p); err != nil {
+		h.ApiNotifierClient.Publish(context.Background(), "api_cache_update", string(m))
 	}
 
 	return nil

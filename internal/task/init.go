@@ -24,3 +24,8 @@ type Storage struct {
 	System  string `json:"system"`
 	QuotaGb int64  `json:"quotaGb"`
 }
+
+// UpdatePayload is the payload data structure for updating API cache.
+type UpdatePayload struct {
+	ProjectNumber string `json:"project"`
+}
