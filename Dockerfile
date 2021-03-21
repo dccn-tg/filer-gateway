@@ -1,5 +1,5 @@
 # stage 0: compile go program
-FROM golang:1.13.8
+FROM golang:1.16
 RUN mkdir -p /tmp/filer-gateway
 WORKDIR /tmp/filer-gateway
 ADD internal ./internal
