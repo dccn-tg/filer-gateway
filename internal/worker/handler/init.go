@@ -209,7 +209,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		ProjectNumber: data.ProjectID,
 	}
 
-	if m, err := json.Marshal(p); err != nil {
+	if m, err := json.Marshal(p); err == nil {
 		h.ApiNotifierClient.Publish(context.Background(), "api_cache_update", string(m))
 	}
 
