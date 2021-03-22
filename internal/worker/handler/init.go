@@ -205,12 +205,12 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	// notify api server to update cache for the project
-	p := task.UpdatePayload{
-		ProjectNumber: data.ProjectID,
+	p := task.UpdateProjectPayload{
+		ProjectID: data.ProjectID,
 	}
 
 	if m, err := json.Marshal(p); err == nil {
-		h.ApiNotifierClient.Publish(context.Background(), "api_cache_update", string(m))
+		h.ApiNotifierClient.Publish(context.Background(), "api_pcache_update", string(m))
 	}
 
 	return nil
@@ -219,7 +219,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 // SetUserResourceHandler implements `bokchoy.Handler` for applying update on user resource.
 type SetUserResourceHandler struct {
 	// Configuration file for the worker
-	ConfigFile string
+	ConfigFile        string
+	ApiNotifierClient *redis.Client
 }
 
 // Handle performs user resource update based on the request payload.
@@ -320,6 +321,15 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
 		log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
 		return err
+	}
+
+	// notify api server to update cache for the user
+	p := task.UpdateUserPayload{
+		UserID: data.UserID,
+	}
+
+	if m, err := json.Marshal(p); err == nil {
+		h.ApiNotifierClient.Publish(context.Background(), "api_ucache_update", string(m))
 	}
 
 	return nil

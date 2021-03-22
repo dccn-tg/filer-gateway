@@ -33,7 +33,8 @@ var (
 	redisURL    *string
 	configFile  *string
 
-	cache handler.ProjectResourceCache
+	pcache handler.ProjectResourceCache
+	ucache handler.UserResourceCache
 )
 
 func init() {
@@ -92,13 +93,23 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	pubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_cache_update")
-	cache = handler.ProjectResourceCache{
+	// project cache
+	ppubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_pcache_update")
+	pcache = handler.ProjectResourceCache{
 		Config:   cfg,
 		Context:  ctx,
-		Notifier: pubsub.Channel(),
+		Notifier: ppubsub.Channel(),
 	}
-	cache.Init()
+	pcache.Init()
+
+	// user cache
+	upubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_ucache_update")
+	ucache = handler.UserResourceCache{
+		Config:   cfg,
+		Context:  ctx,
+		Notifier: upubsub.Channel(),
+	}
+	ucache.Init()
 
 	// Initialize Swagger
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
@@ -113,7 +124,7 @@ func main() {
 	// actions to take when the main program exists.
 	defer func() {
 		// stop the redis Pub/Sub for cache refresh notification.
-		pubsub.Close()
+		ppubsub.Close()
 
 		// stop all background services of the context.
 		cancel()
@@ -248,15 +259,15 @@ func main() {
 
 	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
 
-	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(&cache))
+	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(&pcache))
 	// api.GetProjectsIDMembersHandler = operations.GetProjectsIDMembersHandlerFunc(handler.GetProjectMembers())
 	// api.GetProjectsIDStorageHandler = operations.GetProjectsIDStorageHandlerFunc(handler.GetProjectStorage())
 
-	api.GetProjectsHandler = operations.GetProjectsHandlerFunc(handler.GetProjects(&cache))
+	api.GetProjectsHandler = operations.GetProjectsHandlerFunc(handler.GetProjects(&pcache))
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
 	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
 
-	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource(cfg, &cache))
+	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource(&ucache, &pcache))
 	api.PostUsersHandler = operations.PostUsersHandlerFunc(handler.CreateUserResource(ctx, bok))
 	api.PatchUsersIDHandler = operations.PatchUsersIDHandlerFunc(handler.UpdateUserResource(ctx, bok))
 

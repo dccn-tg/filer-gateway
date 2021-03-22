@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -394,39 +393,21 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 }
 
 // GetUserResource implements retrival of file resource for a user (i.e. storage).
-func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func(params operations.GetUsersIDParams) middleware.Responder {
+func GetUserResource(ucache *UserResourceCache, pcache *ProjectResourceCache) func(params operations.GetUsersIDParams) middleware.Responder {
 	return func(params operations.GetUsersIDParams) middleware.Responder {
 		uname := params.ID
 
-		u, e := user.Lookup(uname)
+		ur, err := ucache.getResource(uname, false)
 
-		if e != nil {
-			switch e.(type) {
-			case user.UnknownUserError:
-				return operations.NewGetUsersIDNotFound().WithPayload(e.Error())
-			default:
-				return operations.NewGetUsersIDInternalServerError().WithPayload(
-					&models.ResponseBody500{
-						ErrorMessage: e.Error(),
-						ExitCode:     UserLookupError,
-					},
-				)
-			}
-		}
-
-		// getting storage quota on the user's home directory
-		system, quota, usage, err := getStorageQuota(cfg, u.HomeDir)
-
-		// Return response error based on error code.
 		if err != nil {
-			switch err.(*ResponseError).code {
-			case 404:
+			switch err.(type) {
+			case user.UnknownUserError:
 				return operations.NewGetUsersIDNotFound().WithPayload(err.Error())
 			default:
 				return operations.NewGetUsersIDInternalServerError().WithPayload(
 					&models.ResponseBody500{
 						ErrorMessage: err.Error(),
-						ExitCode:     QuotaGettingError,
+						ExitCode:     UserLookupError,
 					},
 				)
 			}
@@ -434,7 +415,7 @@ func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func
 
 		// getting user's membership on all active projects from the cache
 		var memberOf = make([]*models.ProjectRole, 0)
-		for k, v := range cache.store {
+		for k, v := range pcache.store {
 			pid := k // should reassign the value of `k` for assigning the string pointer of `ProjectID`
 			for _, m := range v.members {
 				if *m.UserID == uname {
@@ -447,21 +428,13 @@ func GetUserResource(cfg config.Configuration, cache *ProjectResourceCache) func
 			}
 		}
 
-		// return 200 success with storage quota information.
-		quotaGb := quota >> 30
-		usageMb := usage >> 20
-
+		// return 200 success with user resource information.
 		uid := models.UserID(uname)
-
 		return operations.NewGetUsersIDOK().WithPayload(
 			&models.ResponseBodyUserResource{
 				UserID:   &uid,
 				MemberOf: memberOf,
-				Storage: &models.StorageResponse{
-					QuotaGb: &quotaGb,
-					System:  &system,
-					UsageMb: &usageMb,
-				},
+				Storage:  ur.storage,
 			},
 		)
 	}
@@ -492,7 +465,7 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 			go func() {
 				defer wg.Done()
 				for pnumber := range pnumbers {
-					if r, err := cache.getProjectResource(pnumber, false); err == nil {
+					if r, err := cache.getResource(pnumber, false); err == nil {
 						resources <- struct {
 							pnumber  string
 							resource *projectResource
@@ -549,7 +522,7 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
 
-		r, err := cache.getProjectResource(params.ID, false)
+		r, err := cache.getResource(params.ID, false)
 
 		// Return response error based on error code.
 		if err != nil {
@@ -578,38 +551,6 @@ func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetP
 	}
 }
 
-// getProjectResource retrieves storage resource and access roles of a given project.
-func getProjectResource(pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
-
-	path, err := pid2path(pnumber)
-
-	if err != nil {
-		return nil, nil, &ResponseError{code: 404, err: err.Error()}
-	}
-
-	// Get Storage Resource
-	system, quota, usage, err := getStorageQuota(cfg, path)
-	// Return response error based on error code.
-	if err != nil {
-		return nil, nil, err
-	}
-
-	members, err := getMemberRoles(path)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	quotaGb := quota >> 30
-	usageMb := usage >> 20
-	storage := &models.StorageResponse{
-		QuotaGb: &quotaGb,
-		System:  &system,
-		UsageMb: &usageMb,
-	}
-
-	return storage, members, nil
-}
-
 // ResponseError is an internal error type for the API handler function to
 // determine which response error should be returned to the API client.
 type ResponseError struct {
@@ -619,20 +560,6 @@ type ResponseError struct {
 
 func (e *ResponseError) Error() string {
 	return e.err
-}
-
-// pid2path converts project id to file system path.
-func pid2path(pid string) (string, error) {
-	var path string
-	if matched, _ := regexp.MatchString("^[0-9]{7,}", pid); matched {
-		// input pid is a project number
-		path = filepath.Join(PathProject, pid)
-	} else {
-		return path, fmt.Errorf("invalid project id: %s", pid)
-	}
-
-	// evaluate symlink to its absolute path.
-	return filepath.EvalSymlinks(path)
 }
 
 // getStorageSystem retrives storage system based on the suffix of the path.
@@ -685,46 +612,4 @@ func getStorageQuota(cfg config.Configuration, path string) (system string, quot
 
 	log.Debugf("path: %s, quota: %d bytes, usage: %d bytes", path, quota, usage)
 	return
-}
-
-// getMemberRoles retrives member roles applied on the path.
-func getMemberRoles(path string) ([]*models.Member, error) {
-
-	members := make([]*models.Member, 0)
-
-	runner := acl.Runner{
-		RootPath:   path,
-		FollowLink: true,
-		SkipFiles:  true,
-		Nthreads:   1,
-	}
-
-	chanOut, err := runner.GetRoles(false)
-
-	// we know it's path not found error because this is the only case the runner.GetRoles returns an error.
-	// TODO: maybe the runner should return an explicit error type.
-	if err != nil {
-		return members, &ResponseError{code: 500, err: fmt.Sprintf("cannot get role: %s", path)}
-	}
-
-	// only one object is expected from the channel as the recursion is disabled on the runner function.
-	for o := range chanOut {
-		log.Debugf("found project memebers on %s, %+v\n", o.Path, o.RoleMap)
-		for r, users := range o.RoleMap {
-			// exclude the system role.
-			if r == acl.System {
-				continue
-			}
-			rname := r.String()
-			for i := range users {
-				m := models.Member{
-					UserID: &users[i],
-					Role:   &rname,
-				}
-				members = append(members, &m)
-			}
-		}
-	}
-
-	return members, nil
 }

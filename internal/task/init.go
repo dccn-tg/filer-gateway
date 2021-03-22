@@ -25,7 +25,12 @@ type Storage struct {
 	QuotaGb int64  `json:"quotaGb"`
 }
 
-// UpdatePayload is the payload data structure for updating API cache.
-type UpdatePayload struct {
-	ProjectNumber string `json:"project"`
+// UpdateProjectPayload is the payload data structure for updating API project cache.
+type UpdateProjectPayload struct {
+	ProjectID string `json:"project"`
+}
+
+// UpdateUserPayload is the payload data structure for updating API user cache.
+type UpdateUserPayload struct {
+	UserID string `json:"user"`
 }

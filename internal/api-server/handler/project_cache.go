@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sync"
 	"time"
@@ -13,6 +15,7 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -55,32 +58,32 @@ func (c *ProjectResourceCache) Init() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Infof("refreshing cache")
+				log.Infof("refreshing project cache")
 				c.refresh()
-				log.Infof("cache refreshed")
+				log.Infof("project cache refreshed")
 			case m := <-c.Notifier:
 				// interpret request payload
-				p := task.UpdatePayload{}
+				p := task.UpdateProjectPayload{}
 				if err := json.Unmarshal([]byte(m.Payload), &p); err != nil {
 					log.Errorf("unknown update payload: %s", m.Payload)
 					continue
 				}
 				// perform cache update
-				if _, err := c.getProjectResource(p.ProjectNumber, true); err != nil {
-					log.Errorf("fail to update cache for project %s: %s", p.ProjectNumber, err)
+				if _, err := c.getResource(p.ProjectID, true); err != nil {
+					log.Errorf("fail to update cache for project %s: %s", p.ProjectID, err)
 					continue
 				}
-				log.Infof("cache updated for project: %s", p.ProjectNumber)
+				log.Infof("cache updated for project: %s", p.ProjectID)
 
 			case <-c.Context.Done():
-				log.Infof("cache refresh stopped")
+				log.Infof("project cache refresh stopped")
 				c.IsStopped = true
 				return
 			}
 		}
 	}()
 
-	log.Infof("cache initalized")
+	log.Infof("project cache initalized")
 }
 
 // refresh update the cache with up-to-data project resources.
@@ -156,9 +159,9 @@ func (c *ProjectResourceCache) refresh() {
 	c.mutex.Unlock()
 }
 
-// getProjectResource finds and returns project resource from the cache.
+// getResource finds and returns project resource from the cache.
 // An error is returned if the project doesn't exist in cache.
-func (c *ProjectResourceCache) getProjectResource(pnumber string, force bool) (*projectResource, error) {
+func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*projectResource, error) {
 	if r, ok := c.store[pnumber]; !ok || force {
 
 		// not found in cache, try fetch from the filer.
@@ -180,4 +183,92 @@ func (c *ProjectResourceCache) getProjectResource(pnumber string, force bool) (*
 	} else {
 		return r, nil
 	}
+}
+
+// getProjectResource retrieves storage resource and access roles of a given project.
+func getProjectResource(pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
+
+	path, err := pid2path(pnumber)
+
+	if err != nil {
+		return nil, nil, &ResponseError{code: 404, err: err.Error()}
+	}
+
+	// Get Storage Resource
+	system, quota, usage, err := getStorageQuota(cfg, path)
+	// Return response error based on error code.
+	if err != nil {
+		return nil, nil, err
+	}
+
+	members, err := getMemberRoles(path)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	quotaGb := quota >> 30
+	usageMb := usage >> 20
+	storage := &models.StorageResponse{
+		QuotaGb: &quotaGb,
+		System:  &system,
+		UsageMb: &usageMb,
+	}
+
+	return storage, members, nil
+}
+
+// getMemberRoles retrives member roles applied on the path.
+func getMemberRoles(path string) ([]*models.Member, error) {
+
+	members := make([]*models.Member, 0)
+
+	runner := acl.Runner{
+		RootPath:   path,
+		FollowLink: true,
+		SkipFiles:  true,
+		Nthreads:   1,
+	}
+
+	chanOut, err := runner.GetRoles(false)
+
+	// we know it's path not found error because this is the only case the runner.GetRoles returns an error.
+	// TODO: maybe the runner should return an explicit error type.
+	if err != nil {
+		return members, &ResponseError{code: 500, err: fmt.Sprintf("cannot get role: %s", path)}
+	}
+
+	// only one object is expected from the channel as the recursion is disabled on the runner function.
+	for o := range chanOut {
+		log.Debugf("found project memebers on %s, %+v\n", o.Path, o.RoleMap)
+		for r, users := range o.RoleMap {
+			// exclude the system role.
+			if r == acl.System {
+				continue
+			}
+			rname := r.String()
+			for i := range users {
+				m := models.Member{
+					UserID: &users[i],
+					Role:   &rname,
+				}
+				members = append(members, &m)
+			}
+		}
+	}
+
+	return members, nil
+}
+
+// pid2path converts project id to file system path.
+func pid2path(pid string) (string, error) {
+	var path string
+	if matched, _ := regexp.MatchString("^[0-9]{7,}", pid); matched {
+		// input pid is a project number
+		path = filepath.Join(PathProject, pid)
+	} else {
+		return path, fmt.Errorf("invalid project id: %s", pid)
+	}
+
+	// evaluate symlink to its absolute path.
+	return filepath.EvalSymlinks(path)
 }

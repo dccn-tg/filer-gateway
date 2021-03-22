@@ -106,7 +106,10 @@ func main() {
 
 	// add handler to handle tasks in the queue of `hapi.QueueSetUser`
 	bok.Queue(hapi.QueueSetUser).Handle(
-		&hworker.SetUserResourceHandler{ConfigFile: *configFile},
+		&hworker.SetUserResourceHandler{
+			ConfigFile:        *configFile,
+			ApiNotifierClient: redis.NewClient(redisOpts),
+		},
 	)
 
 	c := make(chan os.Signal, 1)
