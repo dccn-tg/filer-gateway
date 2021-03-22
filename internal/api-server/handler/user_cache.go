@@ -103,7 +103,7 @@ func (c *UserResourceCache) refresh() {
 		go func() {
 			defer wg.Done()
 			for uname := range usernames {
-				resource, err := c.getResource(uname, true)
+				storage, err := getUserStorageResource(uname, c.Config)
 				if err != nil {
 					log.Errorf("cannot get filer resource for %s: %s", uname, err)
 				}
@@ -112,7 +112,9 @@ func (c *UserResourceCache) refresh() {
 					resource *userResource
 				}{
 					uname,
-					resource,
+					&userResource{
+						storage: storage,
+					},
 				}
 			}
 		}()
