@@ -392,6 +392,93 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 	}
 }
 
+// GetProjects implements retrival of resources of all system users with UID >= 1000.
+func GetUsers(ucache *UserResourceCache, pcache *ProjectResourceCache) func(params operations.GetUsersParams) middleware.Responder {
+	return func(params operations.GetUsersParams) middleware.Responder {
+
+		// max. 4 concurrent workers (because we are already getting data from cache)
+		nworkers := 4
+		if nworkers > runtime.NumCPU() {
+			nworkers = runtime.NumCPU()
+		}
+
+		// list all directories in `handler.PathProject`
+		usernames := make(chan string, nworkers*2)
+		resources := make(chan struct {
+			username string
+			resource *userResource
+		})
+
+		wg := sync.WaitGroup{}
+		// start concurrent workers to get project resources from the cache.
+		for i := 0; i < nworkers; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for uname := range usernames {
+					if r, err := ucache.getResource(uname, false); err == nil {
+						resources <- struct {
+							username string
+							resource *userResource
+						}{
+							uname,
+							r,
+						}
+					} else {
+						log.Errorf("%s", err)
+					}
+				}
+			}()
+		}
+
+		// go routine to get all system users.
+		go func() {
+			// close the dirs channel on exit
+			defer close(usernames)
+			for _, uname := range getSystemUsers() {
+				usernames <- uname
+			}
+		}()
+
+		// go routine to wait for all workers to complete and close the resources channel.
+		go func() {
+			wg.Wait()
+			close(resources)
+		}()
+
+		users := make([]*models.ResponseBodyUserResource, 0)
+		for r := range resources {
+			// getting user's membership on all active projects from the cache
+			var memberOf = make([]*models.ProjectRole, 0)
+			for k, v := range pcache.store {
+				pid := k // should reassign the value of `k` for assigning the string pointer of `ProjectID`
+				for _, m := range v.members {
+					if *m.UserID == r.username {
+						memberOf = append(memberOf, &models.ProjectRole{
+							ProjectID: &pid,
+							Role:      m.Role,
+						})
+						break
+					}
+				}
+			}
+
+			uid := models.UserID(r.username)
+			users = append(users, &models.ResponseBodyUserResource{
+				UserID:   &uid,
+				Storage:  r.resource.storage,
+				MemberOf: memberOf,
+			})
+		}
+
+		return operations.NewGetUsersOK().WithPayload(
+			&models.ResponseBodyUsers{
+				Users: users,
+			},
+		)
+	}
+}
+
 // GetUserResource implements retrival of file resource for a user (i.e. storage).
 func GetUserResource(ucache *UserResourceCache, pcache *ProjectResourceCache) func(params operations.GetUsersIDParams) middleware.Responder {
 	return func(params operations.GetUsersIDParams) middleware.Responder {

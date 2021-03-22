@@ -302,6 +302,29 @@ func init() {
       }
     },
     "/users": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources of all users.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUsers"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -711,6 +734,17 @@ func init() {
         },
         "userID": {
           "$ref": "#/definitions/userID"
+        }
+      }
+    },
+    "responseBodyUsers": {
+      "description": "JSON list containing a list of user resources.",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyUserResource"
+          }
         }
       }
     },
@@ -1107,6 +1141,29 @@ func init() {
       }
     },
     "/users": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources of all users.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyUsers"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -1516,6 +1573,17 @@ func init() {
         },
         "userID": {
           "$ref": "#/definitions/userID"
+        }
+      }
+    },
+    "responseBodyUsers": {
+      "description": "JSON list containing a list of user resources.",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyUserResource"
+          }
         }
       }
     },

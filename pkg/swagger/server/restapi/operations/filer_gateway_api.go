@@ -56,6 +56,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetTasksTypeIDHandler: GetTasksTypeIDHandlerFunc(func(params GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetTasksTypeID has not yet been implemented")
 		}),
+		GetUsersHandler: GetUsersHandlerFunc(func(params GetUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetUsers has not yet been implemented")
+		}),
 		GetUsersIDHandler: GetUsersIDHandlerFunc(func(params GetUsersIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetUsersID has not yet been implemented")
 		}),
@@ -144,6 +147,8 @@ type FilerGatewayAPI struct {
 	GetProjectsIDHandler GetProjectsIDHandler
 	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
 	GetTasksTypeIDHandler GetTasksTypeIDHandler
+	// GetUsersHandler sets the operation handler for the get users operation
+	GetUsersHandler GetUsersHandler
 	// GetUsersIDHandler sets the operation handler for the get users ID operation
 	GetUsersIDHandler GetUsersIDHandler
 	// PatchProjectsIDHandler sets the operation handler for the patch projects ID operation
@@ -252,6 +257,9 @@ func (o *FilerGatewayAPI) Validate() error {
 	}
 	if o.GetTasksTypeIDHandler == nil {
 		unregistered = append(unregistered, "GetTasksTypeIDHandler")
+	}
+	if o.GetUsersHandler == nil {
+		unregistered = append(unregistered, "GetUsersHandler")
 	}
 	if o.GetUsersIDHandler == nil {
 		unregistered = append(unregistered, "GetUsersIDHandler")
@@ -393,6 +401,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/tasks/{type}/{id}"] = NewGetTasksTypeID(o.context, o.GetTasksTypeIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/users"] = NewGetUsers(o.context, o.GetUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -50,6 +50,25 @@ paths:
           description: failure
 
   /users:
+    get:
+      summary: get filer resources of all users.
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyUsers'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
     post:
       summary: provision filer resource for a new user.
 
@@ -454,6 +473,14 @@ definitions:
       - userID
       - memberOf
       - storage
+
+  responseBodyUsers:
+    description: JSON list containing a list of user resources.
+    properties:
+      users:
+        type: array
+        items:
+          $ref: '#/definitions/responseBodyUserResource'
 
   responseBodyProjectResource:
     description: JSON object containing project resources.

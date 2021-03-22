@@ -38,6 +38,8 @@ type ClientService interface {
 
 	GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOption) (*GetTasksTypeIDOK, error)
 
+	GetUsers(params *GetUsersParams, opts ...ClientOption) (*GetUsersOK, error)
+
 	GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*GetUsersIDOK, error)
 
 	PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, error)
@@ -201,6 +203,44 @@ func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOpti
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for GetTasksTypeID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  GetUsers gets filer resources of all users
+*/
+func (a *Client) GetUsers(params *GetUsersParams, opts ...ClientOption) (*GetUsersOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetUsersParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetUsers",
+		Method:             "GET",
+		PathPattern:        "/users",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetUsersReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetUsersOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetUsers: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
