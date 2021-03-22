@@ -194,7 +194,13 @@ func getSystemUsers() []string {
 			//
 			// `{username}:*:{userid}`
 			//
-			data := strings.Split(sout.Text(), ":")
+			line := sout.Text()
+			data := strings.Split(line, ":")
+
+			if len(data) < 2 {
+				log.Warnf("unexpected getent output: %s", line)
+				continue
+			}
 
 			// get user id
 			uid, err := strconv.Atoi(data[2])
