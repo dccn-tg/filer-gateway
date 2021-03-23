@@ -54,6 +54,22 @@ For NetApp and FreeNAS, two filer interfaces are used by the gateway to interact
 
 For CephFS, only the exported filesystem is used given that all operations (create project directory, set quota and ACL) can be done via the filesystem as long as it is mounted with sufficient privilege.
 
+### Projects/Users cache of the API server
+
+Getting quota usage and ACL via the filer's filesystem interface is an expensive operation; and too many `GET` request to the filer API can generate high load on the filesystem, causing performance degradation.
+
+To prevent it from happening, two in-memory caches are implemented in the API server to store filer data (quota and ACL) for all projects and users, respectively.  When the API server receives a `GET` request, it simply returns data from the caches.  This also allows the API server to provide the `GET /projects` and `GET /users` interfaces with good performance.
+
+The caches are updated in two ways:
+
+1. all data in the caches are refreshed every 10 minutes.
+1. data concerning a project or a user is updated after changes are made on the filer via the `POST` and `PATCH` APIs.
+
+The second way of update is implemented with the Redis' [Pub/Sub](https://redis.io/topics/pubsub), and thus it can be easily exploited by 3rd-party tools/applications to trigger cache update.
+
+For updating the cache of a specific project, one sends a message `{"project": "<number>"}` to the channel `api_pcache_update`.
+For updating the cache of a specific user, one sends a message `{"user":"<username>"}` to the channel `api_ucache_update`.
+
 ## Build
 
 It requires [Golang](https://golang.org/) version >= 1.13 (i.e. with [Go Modules](https://blog.golang.org/using-go-modules) support) to build the source code.
