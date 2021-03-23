@@ -72,7 +72,7 @@ For updating the cache of a specific user, one sends a message `{"user":"<userna
 
 ## Build
 
-It requires [Golang](https://golang.org/) version >= 1.13 (i.e. with [Go Modules](https://blog.golang.org/using-go-modules) support) to build the source code.
+It requires [Golang](https://golang.org/) version >= 1.14 to build the source code.
 
 ```bash
 $ git clone https://github.com/Donders-Institute/filer-gateway
