@@ -116,7 +116,7 @@ $ docker-compose -p filer-gateway -f docker-compose.yml up -d
 
 or use the provided [start.sh](start.sh) script.
 
-__NOTE:__ In theory, the service stack can also be deployed on a swarm cluster; however, due to the lack of support of the `cap_add` option when using the `docker stack deploy` command (see [this issue](https://github.com/moby/moby/issues/25885)), the CephFS interface will not function properly in the setting/getting the project manager role that is stored in the `trusted.managers` xattr.
+__NOTE:__ ~~In theory, the service stack can also be deployed on a swarm cluster; however, due to the lack of support of the `cap_add` option when using the `docker stack deploy` command (see [this issue](https://github.com/moby/moby/issues/25885)), the CephFS interface will not function properly in the setting/getting the project manager role that is stored in the `trusted.managers` xattr.~~ From Docker version [20.10.0](https://docs.docker.com/engine/release-notes/#20100) onward, the system capability is supported by the Swarm.  Use Docker >= 20.10.0 for deploying the services as a docker stack.
 
 ## Demo scripts for client implementation
 
