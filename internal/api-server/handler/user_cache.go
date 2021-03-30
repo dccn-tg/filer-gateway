@@ -105,7 +105,7 @@ func (c *UserResourceCache) refresh() {
 			for uname := range usernames {
 				storage, err := getUserStorageResource(uname, c.Config)
 				if err != nil {
-					log.Errorf("cannot get filer resource for %s: %s", uname, err)
+					log.Warnf("cannot get filer resource for %s: %s", uname, err)
 				}
 				resources <- struct {
 					username string
@@ -197,7 +197,7 @@ func getSystemUsers() []string {
 			line := sout.Text()
 			data := strings.Split(line, ":")
 
-			if len(data) < 2 {
+			if len(data) < 3 {
 				log.Warnf("unexpected getent output: %s", line)
 				continue
 			}
@@ -205,7 +205,7 @@ func getSystemUsers() []string {
 			// get user id
 			uid, err := strconv.Atoi(data[2])
 			if err != nil {
-				log.Errorf("%s", err)
+				log.Warnf("%s", err)
 				continue
 			}
 
