@@ -106,6 +106,7 @@ func (c *UserResourceCache) refresh() {
 				storage, err := getUserStorageResource(uname, c.Config)
 				if err != nil {
 					log.Warnf("cannot get filer resource for %s: %s", uname, err)
+					continue
 				}
 				resources <- struct {
 					username string
