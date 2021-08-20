@@ -14,7 +14,7 @@ require (
 	github.com/go-redis/redis/v8 v8.7.1
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/rs/cors v1.8.0 // indirect
+	github.com/rs/cors v1.8.0
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.7.1
 	github.com/square/go-jose v2.5.1+incompatible
