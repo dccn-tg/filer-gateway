@@ -92,7 +92,7 @@ func TestUnmarshal(t *testing.T) {
 
 func TestGetDefaultQuotRule(t *testing.T) {
 
-	r, err := netapp.(NetApp).getDefaultQuotaPolicy(groupname)
+	r, err := netapp.(NetApp).getDefaultQuotaRule(groupname)
 
 	if err != nil {
 		t.Errorf("fail to get default quota policy: %s\n", err)

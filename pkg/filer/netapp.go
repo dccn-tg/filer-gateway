@@ -241,7 +241,7 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 		return fmt.Errorf("cannot set owner of %s: %s", hpath, err)
 	}
 
-	return filer.SetHomeQuota(username, groupname, quotaGiB)
+	return nil
 }
 
 // SetProjectQuota updates the quota of a project space.
@@ -289,17 +289,6 @@ func (filer NetApp) SetProjectQuota(projectID string, quotaGiB int) error {
 
 // SetHomeQuota updates the quota of a home directory.
 func (filer NetApp) SetHomeQuota(username, groupname string, quotaGiB int) error {
-
-	qn, err := filer.GetHomeQuotaInBytes(username, groupname)
-	if err != nil {
-		return fmt.Errorf("cannot get current quota for user home %s/%s: %s", groupname, username, err)
-	}
-
-	if int(qn>>30) == quotaGiB {
-		log.Warnf("quota of user home %s/%s already in right size: %d", groupname, username, quotaGiB)
-		return nil
-	}
-
 	return filer.setQtreeQuota(username, groupname, quotaGiB)
 }
 
@@ -335,10 +324,19 @@ func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (int64, erro
 	if err != nil {
 		return 0, fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", groupname, username, err)
 	}
-	if len(records) != 1 {
-		return 0, fmt.Errorf("quota rule for volume %s qtree %s doesn't exist", groupname, username)
+
+	if len(records) == 0 { // no qtree specific quota rule, try to get the default rule
+		rule, err := filer.getDefaultQuotaRule(groupname)
+		if err != nil {
+			log.Errorf("cannot get default quota rule for volume %s", groupname)
+		}
+		if rule == nil {
+			return 0, fmt.Errorf("quota rule for volume %s qtree %s doesn't exist", groupname, username)
+		}
+		return rule.Space.HardLimit, nil
 	}
 
+	// with qtree specific quota rule
 	rule := QuotaRule{}
 	if err := filer.getObjectByHref(records[0].Link.Self.Href, &rule); err != nil {
 		return 0, fmt.Errorf("cannot get quota rule for volume %s qtree %s", groupname, username)
@@ -416,19 +414,31 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 		return fmt.Errorf("more than one quota rule for volume %s qtree %s (%d)", volume, name, len(recRules))
 	}
 
-	// try to get the default quota rule.
-	rule, err := filer.getDefaultQuotaPolicy(volume)
+	// get qtree specific rule
+	if len(recRules) == 1 {
+		qtreeRule := QuotaRule{}
+		if err := filer.getObjectByHref(recRules[0].Link.Self.Href, &qtreeRule); err != nil {
+			return fmt.Errorf("fail to get quota rule for volume %s qtree %s", volume, name)
+		}
+
+		if quotaGiB == int(qtreeRule.Space.HardLimit>>30) {
+			log.Debugf("quota target is already the current quota limitation, volume %s qtree %s", volume, name)
+			return nil
+		}
+	}
+
+	// get the default quota on volume level.
+	volRule, err := filer.getDefaultQuotaRule(volume)
 	if err != nil {
 		return err
 	}
 
 	// default quota rule is available and the hard limit is identical to the quota target.
-	if rule != nil && quotaGiB == int(rule.Space.HardLimit>>30) {
-		log.Debugf("quota target is the default quota limitation.")
+	if volRule != nil && quotaGiB == int(volRule.Space.HardLimit>>30) {
+		log.Debugf("quota target is already the default quota limitation, volume %s qtree %s", volume, name)
 		// already a default rule, should remove the user specific rule if it exists.
 		if len(recRules) == 1 {
 			log.Debugf("remove specific quota policy for qtree %s, volume %s", name, volume)
-
 			if err := filer.delObjectByHref(recRules[0].Link.Self.Href); err != nil {
 				return fmt.Errorf("cannot delete user-specific quota rule for %s volume %s: %s", name, volume, err)
 			}
@@ -437,7 +447,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	}
 
 	// switch off and on the volume quota is needed if there is no default quota rule applied on the volume.
-	if rule == nil {
+	if volRule == nil {
 		// switch off volume quota
 		log.Debugf("turn off quota on volume %s", volume)
 		if err := filer.patchObject(volRecord, []byte(`{"quota":{"enabled":false}}`)); err != nil {
@@ -477,8 +487,8 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	return nil
 }
 
-// getDefaultQuotaPolicy returns the default quota rule on a volume as `QuotaRule`.
-func (filer NetApp) getDefaultQuotaPolicy(volume string) (*QuotaRule, error) {
+// getDefaultQuotaRule returns the default quota rule on a volume as `QuotaRule`.
+func (filer NetApp) getDefaultQuotaRule(volume string) (*QuotaRule, error) {
 
 	var rule QuotaRule
 
