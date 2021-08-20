@@ -12,10 +12,10 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/loads"
 	"github.com/go-redis/redis/v8"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/s12v/go-jwks"
 	"github.com/square/go-jose"
 
