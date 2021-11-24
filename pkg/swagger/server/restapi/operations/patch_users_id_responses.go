@@ -57,6 +57,30 @@ func (o *PatchUsersIDOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 }
 
+// PatchUsersIDNoContentCode is the HTTP code returned for type PatchUsersIDNoContent
+const PatchUsersIDNoContentCode int = 204
+
+/*PatchUsersIDNoContent no content
+
+swagger:response patchUsersIdNoContent
+*/
+type PatchUsersIDNoContent struct {
+}
+
+// NewPatchUsersIDNoContent creates PatchUsersIDNoContent with default headers values
+func NewPatchUsersIDNoContent() *PatchUsersIDNoContent {
+
+	return &PatchUsersIDNoContent{}
+}
+
+// WriteResponse to the client
+func (o *PatchUsersIDNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(204)
+}
+
 // PatchUsersIDBadRequestCode is the HTTP code returned for type PatchUsersIDBadRequest
 const PatchUsersIDBadRequestCode int = 400
 

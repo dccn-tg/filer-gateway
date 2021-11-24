@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // RequestBodyUserResource JSON object describing resource to be set to the user.
@@ -20,8 +19,7 @@ import (
 type RequestBodyUserResource struct {
 
 	// storage
-	// Required: true
-	Storage *StorageRequest `json:"storage"`
+	Storage *StoragePatchRequest `json:"storage,omitempty"`
 }
 
 // Validate validates this request body user resource
@@ -39,15 +37,16 @@ func (m *RequestBodyUserResource) Validate(formats strfmt.Registry) error {
 }
 
 func (m *RequestBodyUserResource) validateStorage(formats strfmt.Registry) error {
-
-	if err := validate.Required("storage", "body", m.Storage); err != nil {
-		return err
+	if swag.IsZero(m.Storage) { // not required
+		return nil
 	}
 
 	if m.Storage != nil {
 		if err := m.Storage.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -76,6 +75,8 @@ func (m *RequestBodyUserResource) contextValidateStorage(ctx context.Context, fo
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}

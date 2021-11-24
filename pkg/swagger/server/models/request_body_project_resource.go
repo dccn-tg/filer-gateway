@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // RequestBodyProjectResource JSON object describing resource to be set to the project.
@@ -20,12 +19,10 @@ import (
 type RequestBodyProjectResource struct {
 
 	// members
-	// Required: true
-	Members Members `json:"members"`
+	Members Members `json:"members,omitempty"`
 
 	// storage
-	// Required: true
-	Storage *StorageRequest `json:"storage"`
+	Storage *StoragePatchRequest `json:"storage,omitempty"`
 }
 
 // Validate validates this request body project resource
@@ -47,14 +44,15 @@ func (m *RequestBodyProjectResource) Validate(formats strfmt.Registry) error {
 }
 
 func (m *RequestBodyProjectResource) validateMembers(formats strfmt.Registry) error {
-
-	if err := validate.Required("members", "body", m.Members); err != nil {
-		return err
+	if swag.IsZero(m.Members) { // not required
+		return nil
 	}
 
 	if err := m.Members.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("members")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("members")
 		}
 		return err
 	}
@@ -63,15 +61,16 @@ func (m *RequestBodyProjectResource) validateMembers(formats strfmt.Registry) er
 }
 
 func (m *RequestBodyProjectResource) validateStorage(formats strfmt.Registry) error {
-
-	if err := validate.Required("storage", "body", m.Storage); err != nil {
-		return err
+	if swag.IsZero(m.Storage) { // not required
+		return nil
 	}
 
 	if m.Storage != nil {
 		if err := m.Storage.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -103,6 +102,8 @@ func (m *RequestBodyProjectResource) contextValidateMembers(ctx context.Context,
 	if err := m.Members.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("members")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("members")
 		}
 		return err
 	}
@@ -116,6 +117,8 @@ func (m *RequestBodyProjectResource) contextValidateStorage(ctx context.Context,
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}

@@ -60,6 +60,8 @@ func (m *ResponseBodyTaskResource) validateTaskID(formats strfmt.Registry) error
 		if err := m.TaskID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("taskID")
 			}
 			return err
 		}
@@ -78,6 +80,8 @@ func (m *ResponseBodyTaskResource) validateTaskStatus(formats strfmt.Registry) e
 		if err := m.TaskStatus.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("taskStatus")
 			}
 			return err
 		}
@@ -110,6 +114,8 @@ func (m *ResponseBodyTaskResource) contextValidateTaskID(ctx context.Context, fo
 		if err := m.TaskID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("taskID")
 			}
 			return err
 		}
@@ -124,6 +130,8 @@ func (m *ResponseBodyTaskResource) contextValidateTaskStatus(ctx context.Context
 		if err := m.TaskStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskStatus")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("taskStatus")
 			}
 			return err
 		}

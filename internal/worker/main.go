@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/thoas/bokchoy"
-	"github.com/thoas/bokchoy/logging"
-	"github.com/thoas/bokchoy/middleware"
+	"github.com/hurngchunlee/bokchoy"
+	"github.com/hurngchunlee/bokchoy/logging"
+	"github.com/hurngchunlee/bokchoy/middleware"
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	hworker "github.com/Donders-Institute/filer-gateway/internal/worker/handler"

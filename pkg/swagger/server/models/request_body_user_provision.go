@@ -56,6 +56,8 @@ func (m *RequestBodyUserProvision) validateStorage(formats strfmt.Registry) erro
 		if err := m.Storage.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -78,6 +80,8 @@ func (m *RequestBodyUserProvision) validateUserID(formats strfmt.Registry) error
 		if err := m.UserID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("userID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("userID")
 			}
 			return err
 		}
@@ -110,6 +114,8 @@ func (m *RequestBodyUserProvision) contextValidateStorage(ctx context.Context, f
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -124,6 +130,8 @@ func (m *RequestBodyUserProvision) contextValidateUserID(ctx context.Context, fo
 		if err := m.UserID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("userID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("userID")
 			}
 			return err
 		}

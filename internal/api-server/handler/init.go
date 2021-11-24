@@ -20,7 +20,7 @@ import (
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/thoas/bokchoy"
+	"github.com/hurngchunlee/bokchoy"
 
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
@@ -35,6 +35,9 @@ var (
 
 	// QueueSetUser is the queue name for setting user resources.
 	QueueSetUser string = "tasks.setUser"
+
+	// DefaultHomeStorageSystem is the name of the default storage system used for user's home directory
+	DefaultHomeStorageSystem = "netapp"
 )
 
 // Error code definitions.
@@ -102,6 +105,9 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 		task, err := bok.Queue(qn).Get(ctx, id)
 
 		if err != nil {
+			if err == bokchoy.ErrTaskNotFound { // task not found
+				return operations.NewGetTasksTypeIDNotFound()
+			}
 			return operations.NewGetTasksTypeIDInternalServerError().WithPayload(
 				&models.ResponseBody500{
 					ErrorMessage: err.Error(),
@@ -226,14 +232,23 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 	// Not implemented
 	return func(params operations.PatchProjectsIDParams, principle *models.Principle) middleware.Responder {
 
+		if (params.ProjectUpdateData.Members == nil || len(params.ProjectUpdateData.Members) == 0) && params.ProjectUpdateData.Storage == nil {
+			// return 204 No Content if both `members` and `storage` are empty
+			return operations.NewPatchProjectsIDNoContent()
+		}
+
 		// construct task data from request data
 		t := task.SetProjectResource{
 			ProjectID: params.ID,
 			Storage: task.Storage{
-				System:  *params.ProjectUpdateData.Storage.System,
-				QuotaGb: *params.ProjectUpdateData.Storage.QuotaGb,
+				System:  "none",
+				QuotaGb: -1,
 			},
 			Members: make([]task.Member, 0),
+		}
+
+		if params.ProjectUpdateData.Storage != nil {
+			t.Storage.QuotaGb = *params.ProjectUpdateData.Storage.QuotaGb
 		}
 
 		for _, m := range params.ProjectUpdateData.Members {
@@ -351,11 +366,17 @@ func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 // - result is kept for 7 days.
 func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PatchUsersIDParams, principle *models.Principle) middleware.Responder {
 	return func(params operations.PatchUsersIDParams, principle *models.Principle) middleware.Responder {
+
+		if params.UserUpdateData.Storage == nil {
+			// return 204 No Content if `storage` is not provided
+			return operations.NewPatchUsersIDNoContent()
+		}
+
 		// construct task data from request data
 		t := task.SetUserResource{
 			UserID: params.ID,
 			Storage: task.Storage{
-				System:  *params.UserUpdateData.Storage.System,
+				System:  "none",
 				QuotaGb: *params.UserUpdateData.Storage.QuotaGb,
 			},
 		}

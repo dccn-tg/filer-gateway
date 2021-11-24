@@ -233,6 +233,9 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
+          "204": {
+            "description": "no content"
+          },
           "400": {
             "description": "bad request",
             "schema": {
@@ -291,6 +294,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/responseBody400"
             }
+          },
+          "404": {
+            "description": "task not found"
           },
           "500": {
             "description": "failure",
@@ -469,6 +475,9 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
+          "204": {
+            "description": "no content"
+          },
           "400": {
             "description": "bad request",
             "schema": {
@@ -583,16 +592,12 @@ func init() {
     },
     "requestBodyProjectResource": {
       "description": "JSON object describing resource to be set to the project.",
-      "required": [
-        "storage",
-        "members"
-      ],
       "properties": {
         "members": {
           "$ref": "#/definitions/members"
         },
         "storage": {
-          "$ref": "#/definitions/storageRequest"
+          "$ref": "#/definitions/storagePatchRequest"
         }
       }
     },
@@ -612,12 +617,9 @@ func init() {
     },
     "requestBodyUserResource": {
       "description": "JSON object describing resource to be set to the user.",
-      "required": [
-        "storage"
-      ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storageRequest"
+          "$ref": "#/definitions/storagePatchRequest"
         }
       }
     },
@@ -748,8 +750,20 @@ func init() {
         }
       }
     },
+    "storagePatchRequest": {
+      "description": "Data for updating storage resource.",
+      "required": [
+        "quotaGb"
+      ],
+      "properties": {
+        "quotaGb": {
+          "description": "storage quota in GiB.",
+          "type": "integer"
+        }
+      }
+    },
     "storageRequest": {
-      "description": "JSON object for storage resource data.",
+      "description": "Data for creating storage resource.",
       "required": [
         "system",
         "quotaGb"
@@ -760,13 +774,12 @@ func init() {
           "type": "integer"
         },
         "system": {
-          "description": "the targeting filer system on which the storage resource is allocated. Use the value \"none\" to skip the storage resource setting.",
+          "description": "the targeting filer system on which the storage resource is allocated.",
           "type": "string",
           "enum": [
             "netapp",
             "freenas",
-            "cephfs",
-            "none"
+            "cephfs"
           ]
         }
       }
@@ -1071,6 +1084,9 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
+          "204": {
+            "description": "no content"
+          },
           "400": {
             "description": "bad request",
             "schema": {
@@ -1129,6 +1145,9 @@ func init() {
             "schema": {
               "$ref": "#/definitions/responseBody400"
             }
+          },
+          "404": {
+            "description": "task not found"
           },
           "500": {
             "description": "failure",
@@ -1307,6 +1326,9 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
+          "204": {
+            "description": "no content"
+          },
           "400": {
             "description": "bad request",
             "schema": {
@@ -1421,16 +1443,12 @@ func init() {
     },
     "requestBodyProjectResource": {
       "description": "JSON object describing resource to be set to the project.",
-      "required": [
-        "storage",
-        "members"
-      ],
       "properties": {
         "members": {
           "$ref": "#/definitions/members"
         },
         "storage": {
-          "$ref": "#/definitions/storageRequest"
+          "$ref": "#/definitions/storagePatchRequest"
         }
       }
     },
@@ -1450,12 +1468,9 @@ func init() {
     },
     "requestBodyUserResource": {
       "description": "JSON object describing resource to be set to the user.",
-      "required": [
-        "storage"
-      ],
       "properties": {
         "storage": {
-          "$ref": "#/definitions/storageRequest"
+          "$ref": "#/definitions/storagePatchRequest"
         }
       }
     },
@@ -1586,8 +1601,20 @@ func init() {
         }
       }
     },
+    "storagePatchRequest": {
+      "description": "Data for updating storage resource.",
+      "required": [
+        "quotaGb"
+      ],
+      "properties": {
+        "quotaGb": {
+          "description": "storage quota in GiB.",
+          "type": "integer"
+        }
+      }
+    },
     "storageRequest": {
-      "description": "JSON object for storage resource data.",
+      "description": "Data for creating storage resource.",
       "required": [
         "system",
         "quotaGb"
@@ -1598,13 +1625,12 @@ func init() {
           "type": "integer"
         },
         "system": {
-          "description": "the targeting filer system on which the storage resource is allocated. Use the value \"none\" to skip the storage resource setting.",
+          "description": "the targeting filer system on which the storage resource is allocated.",
           "type": "string",
           "enum": [
             "netapp",
             "freenas",
-            "cephfs",
-            "none"
+            "cephfs"
           ]
         }
       }

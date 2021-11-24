@@ -63,6 +63,8 @@ func (m *ResponseBodyUserResource) validateMemberOf(formats strfmt.Registry) err
 	if err := m.MemberOf.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("memberOf")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("memberOf")
 		}
 		return err
 	}
@@ -80,6 +82,8 @@ func (m *ResponseBodyUserResource) validateStorage(formats strfmt.Registry) erro
 		if err := m.Storage.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -102,6 +106,8 @@ func (m *ResponseBodyUserResource) validateUserID(formats strfmt.Registry) error
 		if err := m.UserID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("userID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("userID")
 			}
 			return err
 		}
@@ -137,6 +143,8 @@ func (m *ResponseBodyUserResource) contextValidateMemberOf(ctx context.Context, 
 	if err := m.MemberOf.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("memberOf")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("memberOf")
 		}
 		return err
 	}
@@ -150,6 +158,8 @@ func (m *ResponseBodyUserResource) contextValidateStorage(ctx context.Context, f
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -164,6 +174,8 @@ func (m *ResponseBodyUserResource) contextValidateUserID(ctx context.Context, fo
 		if err := m.UserID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("userID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("userID")
 			}
 			return err
 		}

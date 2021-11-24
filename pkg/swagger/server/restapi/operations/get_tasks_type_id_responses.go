@@ -101,6 +101,30 @@ func (o *GetTasksTypeIDBadRequest) WriteResponse(rw http.ResponseWriter, produce
 	}
 }
 
+// GetTasksTypeIDNotFoundCode is the HTTP code returned for type GetTasksTypeIDNotFound
+const GetTasksTypeIDNotFoundCode int = 404
+
+/*GetTasksTypeIDNotFound task not found
+
+swagger:response getTasksTypeIdNotFound
+*/
+type GetTasksTypeIDNotFound struct {
+}
+
+// NewGetTasksTypeIDNotFound creates GetTasksTypeIDNotFound with default headers values
+func NewGetTasksTypeIDNotFound() *GetTasksTypeIDNotFound {
+
+	return &GetTasksTypeIDNotFound{}
+}
+
+// WriteResponse to the client
+func (o *GetTasksTypeIDNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(404)
+}
+
 // GetTasksTypeIDInternalServerErrorCode is the HTTP code returned for type GetTasksTypeIDInternalServerError
 const GetTasksTypeIDInternalServerErrorCode int = 500
 

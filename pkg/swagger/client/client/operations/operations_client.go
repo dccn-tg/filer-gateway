@@ -42,9 +42,9 @@ type ClientService interface {
 
 	GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*GetUsersIDOK, error)
 
-	PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, error)
+	PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, *PatchProjectsIDNoContent, error)
 
-	PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, error)
+	PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, *PatchUsersIDNoContent, error)
 
 	PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostProjectsOK, error)
 
@@ -285,7 +285,7 @@ func (a *Client) GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*Ge
 /*
   PatchProjectsID updates filer resource for an existing project
 */
-func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, error) {
+func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, *PatchProjectsIDNoContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPatchProjectsIDParams()
@@ -309,22 +309,23 @@ func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime
 
 	result, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	success, ok := result.(*PatchProjectsIDOK)
-	if ok {
-		return success, nil
+	switch value := result.(type) {
+	case *PatchProjectsIDOK:
+		return value, nil, nil
+	case *PatchProjectsIDNoContent:
+		return nil, value, nil
 	}
-	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for PatchProjectsID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for operations: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
 /*
   PatchUsersID updates filer resource for an existing user
 */
-func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, error) {
+func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, *PatchUsersIDNoContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPatchUsersIDParams()
@@ -348,15 +349,16 @@ func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.Clien
 
 	result, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	success, ok := result.(*PatchUsersIDOK)
-	if ok {
-		return success, nil
+	switch value := result.(type) {
+	case *PatchUsersIDOK:
+		return value, nil, nil
+	case *PatchUsersIDNoContent:
+		return nil, value, nil
 	}
-	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for PatchUsersID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for operations: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

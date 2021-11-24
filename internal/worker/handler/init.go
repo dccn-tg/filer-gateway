@@ -20,11 +20,11 @@ import (
 
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
-	"github.com/thoas/bokchoy"
+	"github.com/hurngchunlee/bokchoy"
 )
 
-// getFilerAPI
-func getFilerAPI(system, configFile string) (filer.Filer, error) {
+// getFilerAPIBySystem
+func getFilerAPIBySystem(system, configFile string) (filer.Filer, error) {
 
 	// load filer config and panic out if there is a problem loading it.
 	cfg, err := config.LoadConfig(configFile)
@@ -40,13 +40,30 @@ func getFilerAPI(system, configFile string) (filer.Filer, error) {
 		fConfig = cfg.FreeNas
 	case "cephfs":
 		fConfig = cfg.CephFs
-	case "none":
 	default:
-		return nil, fmt.Errorf("unknown filer system: %s", system)
+		return nil, fmt.Errorf("unknown filer system name: %s", system)
 	}
 
 	// initiate filer API instances
 	return filer.New(system, fConfig), nil
+}
+
+// getFilerAPIByPath
+func getFilerAPIByPath(path, configFile string) (filer.Filer, error) {
+
+	// load filer config and panic out if there is a problem loading it.
+	cfg, err := config.LoadConfig(configFile)
+	if err != nil {
+		return nil, fmt.Errorf("fail to laod filer configuration %s: %s", configFile, err)
+	}
+
+	for _, api := range []filer.Filer{filer.New("netapp", cfg.NetApp), filer.New("freenas", cfg.FreeNas), filer.New("cephfs", cfg.CephFs)} {
+		if strings.HasPrefix(path, filepath.Clean(api.GetProjectRoot())+"/") {
+			return api, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown filer system for path: %s", path)
 }
 
 // TaskResults defines the output structure of the task
@@ -81,20 +98,40 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	log.Debugf("payload data: %+v", data)
 
-	// load filer api interface
-	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
-	if err != nil {
-		log.Errorf("cannot load filer api: %s", err)
-		return err
+	// `spath` is the logical project path under the de-facto top-level directory for all presented projects defined by `hapi.PathProject`.
+	// It may be a physical directory or a symbolic link to a physical directory on a different storage system.
+	spath := filepath.Join(hapi.PathProject, data.ProjectID)
+
+	// determine the physical project directory and the corresponding storage api.
+	var ppath string
+	var api filer.Filer
+	if data.Storage.System == "none" {
+		// storage system name is not provided, assuming the project storage has been provisioned at `spath`
+		// - resolving `ppath` from the physical path of `spath`
+		// - resolving `api` from the physical path
+		if ppath, err = filepath.EvalSymlinks(spath); err != nil {
+			log.Errorf("fail to resolve storage system path: %s", err)
+			return err
+		}
+		if api, err = getFilerAPIByPath(ppath, h.ConfigFile); err != nil {
+			log.Errorf("fail to resolve storage API: %s", err)
+			return err
+		}
+	} else {
+		// storage sytem name is provided
+		// - get `api` corresponding to the storage system name
+		// - derive `ppath` from the `api`, assuming that projects are organized in sub-directories with project id as the path
+		api, err = getFilerAPIBySystem(data.Storage.System, h.ConfigFile)
+		if err != nil {
+			log.Errorf("cannot load filer api: %s", err)
+			return err
+		}
+		ppath = filepath.Join(api.GetProjectRoot(), data.ProjectID)
 	}
 
-	// filesystem path of the project storage space
-	ppath := filepath.Join(api.GetProjectRoot(), data.ProjectID)
-
 	// only performs storage quota update when
-	// - requested quota is larger than 0
-	// - the storage system is not "none"
-	if data.Storage.QuotaGb > 0 && data.Storage.System != "none" {
+	// - requested quota >= 0
+	if data.Storage.QuotaGb >= 0 {
 		// create project namespace or update project quota depending on whether the project directory exists.
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
 			// call filer API to create project volume and/or namespace
@@ -131,7 +168,6 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	// make sure ppath is presented under the `api-server.ProjectRoot` directory.
-	spath := filepath.Join(hapi.PathProject, data.ProjectID)
 	if _, err := os.Stat(spath); os.IsNotExist(err) {
 		// make symlink to ppath
 		if err := os.Symlink(ppath, spath); err != nil {
@@ -266,13 +302,17 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	// skip quota setup for user's home space.
-	if data.Storage.QuotaGb <= 0 || data.Storage.System == "none" {
+	if data.Storage.QuotaGb < 0 {
 		log.Warnf("skip setting quota to %d Gb for home space %s", data.Storage.QuotaGb, u.HomeDir)
 		return nil
 	}
 
 	// setting project resource
-	api, err := getFilerAPI(data.Storage.System, h.ConfigFile)
+	ssystem := data.Storage.System
+	if ssystem == "none" {
+		ssystem = hapi.DefaultHomeStorageSystem
+	}
+	api, err := getFilerAPIBySystem(ssystem, h.ConfigFile)
 	if err != nil {
 		log.Errorf("cannot load filer api: %s", err)
 		return err

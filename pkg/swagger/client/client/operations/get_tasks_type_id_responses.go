@@ -35,6 +35,12 @@ func (o *GetTasksTypeIDReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
+	case 404:
+		result := NewGetTasksTypeIDNotFound()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewGetTasksTypeIDInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -106,6 +112,27 @@ func (o *GetTasksTypeIDBadRequest) readResponse(response runtime.ClientResponse,
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
+
+	return nil
+}
+
+// NewGetTasksTypeIDNotFound creates a GetTasksTypeIDNotFound with default headers values
+func NewGetTasksTypeIDNotFound() *GetTasksTypeIDNotFound {
+	return &GetTasksTypeIDNotFound{}
+}
+
+/* GetTasksTypeIDNotFound describes a response with status code 404, with default header values.
+
+task not found
+*/
+type GetTasksTypeIDNotFound struct {
+}
+
+func (o *GetTasksTypeIDNotFound) Error() string {
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdNotFound ", 404)
+}
+
+func (o *GetTasksTypeIDNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }

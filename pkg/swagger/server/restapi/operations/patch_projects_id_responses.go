@@ -57,6 +57,30 @@ func (o *PatchProjectsIDOK) WriteResponse(rw http.ResponseWriter, producer runti
 	}
 }
 
+// PatchProjectsIDNoContentCode is the HTTP code returned for type PatchProjectsIDNoContent
+const PatchProjectsIDNoContentCode int = 204
+
+/*PatchProjectsIDNoContent no content
+
+swagger:response patchProjectsIdNoContent
+*/
+type PatchProjectsIDNoContent struct {
+}
+
+// NewPatchProjectsIDNoContent creates PatchProjectsIDNoContent with default headers values
+func NewPatchProjectsIDNoContent() *PatchProjectsIDNoContent {
+
+	return &PatchProjectsIDNoContent{}
+}
+
+// WriteResponse to the client
+func (o *PatchProjectsIDNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(204)
+}
+
 // PatchProjectsIDBadRequestCode is the HTTP code returned for type PatchProjectsIDBadRequest
 const PatchProjectsIDBadRequestCode int = 400
 

@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// StorageRequest JSON object for storage resource data.
+// StorageRequest Data for creating storage resource.
 //
 // swagger:model storageRequest
 type StorageRequest struct {
@@ -24,9 +24,9 @@ type StorageRequest struct {
 	// Required: true
 	QuotaGb *int64 `json:"quotaGb"`
 
-	// the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
+	// the targeting filer system on which the storage resource is allocated.
 	// Required: true
-	// Enum: [netapp freenas cephfs none]
+	// Enum: [netapp freenas cephfs]
 	System *string `json:"system"`
 }
 
@@ -61,7 +61,7 @@ var storageRequestTypeSystemPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["netapp","freenas","cephfs","none"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["netapp","freenas","cephfs"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -79,9 +79,6 @@ const (
 
 	// StorageRequestSystemCephfs captures enum value "cephfs"
 	StorageRequestSystemCephfs string = "cephfs"
-
-	// StorageRequestSystemNone captures enum value "none"
-	StorageRequestSystemNone string = "none"
 )
 
 // prop value enum

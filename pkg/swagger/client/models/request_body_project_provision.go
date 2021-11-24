@@ -63,6 +63,8 @@ func (m *RequestBodyProjectProvision) validateMembers(formats strfmt.Registry) e
 	if err := m.Members.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("members")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("members")
 		}
 		return err
 	}
@@ -84,6 +86,8 @@ func (m *RequestBodyProjectProvision) validateProjectID(formats strfmt.Registry)
 		if err := m.ProjectID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("projectID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("projectID")
 			}
 			return err
 		}
@@ -102,6 +106,8 @@ func (m *RequestBodyProjectProvision) validateStorage(formats strfmt.Registry) e
 		if err := m.Storage.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}
@@ -137,6 +143,8 @@ func (m *RequestBodyProjectProvision) contextValidateMembers(ctx context.Context
 	if err := m.Members.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("members")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("members")
 		}
 		return err
 	}
@@ -150,6 +158,8 @@ func (m *RequestBodyProjectProvision) contextValidateProjectID(ctx context.Conte
 		if err := m.ProjectID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("projectID")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("projectID")
 			}
 			return err
 		}
@@ -164,6 +174,8 @@ func (m *RequestBodyProjectProvision) contextValidateStorage(ctx context.Context
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("storage")
 			}
 			return err
 		}

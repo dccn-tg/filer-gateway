@@ -29,6 +29,12 @@ func (o *PatchUsersIDReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+	case 204:
+		result := NewPatchUsersIDNoContent()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return result, nil
 	case 400:
 		result := NewPatchUsersIDBadRequest()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -80,6 +86,27 @@ func (o *PatchUsersIDOK) readResponse(response runtime.ClientResponse, consumer 
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
+
+	return nil
+}
+
+// NewPatchUsersIDNoContent creates a PatchUsersIDNoContent with default headers values
+func NewPatchUsersIDNoContent() *PatchUsersIDNoContent {
+	return &PatchUsersIDNoContent{}
+}
+
+/* PatchUsersIDNoContent describes a response with status code 204, with default header values.
+
+no content
+*/
+type PatchUsersIDNoContent struct {
+}
+
+func (o *PatchUsersIDNoContent) Error() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent ", 204)
+}
+
+func (o *PatchUsersIDNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	return nil
 }

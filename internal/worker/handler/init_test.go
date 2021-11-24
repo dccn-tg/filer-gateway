@@ -29,7 +29,7 @@ func TestGetFilerAPI(t *testing.T) {
 	}
 
 	for _, sys := range []string{"netapp", "freenas"} {
-		api, err := getFilerAPI(sys, pathCfg)
+		api, err := getFilerAPIBySystem(sys, pathCfg)
 		if err != nil {
 			t.Errorf("%s", err)
 		}

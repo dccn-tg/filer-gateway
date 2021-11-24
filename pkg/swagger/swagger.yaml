@@ -5,7 +5,7 @@ basePath: /v1
 info:
   description: filer gateway APIs
   title: filer-gateway
-  version: 0.1.0
+  version: 0.2.0
 
 securityDefinitions:
   basicAuth:
@@ -139,6 +139,8 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/responseBodyTaskResource'
+        204:
+          description: no content
         400:
           description: bad request
           schema:
@@ -277,6 +279,8 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/responseBodyTaskResource'
+        204:
+          description: no content
         400:
           description: bad request
           schema:
@@ -419,11 +423,8 @@ paths:
           description: bad request
           schema:
             $ref: '#/definitions/responseBody400'
-        # 404:
-        #   description: task not found
-        #   schema:
-        #     type: string
-        #     enum: [task not found]
+        404:
+          description: task not found
         500:
           description: failure
           schema:
@@ -530,20 +531,15 @@ definitions:
     description: JSON object describing resource to be set to the project.
     properties:
       storage:
-        $ref: '#/definitions/storageRequest'
+        $ref: '#/definitions/storagePatchRequest'
       members:
         $ref: '#/definitions/members'
-    required:
-      - storage
-      - members
 
   requestBodyUserResource:
     description: JSON object describing resource to be set to the user.
     properties:
       storage:
-        $ref: '#/definitions/storageRequest'
-    required:
-      - storage
+        $ref: '#/definitions/storagePatchRequest'
 
   requestBodyUserProvision:
     properties:
@@ -587,17 +583,26 @@ definitions:
       - usageMb
 
   storageRequest:
-    description: JSON object for storage resource data.
+    description: Data for creating storage resource.
     properties:
       system:
-        description: the targeting filer system on which the storage resource is allocated. Use the value "none" to skip the storage resource setting.
+        description: the targeting filer system on which the storage resource is allocated.
         type: string
-        enum: [netapp, freenas, cephfs, none]
+        enum: [netapp, freenas, cephfs]
       quotaGb:
         description: storage quota in GiB.
         type: integer
     required:
       - system
+      - quotaGb
+
+  storagePatchRequest:
+    description: Data for updating storage resource.
+    properties:
+      quotaGb:
+        description: storage quota in GiB.
+        type: integer
+    required:
       - quotaGb
 
   member:
