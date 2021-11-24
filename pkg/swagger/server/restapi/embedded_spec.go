@@ -22,7 +22,7 @@ func init() {
   "info": {
     "description": "filer gateway APIs",
     "title": "filer-gateway",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "basePath": "/v1",
   "paths": {
@@ -873,7 +873,7 @@ func init() {
   "info": {
     "description": "filer gateway APIs",
     "title": "filer-gateway",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "basePath": "/v1",
   "paths": {
