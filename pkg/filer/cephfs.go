@@ -110,12 +110,21 @@ func (filer CephFs) SetProjectQuota(projectID string, quotaGiB int) error {
 }
 
 // GetProjectQuotaInBytes gets the quota of the project `projectID` hosted on the Ceph filesystem.
-func (filer CephFs) GetProjectQuotaInBytes(projectID string) (int64, error) {
+func (filer CephFs) GetProjectQuotaInBytes(projectID string) (int64, int64, error) {
 
 	ppath := filepath.Join(filer.GetProjectRoot(), projectID)
 
-	return filer.GetQuotaInBytes(ppath)
+	quota, err := filer.GetQuotaInBytes(ppath)
+	if err != nil {
+		return -1, -1, err
+	}
 
+	usage, err := filer.GetUsageInBytes(ppath)
+	if err != nil {
+		return -1, -1, err
+	}
+
+	return quota, usage, nil
 }
 
 // GetQuotaInBytes gets the quota specified on the given `path` on the Ceph filesystem.
@@ -186,8 +195,8 @@ func (filer CephFs) SetHomeQuota(username, groupname string, quotaGiB int) error
 
 // GetHomeQuotaInBytes always returns an error with "not supported" message, given that
 // Ceph filesystem is not used for personal home directory.
-func (filer CephFs) GetHomeQuotaInBytes(username, groupname string) (int64, error) {
-	return -1, fmt.Errorf("not supported")
+func (filer CephFs) GetHomeQuotaInBytes(username, groupname string) (int64, int64, error) {
+	return 0, 0, fmt.Errorf("not supported")
 }
 
 // setfacl is a command wrapper for executing `setfacl`.

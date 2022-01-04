@@ -195,7 +195,7 @@ func getProjectResource(pnumber string, cfg config.Configuration) (*models.Stora
 	}
 
 	// Get Storage Resource
-	system, quota, usage, err := getStorageQuota(cfg, path)
+	system, quota, usage, err := getStorageQuota(cfg, path, false)
 	// Return response error based on error code.
 	if err != nil {
 		return nil, nil, err

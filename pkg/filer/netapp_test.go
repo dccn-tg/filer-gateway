@@ -15,12 +15,12 @@ var (
 
 const (
 	groupname string = "tg"
-	username  string = "test"
+	username  string = "honlee"
 )
 
 func init() {
 
-	netappProjectID = "3010000.03"
+	netappProjectID = "2420084.01"
 
 	filerCfg := NetAppConfig{
 		ApiURL:              os.Getenv("NETAPP_API_SERVER"),
@@ -131,17 +131,17 @@ func TestSetHomeQuota(t *testing.T) {
 }
 
 func TestGetHomeQuota(t *testing.T) {
-	if quota, err := netapp.GetHomeQuotaInBytes(username, groupname); err != nil {
+	if quota, usage, err := netapp.GetHomeQuotaInBytes(username, groupname); err != nil {
 		t.Errorf("%s\n", err)
 	} else {
-		t.Logf("quota: %d\n", quota)
+		t.Logf("quota: %d, usage: %d\n", quota, usage)
 	}
 }
 
 func TestGetProjectQuota(t *testing.T) {
-	if quota, err := netapp.GetProjectQuotaInBytes(netappProjectID); err != nil {
+	if quota, usage, err := netapp.GetProjectQuotaInBytes(netappProjectID); err != nil {
 		t.Errorf("%s\n", err)
 	} else {
-		t.Logf("quota: %d\n", quota)
+		t.Logf("quota: %d, usage: %d\n", quota, usage)
 	}
 }

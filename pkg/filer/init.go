@@ -51,8 +51,8 @@ type Filer interface {
 	CreateHome(username, groupname string, quotaGiB int) error
 	SetProjectQuota(projectID string, quotaGiB int) error
 	SetHomeQuota(username, groupname string, quotaGiB int) error
-	GetProjectQuotaInBytes(projectID string) (int64, error)
-	GetHomeQuotaInBytes(username, groupname string) (int64, error)
+	GetProjectQuotaInBytes(projectID string) (int64, int64, error)
+	GetHomeQuotaInBytes(username, groupname string) (int64, int64, error)
 	GetProjectRoot() string
 }
 

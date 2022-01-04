@@ -240,7 +240,7 @@ func getUserStorageResource(username string, cfg config.Configuration) (*models.
 	}
 
 	// not found in cache, try fetch from the filer.
-	system, quota, usage, err := getStorageQuota(cfg, u.HomeDir)
+	system, quota, usage, err := getStorageQuota(cfg, u.HomeDir, true)
 	if err != nil {
 		return nil, err
 	}

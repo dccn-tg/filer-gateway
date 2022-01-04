@@ -21,7 +21,7 @@ const (
 	// apiNsNetappSvms is the API namespace for OnTAP SVM items.
 	apiNsNetappSvms string = "/svm/svms"
 	// apiNsNetappJobs is the API namespace for OnTAP cluster job items.
-	apiNsNetappJobs string = "/cluster/jobs"
+	// apiNsNetappJobs string = "/cluster/jobs"
 	// apiNsNetappVolumes is the API namespace for OnTAP volume items.
 	apiNsNetappVolumes string = "/storage/volumes"
 	// apiNsNetappAggregates is the API namespace for OnTAP aggregate items.
@@ -30,6 +30,8 @@ const (
 	apiNsNetappQtrees string = "/storage/qtrees"
 	// apiNsNetappQuotaRules is the API namespace for OnTAP quota rule items.
 	apiNsNetappQuotaRules string = "/storage/quota/rules"
+	// apiNsNetappQuotaReport is the API namespace for OnTAP quota report.
+	apiNsNetappQuotaReport string = "/storage/quota/reports"
 )
 
 // NetAppConfig implements the `Config` interface and extends it with configurations
@@ -247,7 +249,7 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 // SetProjectQuota updates the quota of a project space.
 func (filer NetApp) SetProjectQuota(projectID string, quotaGiB int) error {
 
-	qn, err := filer.GetProjectQuotaInBytes(projectID)
+	qn, _, err := filer.GetProjectQuotaInBytes(projectID)
 	if err != nil {
 		return fmt.Errorf("cannot get current quota for project %s: %s", projectID, err)
 	}
@@ -293,56 +295,79 @@ func (filer NetApp) SetHomeQuota(username, groupname string, quotaGiB int) error
 }
 
 // GetProjectQuotaInBytes retrieves quota of a project in bytes.
-func (filer NetApp) GetProjectQuotaInBytes(projectID string) (int64, error) {
+func (filer NetApp) GetProjectQuotaInBytes(projectID string) (int64, int64, error) {
 	switch filer.config.ProjectMode {
 	case "volume":
 		// check if volume with the same name already exists.
 		vol := Volume{}
 
 		if err := filer.getObjectByName(filer.volName(projectID), apiNsNetappVolumes, &vol); err != nil {
-			return 0, fmt.Errorf("cannot get project volume %s: %s", projectID, err)
+			return 0, 0, fmt.Errorf("cannot get project volume %s: %s", projectID, err)
 		}
 
-		return vol.Size, nil
+		return vol.Size, vol.Space.Used, nil
 
 	case "qtree":
-		return 0, nil
-		//return 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+
+		reports, err := filer.getQuotaReport(filer.config.VolumeProjectQtrees, projectID)
+
+		if err != nil {
+			return 0, 0, err
+		}
+
+		if len(reports) == 0 {
+			return 0, 0, fmt.Errorf("project quota report not found, volume: %s, qtree: %s", filer.config.VolumeProjectQtrees, projectID)
+		}
+
+		return reports[0].Space.HardLimit, reports[0].Space.Used.Total, nil
 
 	default:
-		return 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+		return 0, 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
 	}
 }
 
 // GetHomeQuotaInBytes retrieves quota of a user home space in bytes.
-func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (int64, error) {
-	qry := url.Values{}
-	qry.Set("volume.name", groupname)
-	qry.Set("qtree.name", username)
+func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (int64, int64, error) {
 
-	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
+	reports, err := filer.getQuotaReport(groupname, username)
+
 	if err != nil {
-		return 0, fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", groupname, username, err)
+		return 0, 0, err
 	}
 
-	if len(records) == 0 { // no qtree specific quota rule, try to get the default rule
-		rule, err := filer.getDefaultQuotaRule(groupname)
-		if err != nil {
-			log.Errorf("cannot get default quota rule for volume %s", groupname)
-		}
-		if rule == nil {
-			return 0, fmt.Errorf("quota rule for volume %s qtree %s doesn't exist", groupname, username)
-		}
-		return rule.Space.HardLimit, nil
+	if len(reports) == 0 {
+		return 0, 0, fmt.Errorf("user quota report not found, volume: %s, qtree: %s", groupname, username)
 	}
 
-	// with qtree specific quota rule
-	rule := QuotaRule{}
-	if err := filer.getObjectByHref(records[0].Link.Self.Href, &rule); err != nil {
-		return 0, fmt.Errorf("cannot get quota rule for volume %s qtree %s", groupname, username)
-	}
+	return reports[0].Space.HardLimit, reports[0].Space.Used.Total, nil
 
-	return rule.Space.HardLimit, nil
+	// qry := url.Values{}
+	// qry.Set("volume.name", groupname)
+	// qry.Set("qtree.name", username)
+
+	// records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
+	// if err != nil {
+	// 	return 0, fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", groupname, username, err)
+	// }
+
+	// if len(records) == 0 { // no qtree specific quota rule, try to get the default rule
+	// 	rule, err := filer.getDefaultQuotaRule(groupname)
+	// 	if err != nil {
+	// 		log.Errorf("cannot get default quota rule for volume %s", groupname)
+	// 	}
+	// 	if rule == nil {
+	// 		return 0, fmt.Errorf("quota rule for volume %s qtree %s doesn't exist", groupname, username)
+	// 	}
+	// 	return rule.Space.HardLimit, nil
+	// }
+
+	// // with qtree specific quota rule
+	// rule := QuotaRule{}
+	// if err := filer.getObjectByHref(records[0].Link.Self.Href, &rule); err != nil {
+	// 	return 0, fmt.Errorf("cannot get quota rule for volume %s qtree %s", groupname, username)
+	// }
+
+	// return rule.Space.HardLimit, nil
 }
 
 // createQtree implements the generic logic of creating a qtree in a volume, with given
@@ -517,6 +542,44 @@ func (filer NetApp) getDefaultQuotaRule(volume string) (*QuotaRule, error) {
 	return nil, nil
 }
 
+// getQuotaReport returns the quota assignment and usage for all qtrees or a specific qtree in a volume.
+//
+// if the argument `qtree` is an empty string, quota of all qtrees is returned.
+func (filer NetApp) getQuotaReport(volume string, qtree string) ([]*QuotaReport, error) {
+
+	reports := make([]*QuotaReport, 0)
+
+	qry := url.Values{}
+	qry.Set("volume.name", volume)
+	qry.Set("type", "tree")
+
+	if qtree != "" {
+		qry.Set("qtree.name", qtree)
+	}
+
+	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaReport)
+
+	if err != nil {
+		return reports, fmt.Errorf("fail to check quota rule for volume %s: %s", volume, err)
+	}
+	if len(records) == 0 {
+		return reports, nil
+	}
+
+	for _, rec := range records {
+		var r QuotaReport
+		err := filer.getObjectByHref(rec.Link.Self.Href, &r)
+		if err != nil {
+			log.Errorf("cannot retrieve quota rule, %s: %s", rec.Link.Self.Href, err)
+			continue
+		}
+
+		reports = append(reports, &r)
+	}
+
+	return reports, nil
+}
+
 // getObjectByName retrives the named object from the given API namespace.
 func (filer NetApp) getObjectByName(name, nsAPI string, object interface{}) error {
 
@@ -554,14 +617,14 @@ func (filer NetApp) getRecordsByQuery(query url.Values, nsAPI string) ([]Record,
 		return records, err
 	}
 
+	// guarantee that record's _links field is returned
+	query.Set("fields", "_links")
+
 	req.URL.RawQuery = query.Encode()
 
 	// set request header for basic authentication
 	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
-	// NOTE: adding "Accept: application/json" to header can causes the API server
-	//       to not returning "_links" attribute containing API href to the object.
-	//       Therefore, it is not set here.
-	//req.Header.Set("accept", "application/json")
+	req.Header.Set("accept", "application/json")
 
 	res, err := c.Do(req)
 	if err != nil {
@@ -601,7 +664,7 @@ func (filer NetApp) delObjectByHref(href string) error {
 	// set request header for basic authentication
 	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
 
-	res, err := c.Do(req)
+	res, _ := c.Do(req)
 
 	// expect status to be 202 (Accepted)
 	if res.StatusCode != 202 {
@@ -656,7 +719,7 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 	//       Therefore, it is not set here.
 	//req.Header.Set("accept", "application/json")
 
-	res, err := c.Do(req)
+	res, _ := c.Do(req)
 
 	// expect status to be 200 (OK)
 	if res.StatusCode != 200 {
@@ -979,8 +1042,17 @@ type QuotaRule struct {
 	Files  *QuotaLimit `json:"files,omitempty"`
 }
 
+type QuotaReport struct {
+	SVM    Record      `json:"svm"`
+	Volume Record      `json:"volume"`
+	QTree  *Record     `json:"qtree,omitempty"`
+	Space  *QuotaLimit `json:"space,omitempty"`
+}
+
 // QuotaLimit defines the quota limitation.
 type QuotaLimit struct {
 	HardLimit int64 `json:"hard_limit,omitempty"`
-	//SoftLimit int64 `json:"soft_limit,omitempty"`
+	Used      struct {
+		Total int64 `json:total`
+	} `json:"used,omitempty"`
 }

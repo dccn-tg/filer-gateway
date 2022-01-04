@@ -3,14 +3,12 @@ package handler
 import (
 	"context"
 	"fmt"
-	"math"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
@@ -688,8 +686,10 @@ func getStorageSystem(cfg config.Configuration, path string) string {
 	}
 }
 
-// getStorageQuota retrives quota limitation and its usage on the path.
-func getStorageQuota(cfg config.Configuration, path string) (system string, quota, usage int64, err error) {
+// getStorageQuota retrives quota limitation and its usage on the path.  The boolean argument `isHomePath` is used
+// to indicate whether the path is referring to a home directory (when the value is `true`) or a project directory
+// (when the value is `false`).
+func getStorageQuota(cfg config.Configuration, path string, isHomePath bool) (system string, quota, usage int64, err error) {
 
 	fi, e := os.Stat(path)
 
@@ -704,19 +704,53 @@ func getStorageQuota(cfg config.Configuration, path string) (system string, quot
 
 	system = getStorageSystem(cfg, path)
 
-	// special treatment for cephfs
-	if system == "cephfs" {
-		cephfs := filer.New("cephfs", cfg.CephFs)
-		quota, err = cephfs.(filer.CephFs).GetQuotaInBytes(path)
-		usage, err = cephfs.(filer.CephFs).GetUsageInBytes(path)
-	} else {
-		// Caution: the code below uses Linux system call to get quota and used space!!
-		var stat syscall.Statfs_t
-		syscall.Statfs(path, &stat)
-
-		quota = int64(stat.Blocks * uint64(stat.Bsize))
-		usage = int64(math.Round(float64((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))))
+	// for cephfs
+	var f filer.Filer
+	switch system {
+	case "cephfs":
+		f = filer.New("cephfs", cfg.CephFs)
+	case "netapp":
+		f = filer.New("netapp", cfg.NetApp)
+	case "freenas":
+		f = filer.New("freenas", cfg.FreeNas)
+	default:
+		err = &ResponseError{code: 500, err: fmt.Sprintf("unsupported storage system: %s", system)}
+		return
 	}
+
+	if isHomePath {
+		uname := filepath.Base(path)
+		group := filepath.Base(filepath.Dir(path))
+		quota, usage, err = f.GetHomeQuotaInBytes(group, uname)
+	} else {
+		quota, usage, err = f.GetProjectQuotaInBytes(filepath.Base(path))
+	}
+
+	if err != nil {
+		err = &ResponseError{code: 500, err: err.Error()}
+	}
+
+	// if system == "cephfs" {
+	// 	cephfs := filer.New("cephfs", cfg.CephFs)
+	// 	quota, err = cephfs.(filer.CephFs).GetQuotaInBytes(path)
+	// 	usage, err = cephfs.(filer.CephFs).GetUsageInBytes(path)
+	// 	return
+	// }
+
+	// var filer filer.Filer
+	// if system == "netapp"
+
+	// 	// getting storage quota and usage from the filer's API
+	// 	var filer filer.Filer
+	// 	if system == "netapp"
+
+	// 	// Caution: the code below uses Linux system call to get quota and used space!!
+	// 	var stat syscall.Statfs_t
+	// 	syscall.Statfs(path, &stat)
+
+	// 	quota = int64(stat.Blocks * uint64(stat.Bsize))
+	// 	usage = int64(math.Round(float64((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))))
+	// }
 
 	log.Debugf("path: %s, quota: %d bytes, usage: %d bytes", path, quota, usage)
 	return

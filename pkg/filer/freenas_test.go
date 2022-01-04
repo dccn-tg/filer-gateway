@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	freenasProjectID = "3010000.04"
+	freenasProjectID = "3022017.01"
 
 	filerCfg := FreeNasConfig{
 		ApiURL:           os.Getenv("FREENAS_API_SERVER"),
@@ -78,4 +78,13 @@ func TestFreeNasSetProjectQuota(t *testing.T) {
 		t.Errorf("quota not set to the targeting size.")
 	}
 	t.Logf("dataset: %+v\n", d)
+}
+
+func TestFreeNasGetProjectQuota(t *testing.T) {
+
+	if quota, usage, err := freenas.GetProjectQuotaInBytes(freenasProjectID); err != nil {
+		t.Errorf("%s\n", err)
+	} else {
+		t.Logf("quota: %d, usage: %d\n", quota, usage)
+	}
 }

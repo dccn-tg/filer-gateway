@@ -176,20 +176,20 @@ func (filer FreeNas) SetHomeQuota(username, groupname string, quotaGiB int) erro
 
 // GetProjectQuotaInBytes returns the size of the dataset for a specific project in
 // the unit of byte.
-func (filer FreeNas) GetProjectQuotaInBytes(projectID string) (int64, error) {
+func (filer FreeNas) GetProjectQuotaInBytes(projectID string) (int64, int64, error) {
 
 	d, err := filer.getProjectDataset(projectID)
 
 	if err != nil {
-		return 0, fmt.Errorf("cannot get dataset for project %s: %s", projectID, err)
+		return 0, 0, fmt.Errorf("cannot get dataset for project %s: %s", projectID, err)
 	}
 
-	return d.RefQuota.Parsed, nil
+	return d.RefQuota.Parsed, d.Used.Parsed, nil
 }
 
 // GetHomeQuotaInBytes is not supported on FreeNAS and therefore it always returns an error.
-func (filer FreeNas) GetHomeQuotaInBytes(username, groupname string) (int64, error) {
-	return 0, fmt.Errorf("user home on FreeNAS is not supported")
+func (filer FreeNas) GetHomeQuotaInBytes(username, groupname string) (int64, int64, error) {
+	return 0, 0, fmt.Errorf("user home on FreeNAS is not supported")
 }
 
 // encodeProjectDatasetID constructs the dataset ID from the given `projectID`, and returns an
@@ -356,6 +356,7 @@ type dataset struct {
 	Compression valueStr   `json:"compression"`
 	RefQuota    valueInt64 `json:"refquota"`
 	RecordSize  valueInt   `json:"recordsize"`
+	Used        valueInt64 `json:"used"`
 }
 
 // valueStr defines general JSON structure of a string value retrieved from the API.
