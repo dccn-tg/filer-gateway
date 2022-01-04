@@ -1097,7 +1097,7 @@ type QuotaReport struct {
 	SVM    Record      `json:"svm"`
 	Volume Record      `json:"volume"`
 	QTree  *Record     `json:"qtree,omitempty"`
-	Space  *QuotaLimit `json:"space,omitempty"`
+	Space  *QuotaUsage `json:"space,omitempty"`
 }
 
 type VolumeQuotaReport struct {
@@ -1106,6 +1106,11 @@ type VolumeQuotaReport struct {
 
 // QuotaLimit defines the quota limitation.
 type QuotaLimit struct {
+	HardLimit int64 `json:"hard_limit,omitempty"`
+}
+
+// QuotaUsage defines the quota limitation.
+type QuotaUsage struct {
 	HardLimit int64 `json:"hard_limit,omitempty"`
 	Used      struct {
 		Total int64 `json:total`
