@@ -464,6 +464,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	}
 
 	// switch off and on the volume quota is needed if there is no default quota rule applied on the volume.
+	// TODO: is it really necessary???
 	if volRule == nil {
 		// switch off volume quota
 		log.Debugf("turn off quota on volume %s", volume)
