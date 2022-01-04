@@ -12,6 +12,7 @@ import (
 
 	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
+	"github.com/Donders-Institute/filer-gateway/pkg/filer"
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
 	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
@@ -97,6 +98,14 @@ func (c *ProjectResourceCache) refresh() {
 		resource *projectResource
 	})
 
+	// refresh cache of the quota report
+	f := filer.New("netapp", c.Config.NetApp)
+
+	reports, err := f.(filer.NetApp).GetVolumeQuotaReports(c.Config.NetApp.VolumeProjectQtrees)
+	if err != nil {
+		log.Errorf("cannot get volume quota report: %s", err)
+	}
+
 	wg := sync.WaitGroup{}
 	// start concurrent workers to get project resources from the filer.
 	for i := 0; i < nworkers; i++ {
@@ -104,7 +113,7 @@ func (c *ProjectResourceCache) refresh() {
 		go func() {
 			defer wg.Done()
 			for pnumber := range pnumbers {
-				storage, members, err := getProjectResource(pnumber, c.Config)
+				storage, members, err := getProjectResource(reports, pnumber, c.Config)
 				if err != nil {
 					log.Errorf("cannot get filer resource for %s: %s", pnumber, err)
 				}
@@ -159,13 +168,13 @@ func (c *ProjectResourceCache) refresh() {
 	c.mutex.Unlock()
 }
 
-// getResource finds and returns project resource from the cache.
-// An error is returned if the project doesn't exist in cache.
+// getResource gets the resource information of a project. It tries to get it from
+// the cache.  If not available, it will retrieve up-to-date information from the storage
+// (either via the filesystem or the storage's API) and update the cache accordingly.
 func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*projectResource, error) {
 	if r, ok := c.store[pnumber]; !ok || force {
 
-		// not found in cache, try fetch from the filer.
-		storage, members, err := getProjectResource(pnumber, c.Config)
+		storage, members, err := getProjectResource([]*filer.QuotaReport{}, pnumber, c.Config)
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +195,7 @@ func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*project
 }
 
 // getProjectResource retrieves storage resource and access roles of a given project.
-func getProjectResource(pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
+func getProjectResource(netappQuotaReports []*filer.QuotaReport, pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
 
 	path, err := pid2path(pnumber)
 
@@ -194,8 +203,29 @@ func getProjectResource(pnumber string, cfg config.Configuration) (*models.Stora
 		return nil, nil, &ResponseError{code: 404, err: err.Error()}
 	}
 
+	system := getStorageSystem(cfg, path)
+
+	var quota int64
+	var usage int64
+	cached := false
+
+	// try to get quota and usage from the cached netapp quota report
+	if system == "netapp" {
+		for _, r := range netappQuotaReports {
+			if r.QTree.Name == pnumber {
+				quota = r.Space.HardLimit
+				usage = r.Space.Used.Total
+				cached = true
+			}
+		}
+	}
+
+	// retrieve quota and usage from API for non-netapp system or the quota not found in the cached netapp quota report
+	if !cached {
+		system, quota, usage, err = getStorageQuota(cfg, path, false)
+	}
+
 	// Get Storage Resource
-	system, quota, usage, err := getStorageQuota(cfg, path, false)
 	// Return response error based on error code.
 	if err != nil {
 		return nil, nil, err

@@ -96,6 +96,8 @@ func (c *UserResourceCache) refresh() {
 		resource *userResource
 	})
 
+	// TODO: cache the netapp volume quota report
+
 	wg := sync.WaitGroup{}
 	// start concurrent workers to get project resources from the filer.
 	for i := 0; i < nworkers; i++ {
@@ -150,8 +152,9 @@ func (c *UserResourceCache) refresh() {
 	c.mutex.Unlock()
 }
 
-// getResource finds and returns user resource from the cache.
-// An error is returned if the user resource doesn't exist in cache.
+// getResource gets resource information for the specific user.  It tries to get it from
+// the cache.  If not available, it will retrieve up-to-date information from the storage
+// (either via the filesystem or the storage's API) and update the cache accordingly.
 func (c *UserResourceCache) getResource(username string, force bool) (*userResource, error) {
 	if r, ok := c.store[username]; !ok || force {
 

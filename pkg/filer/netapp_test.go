@@ -145,3 +145,11 @@ func TestGetProjectQuota(t *testing.T) {
 		t.Logf("quota: %d, usage: %d\n", quota, usage)
 	}
 }
+
+func TestGetQuotaReport(t *testing.T) {
+	if reports, err := netapp.(NetApp).GetVolumeQuotaReports("project"); err != nil {
+		t.Errorf("%s\n", err)
+	} else {
+		t.Logf("%d reports, first: %+v\n", len(reports), reports[0])
+	}
+}

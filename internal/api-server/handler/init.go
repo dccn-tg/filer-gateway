@@ -3,12 +3,14 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
@@ -719,9 +721,16 @@ func getStorageQuota(cfg config.Configuration, path string, isHomePath bool) (sy
 	}
 
 	if isHomePath {
-		uname := filepath.Base(path)
-		group := filepath.Base(filepath.Dir(path))
-		quota, usage, err = f.GetHomeQuotaInBytes(group, uname)
+		// uname := filepath.Base(path)
+		// group := filepath.Base(filepath.Dir(path))
+		// quota, usage, err = f.GetHomeQuotaInBytes(group, uname)
+
+		// Caution: the code below uses Linux system call to get quota and used space!!
+		var stat syscall.Statfs_t
+		syscall.Statfs(path, &stat)
+
+		quota = int64(stat.Blocks * uint64(stat.Bsize))
+		usage = int64(math.Round(float64((stat.Blocks - stat.Bfree) * uint64(stat.Bsize))))
 	} else {
 		quota, usage, err = f.GetProjectQuotaInBytes(filepath.Base(path))
 	}
