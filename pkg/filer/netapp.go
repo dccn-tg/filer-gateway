@@ -492,10 +492,18 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 		if err := filer.createObject(&qrule, apiNsNetappQuotaRules); err != nil {
 			return err
 		}
-	} else {
-		// update corresponding quota rule for the qtree
-		data := []byte(fmt.Sprintf(`{"space":{"hard_limit":%d}}`, quotaGiB<<30))
 
+		// retrieve the successfully created new rule
+		if recRules, err = filer.getRecordsByQuery(qry, apiNsNetappQuotaRules); err != nil {
+			return err
+		}
+	}
+
+	// update corresponding quota rule for the qtree
+	// NOTE: this is a redundent call in case of creating a new quota rule. But it might
+	//       ensure the new quota is always applied.
+	if len(recRules) > 0 {
+		data := []byte(fmt.Sprintf(`{"space":{"hard_limit":%d}}`, quotaGiB<<30))
 		if err := filer.patchObject(recRules[0], data); err != nil {
 			return err
 		}
