@@ -82,7 +82,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	res, err := json.Marshal(r.Task.Payload)
 	if err != nil {
-		log.Errorf("Marshal error: %s", err)
+		log.Errorf("[%s] fail to serialize (marshal) payload: %s", r.Task.ID, err)
 		return err
 	}
 
@@ -90,11 +90,11 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	err = json.Unmarshal(res, &data)
 	if err != nil {
-		log.Errorf("Unmarshal error: %s", err)
+		log.Errorf("[%s] fail to de-serialize (unmarshal) payload: %s", r.Task.ID, err)
 		return err
 	}
 
-	log.Debugf("payload data: %+v", data)
+	log.Infof("[%s] start with payload: %+v", r.Task.ID, data)
 
 	// `spath` is the logical project path under the de-facto top-level directory for all presented projects defined by `hapi.PathProject`.
 	// It may be a physical directory or a symbolic link to a physical directory on a different storage system.
@@ -108,11 +108,11 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		// - resolving `ppath` from the physical path of `spath`
 		// - resolving `api` from the physical path
 		if ppath, err = filepath.EvalSymlinks(spath); err != nil {
-			log.Errorf("fail to resolve storage system path: %s", err)
+			log.Errorf("[%s] fail to resolve storage system path: %s", r.Task.ID, err)
 			return err
 		}
 		if api, err = getFilerAPIByPath(ppath, h.ConfigFile); err != nil {
-			log.Errorf("fail to resolve storage API: %s", err)
+			log.Errorf("[%s] fail to resolve storage API: %s", r.Task.ID, err)
 			return err
 		}
 	} else {
@@ -121,7 +121,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		// - derive `ppath` from the `api`, assuming that projects are organized in sub-directories with project id as the path
 		api, err = getFilerAPIBySystem(data.Storage.System, h.ConfigFile)
 		if err != nil {
-			log.Errorf("cannot load filer api: %s", err)
+			log.Errorf("[%s] fail to load filer api: %s", r.Task.ID, err)
 			return err
 		}
 		ppath = filepath.Join(api.GetProjectRoot(), data.ProjectID)
@@ -134,17 +134,17 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
 			// call filer API to create project volume and/or namespace
 			if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-				log.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+				log.Errorf("[%s] fail to create space for project %s: %s", r.Task.ID, data.ProjectID, err)
 				return err
 			}
-			log.Debugf("project space created on %s at path %s with quota %d GB", data.Storage.System, ppath, data.Storage.QuotaGb)
+			log.Debugf("[%s] project space created on %s at path %s with quota %d GB", r.Task.ID, data.Storage.System, ppath, data.Storage.QuotaGb)
 		} else {
 			// call filer API to update project quota
 			if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-				log.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+				log.Errorf("[%s] fail to set quota for project %s: %s", r.Task.ID, data.ProjectID, err)
 				return err
 			}
-			log.Debugf("project space quota on %s at path %s updated to %d GB", data.Storage.System, ppath, data.Storage.QuotaGb)
+			log.Debugf("[%s] project space quota on %s at path %s updated to %d GB", r.Task.ID, data.Storage.System, ppath, data.Storage.QuotaGb)
 		}
 	}
 
@@ -154,7 +154,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	if _, err := os.Stat(spath); os.IsNotExist(err) {
 		// make symlink to ppath
 		if err := os.Symlink(ppath, spath); err != nil {
-			log.Errorf("cannot make symlink %s -> %s: %s", spath, ppath, err)
+			log.Errorf("[%s] fail to make symlink %s -> %s: %s", r.Task.ID, spath, ppath, err)
 		}
 	}
 
@@ -193,8 +193,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 
 		if ec, err := runner.SetRoles(); ec != 0 || err != nil {
-			err = fmt.Errorf("fail setting roles (ec=%d): %s", ec, err)
-			log.Errorf("%s", err)
+			err = fmt.Errorf("fail to set member roles (ec=%d): %s", ec, err)
+			log.Errorf("[%s] %s", r.Task.ID, err)
 			return err
 		}
 	}
@@ -217,8 +217,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 
 		if ec, err := runner.RemoveRoles(); ec != 0 || err != nil {
-			err = fmt.Errorf("fail removing roles (ec=%d): %s", ec, err)
-			log.Errorf("%s", err)
+			err = fmt.Errorf("fail to remove member roles (ec=%d): %s", ec, err)
+			log.Errorf("[%s] %s", r.Task.ID, err)
 			return err
 		}
 	}
@@ -231,6 +231,8 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	if m, err := json.Marshal(p); err == nil {
 		h.ApiNotifierClient.Publish(context.Background(), "api_pcache_update", string(m))
 	}
+
+	log.Infof("[%s] complete successfully", r.Task.ID)
 
 	return nil
 }
@@ -247,7 +249,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	res, err := json.Marshal(r.Task.Payload)
 	if err != nil {
-		log.Errorf("Marshal error: %s", err)
+		log.Errorf("[%s] fail to serialize (marshal) payload: %s", r.Task.ID, err)
 		return err
 	}
 
@@ -255,23 +257,23 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	err = json.Unmarshal(res, &data)
 	if err != nil {
-		log.Errorf("Unmarshal error: %s", err)
+		log.Errorf("[%s] fail to de-serialize (unmarshal) payload: %s", r.Task.ID, err)
 		return err
 	}
 
-	log.Debugf("payload data: %+v", data)
+	log.Infof("[%s] start with payload: %+v", r.Task.ID, data)
 
 	// check if user exists on the system.
 	u, err := user.Lookup(data.UserID)
 	if err != nil {
-		log.Errorf("cannot find user %s: %s", data.UserID, err)
+		log.Errorf("[%s] fail to find user %s: %s", r.Task.ID, data.UserID, err)
 		return err
 	}
 
 	// get user's primary group.
 	g, err := user.LookupGroupId(u.Gid)
 	if err != nil {
-		log.Errorf("cannot get user's primary group id %s: %s", u.Gid, err)
+		log.Errorf("[%s] fail to get user's primary group id %s: %s", r.Task.ID, u.Gid, err)
 		return err
 	}
 
@@ -280,13 +282,13 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	if !strings.Contains(u.HomeDir, gdir) {
 		err = fmt.Errorf("user home dir %s not in group dir %s", u.HomeDir, gdir)
-		log.Errorf("%s", err)
+		log.Errorf("[%s] %s", r.Task.ID, err)
 		return err
 	}
 
 	// skip quota setup for user's home space.
 	if data.Storage.QuotaGb < 0 {
-		log.Warnf("skip setting quota to %d Gb for home space %s", data.Storage.QuotaGb, u.HomeDir)
+		log.Warnf("[%s] skip setting quota to %d Gb for home space %s", r.Task.ID, data.Storage.QuotaGb, u.HomeDir)
 		return nil
 	}
 
@@ -297,7 +299,7 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 	api, err := getFilerAPIBySystem(ssystem, h.ConfigFile)
 	if err != nil {
-		log.Errorf("cannot load filer api: %s", err)
+		log.Errorf("[%s] fail to load filer api: %s", r.Task.ID, err)
 		return err
 	}
 
@@ -305,15 +307,15 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
 		// call filer API to create qtree for user's home
 		if err := api.CreateHome(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to create home space for user %s: %s", u.Username, err)
+			log.Errorf("[%s] fail to create home space for user %s: %s", r.Task.ID, u.Username, err)
 			return err
 		}
-		log.Debugf("home space created on %s at path %s", data.Storage.System, u.HomeDir)
+		log.Debugf("[%s] home space created on %s at path %s", r.Task.ID, data.Storage.System, u.HomeDir)
 	} else {
-		log.Warnf("skip home space creation as path already exists: %s", u.HomeDir)
+		log.Warnf("[%s] skip home space creation as path already exists: %s", r.Task.ID, u.HomeDir)
 		// update storage quota
 		if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
-			log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
+			log.Errorf("[%s] fail to set home space quota for %s: %s", r.Task.ID, u.HomeDir, err)
 			return err
 		}
 	}
@@ -326,6 +328,8 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	if m, err := json.Marshal(p); err == nil {
 		h.ApiNotifierClient.Publish(context.Background(), "api_ucache_update", string(m))
 	}
+
+	log.Infof("[%s] complete successfully", r.Task.ID)
 
 	return nil
 }
