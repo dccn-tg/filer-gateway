@@ -1,5 +1,7 @@
 # API gateway for DCCN filers
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Donders-Institute/filer-gateway)](https://goreportcard.com/report/github.com/Donders-Institute/filer-gateway)
+
 The goal of this project is to provide an uniform API interface to interact with different filer systems at DCCN for managing storage resource for project and/or user's personal home directory.
 
 There are three targeted filer systems at the moment:
