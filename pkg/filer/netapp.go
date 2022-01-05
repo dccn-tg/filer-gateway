@@ -500,9 +500,6 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	// NOTE: this is a redundent call in case of creating a new quota rule. But it might
 	//       ensure the new quota is always applied.
 	if rules.TotalRecords > 0 {
-
-		log.Infof("check %s", rules.Records[0].Link)
-
 		data := []byte(fmt.Sprintf(`{"space":{"hard_limit":%d}}`, quotaGiB<<30))
 		if err := filer.patchObject(Record{Link: rules.Records[0].Link}, data); err != nil {
 			return err
