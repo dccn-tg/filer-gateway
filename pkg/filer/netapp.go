@@ -105,22 +105,24 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		// check if volume with the same name doee not exist.
 		qry := url.Values{}
 		qry.Set("name", filer.volName(projectID))
-		records, err := filer.getRecordsByQuery(qry, apiNsNetappVolumes)
-		if err != nil {
+		var records struct {
+			TotalRecords int `json:"num_records"`
+		}
+		if err := filer.queryObjectRecords(qry, apiNsNetappVolumes, &records); err != nil {
 			return fmt.Errorf("fail to check volume %s: %s", projectID, err)
 		}
-		if len(records) != 0 {
+		if records.TotalRecords != 0 {
 			return fmt.Errorf("project volume already exists: %s", projectID)
 		}
 
 		// determine which aggregate should be used for creating the new volume.
-		quota := int64(quotaGiB << 30)
 		svm := SVM{}
 		if err := filer.getObjectByName(filer.config.Vserver, apiNsNetappSvms, &svm); err != nil {
 			return fmt.Errorf("fail to get SVM %s: %s", filer.config.Vserver, err)
 		}
-		avail := int64(0)
 
+		quota := int64(quotaGiB << 30)
+		avail := int64(0)
 		var theAggr *Aggregate
 		for _, record := range svm.Aggregates {
 			aggr := Aggregate{}
@@ -181,30 +183,33 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 		if err := filer.createQtree(projectID, filer.config.VolumeProjectQtrees, 750, filer.config.ExportPolicyProject); err != nil {
 			return err
 		}
-
-		// set owner of the project directory
-		ppath := filepath.Join(filer.GetProjectRoot(), projectID)
-
-		// wait for ppath to appear up to 5 minutes.
-		t := time.Now()
-		for {
-			if _, err := os.Stat(ppath); os.IsNotExist(err) && time.Since(t) < 5*time.Minute {
-				log.Debugf("waiting for path to become available: %s", ppath)
-				time.Sleep(time.Second)
-				continue
-			}
-			break
-		}
-
-		if err := os.Chown(ppath, filer.config.ProjectUID, filer.config.ProjectGID); err != nil {
-			return fmt.Errorf("cannot set owner of %s: %s", ppath, err)
-		}
-
 		// set quota
-		return filer.SetProjectQuota(projectID, quotaGiB)
+		if err := filer.SetProjectQuota(projectID, quotaGiB); err != nil {
+			return err
+		}
 
 	default:
 		return fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+	}
+
+	// wait for project path to appear up to 5 minutes, and set the path owner `filer.config.ProjectUID`
+	ppath := filepath.Join(filer.GetProjectRoot(), projectID)
+	t := time.Now()
+	for {
+		if time.Since(t) > 5*time.Minute {
+			log.Errorf("project qtree created on the filer, but path is unavailable after 5 minutes: ", ppath)
+			break
+		}
+		if _, err := os.Stat(ppath); os.IsNotExist(err) {
+			log.Debugf("waiting for home path to become available: ", ppath)
+			time.Sleep(time.Second)
+		} else {
+			break
+		}
+	}
+
+	if err := os.Chown(ppath, filer.config.ProjectUID, filer.config.ProjectGID); err != nil {
+		return fmt.Errorf("cannot set owner of %s: %s", ppath, err)
 	}
 
 	return nil
@@ -218,32 +223,35 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 		return err
 	}
 
-	// set owner of the home directory to the uid/gid of user `username`, assuming the home directory
-	// is `/home/groupname/username`.
+	// set owner of the home directory (`u.HomeDir`) to the uid/gid of user `username`.
 	u, err := user.Lookup(username)
 	if err != nil {
 		return err
 	}
 	uid, _ := strconv.Atoi(u.Uid)
 	gid, _ := strconv.Atoi(u.Gid)
-	hpath := filepath.Join("/home", groupname, username)
 
-	// wait for hpath to appear up to 5 minutes.
+	// wait for user's home path to appear up to 5 minutes, and change the path owner `username`.
 	t := time.Now()
 	for {
-		if _, err := os.Stat(hpath); os.IsNotExist(err) && time.Since(t) < 5*time.Minute {
-			log.Debugf("waiting for path to become available: %s", hpath)
-			time.Sleep(time.Second)
-			continue
+		if time.Since(t) > 5*time.Minute {
+			log.Errorf("user home created on the filer, but path is unavailable after 5 minutes: ", u.HomeDir)
+			break
 		}
-		break
+		if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+			log.Debugf("waiting for home path to become available: ", u.HomeDir)
+			time.Sleep(time.Second)
+		} else {
+			break
+		}
 	}
 
-	if err := os.Chown(hpath, uid, gid); err != nil {
-		return fmt.Errorf("cannot set owner of %s: %s", hpath, err)
+	if err := os.Chown(u.HomeDir, uid, gid); err != nil {
+		return fmt.Errorf("cannot set owner of %s: %s", u.HomeDir, err)
 	}
 
-	return nil
+	// set quota
+	return filer.SetHomeQuota(username, groupname, quotaGiB)
 }
 
 // SetProjectQuota updates the quota of a project space.
@@ -264,18 +272,24 @@ func (filer NetApp) SetProjectQuota(projectID string, quotaGiB int) error {
 		// check if volume with the same name already exists.
 		qry := url.Values{}
 		qry.Set("name", filer.volName(projectID))
-		records, err := filer.getRecordsByQuery(qry, apiNsNetappVolumes)
-		if err != nil {
+		qry.Set("fields", "_links")
+
+		var vols struct {
+			Records      []*Record `json:"records"`
+			TotalRecords int       `json:"num_records"`
+		}
+
+		if err := filer.queryObjectRecords(qry, apiNsNetappVolumes, &vols); err != nil {
 			return fmt.Errorf("fail to check volume %s: %s", projectID, err)
 		}
-		if len(records) != 1 {
+		if vols.TotalRecords != 1 {
 			return fmt.Errorf("project volume doesn't exist: %s", projectID)
 		}
 
 		// resize the volume to the given quota.
 		data := []byte(fmt.Sprintf(`{"name":"%s", "size":%d}`, filer.volName(projectID), quotaGiB<<30))
 
-		if err := filer.patchObject(records[0], data); err != nil {
+		if err := filer.patchObject(Record{Link: vols.Records[0].Link}, data); err != nil {
 			return err
 		}
 
@@ -345,11 +359,16 @@ func (filer NetApp) createQtree(name, volume string, permission int, exportPolic
 	qry := url.Values{}
 	qry.Set("name", name)
 	qry.Set("volume.name", volume)
-	records, err := filer.getRecordsByQuery(qry, apiNsNetappQtrees)
-	if err != nil {
+
+	var records struct {
+		TotalRecords int `json:"num_records"`
+	}
+
+	if err := filer.queryObjectRecords(qry, apiNsNetappQtrees, &records); err != nil {
 		return fmt.Errorf("fail to check qtree %s of volume %s: %s", name, volume, err)
 	}
-	if len(records) != 0 {
+
+	if records.TotalRecords != 0 {
 		return fmt.Errorf("qtree %s of volume %s already exists", name, volume)
 	}
 
@@ -378,46 +397,48 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	qry := url.Values{}
 	qry.Set("name", name)
 	qry.Set("volume.name", volume)
-	recQtrees, err := filer.getRecordsByQuery(qry, apiNsNetappQtrees)
-	if err != nil {
+	qry.Set("fields", "_links,volume")
+
+	var qtrees struct {
+		Records      []*QTree `json:"records"`
+		TotalRecords int      `json:"num_records"`
+	}
+
+	if err := filer.queryObjectRecords(qry, apiNsNetappQtrees, &qtrees); err != nil {
 		return fmt.Errorf("fail to check qtree %s of volume %s: %s", name, volume, err)
 	}
-	if len(recQtrees) == 0 {
+
+	if qtrees.TotalRecords == 0 {
 		return fmt.Errorf("qtree %s of volume %s doesn't exit", name, volume)
 	}
 
-	// get volume record from the qtree
-	qtree := QTree{}
-	if err := filer.getObjectByHref(recQtrees[0].Link.Self.Href, &qtree); err != nil {
-		return fmt.Errorf("fail to retrieve volume %s: %s", volume, err)
-	}
-	volRecord := qtree.Volume
+	// the record of the volume in which the qtree is presented
+	volRecord := qtrees.Records[0].Volume
 
-	// check if the user-specific quota rule exists
+	// check if the explicit quota rule exists for the qtree
 	qry = url.Values{}
 	qry.Set("volume.name", volume)
 	qry.Set("qtree.name", name)
-	recRules, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
-	if err != nil {
-		return fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", volume, name, err)
+	qry.Set("type", "tree")
+	qry.Set("fields", "_links,svm,volume,type,space") // NOTE: add `qtree` for quota rule namespace causes OnTAP 9.7P14 to return non-sense data??
+
+	var rules struct {
+		Records      []*QuotaRule `json:"records"`
+		TotalRecords int          `json:"num_records"`
+	}
+
+	if err := filer.queryObjectRecords(qry, apiNsNetappQuotaRules, &rules); err != nil {
+		return fmt.Errorf("fail to get quota rule for volume %s qtree %s: %s", volume, name, err)
 	}
 
 	// unexpected number of quota rules for the specific volume and qtree.
-	if len(recRules) > 1 {
-		return fmt.Errorf("more than one quota rule for volume %s qtree %s (%d)", volume, name, len(recRules))
+	if rules.TotalRecords > 1 {
+		return fmt.Errorf("more than one quota rule for volume %s qtree %s (%d)", volume, name, rules.TotalRecords)
 	}
 
-	// get qtree specific rule
-	if len(recRules) == 1 {
-		qtreeRule := QuotaRule{}
-		if err := filer.getObjectByHref(recRules[0].Link.Self.Href, &qtreeRule); err != nil {
-			return fmt.Errorf("fail to get quota rule for volume %s qtree %s", volume, name)
-		}
-
-		if quotaGiB == int(qtreeRule.Space.HardLimit>>30) {
-			log.Debugf("quota target is already the current quota limitation, volume %s qtree %s", volume, name)
-			return nil
-		}
+	if rules.TotalRecords == 1 && quotaGiB == int(rules.Records[0].Space.HardLimit>>30) {
+		log.Debugf("quota target is already the current quota limitation, volume %s qtree %s", volume, name)
+		return nil
 	}
 
 	// get the default quota on volume level.
@@ -430,9 +451,9 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 	if volRule != nil && quotaGiB == int(volRule.Space.HardLimit>>30) {
 		log.Debugf("quota target is already the default quota limitation, volume %s qtree %s", volume, name)
 		// already a default rule, should remove the user specific rule if it exists.
-		if len(recRules) == 1 {
+		if rules.TotalRecords == 1 {
 			log.Debugf("remove specific quota policy for qtree %s, volume %s", name, volume)
-			if err := filer.delObjectByHref(recRules[0].Link.Self.Href); err != nil {
+			if err := filer.delObjectByHref(rules.Records[0].Link.Self.Href); err != nil {
 				return fmt.Errorf("cannot delete user-specific quota rule for %s volume %s: %s", name, volume, err)
 			}
 		}
@@ -457,7 +478,7 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 		}()
 	}
 
-	if len(recRules) == 0 {
+	if rules.TotalRecords == 0 {
 		// create new user-specific quota rule.
 		qrule := QuotaRule{
 			SVM:    Record{Name: filer.config.Vserver},
@@ -470,18 +491,20 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 			return err
 		}
 
-		// retrieve the successfully created new rule
-		if recRules, err = filer.getRecordsByQuery(qry, apiNsNetappQuotaRules); err != nil {
-			return err
+		if err := filer.queryObjectRecords(qry, apiNsNetappQuotaRules, &rules); err != nil {
+			return fmt.Errorf("fail to get quota rule for volume %s qtree %s: %s", volume, name, err)
 		}
 	}
 
 	// update corresponding quota rule for the qtree
 	// NOTE: this is a redundent call in case of creating a new quota rule. But it might
 	//       ensure the new quota is always applied.
-	if len(recRules) > 0 {
+	if rules.TotalRecords > 0 {
+
+		log.Infof("check %s", rules.Records[0].Link)
+
 		data := []byte(fmt.Sprintf(`{"space":{"hard_limit":%d}}`, quotaGiB<<30))
-		if err := filer.patchObject(recRules[0], data); err != nil {
+		if err := filer.patchObject(Record{Link: rules.Records[0].Link}, data); err != nil {
 			return err
 		}
 	}
@@ -490,33 +513,31 @@ func (filer NetApp) setQtreeQuota(name, volume string, quotaGiB int) error {
 }
 
 // getDefaultQuotaRule returns the default quota rule on a volume as `QuotaRule`.
-func (filer NetApp) getDefaultQuotaRule(volume string) (*QuotaRule, error) {
-
-	var rule QuotaRule
+func (filer NetApp) getDefaultQuotaRule(volume string) (rule *QuotaRule, err error) {
 
 	qry := url.Values{}
 	qry.Set("volume.name", volume)
+	qry.Set("qtree.name", `""`)
+	qry.Set("fields", "_links,type,space,svm,volume") // NOTE: add `qtree` for quota rule namespace causes OnTAP 9.7P14 to return non-sense data??
 
-	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
-	if err != nil {
-		return &rule, fmt.Errorf("fail to check quota rule for volume %s: %s", volume, err)
-	}
-	if len(records) == 0 {
-		return &rule, nil
-	}
-
-	for _, rec := range records {
-		err := filer.getObjectByHref(rec.Link.Self.Href, &rule)
-		if err != nil {
-			log.Errorf("cannot retrieve quota rule, %s: %s", rec.Link.Self.Href, err)
-			continue
-		}
-		if rule.QTree.Name == "" {
-			return &rule, nil
-		}
+	var rules struct {
+		Records      []*QuotaRule `json:"records"`
+		TotalRecords int          `json:"num_records"`
 	}
 
-	return nil, nil
+	if ierr := filer.queryObjectRecords(qry, apiNsNetappQuotaRules, &rules); ierr != nil {
+		err = fmt.Errorf("fail to check quota rule for volume %s: %s", volume, ierr)
+		return
+	}
+
+	// no default quota rule, return `nil` without error
+	if rules.TotalRecords == 0 {
+		rule = nil
+		return
+	}
+
+	rule = rules.Records[0]
+	return
 }
 
 // getQtreeQuotaReport returns the quota assignment and usage for a specific qtree in a volume.
@@ -526,20 +547,23 @@ func (filer NetApp) getQtreeQuotaReport(volume string, qtree string) (report *Qu
 	qry.Set("volume.name", volume)
 	qry.Set("type", "tree")
 	qry.Set("qtree.name", qtree)
+	qry.Set("fields", "svm,volume,qtree,space")
 
-	records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaReport)
+	var reports struct {
+		Records      []*QuotaReport `json:"records"`
+		TotalRecords int            `json:"num_records"`
+	}
 
-	if err != nil {
+	if err = filer.queryObjectRecords(qry, apiNsNetappQuotaReport, &reports); err != nil {
 		return
 	}
 
-	if len(records) == 0 {
-		err = fmt.Errorf("quota report not available for volume %s, qtree %s", volume, qtree)
+	if reports.TotalRecords == 0 {
+		err = fmt.Errorf("quota report not found for volume %s, qtree %s", volume, qtree)
 		return
 	}
 
-	err = filer.getObjectByHref(records[0].Link.Self.Href, &report)
-
+	report = reports.Records[0]
 	return
 }
 
@@ -552,9 +576,11 @@ func (filer NetApp) GetVolumeQuotaReports(volume string) (reports []*QuotaReport
 	qry.Set("type", "tree")
 	qry.Set("fields", "svm,volume,qtree,space")
 
-	var r VolumeQuotaReport
+	var r struct {
+		Records []*QuotaReport `json:"records"`
+	}
 
-	err = filer.getObjectByQuery(qry, apiNsNetappQuotaReport, &r)
+	err = filer.queryObjectRecords(qry, apiNsNetappQuotaReport, &r)
 
 	if err != nil {
 		err = fmt.Errorf("fail to check quota report for volume %s: %s", volume, err)
@@ -570,70 +596,30 @@ func (filer NetApp) getObjectByName(name, nsAPI string, object interface{}) erro
 
 	query := url.Values{}
 	query.Set("name", name)
+	query.Set("fields", "_links")
 
-	records, err := filer.getRecordsByQuery(query, nsAPI)
-	if err != nil {
+	var records struct {
+		Records      []*Record `json:"records"`
+		TotalRecords int       `json:"num_records"`
+	}
+
+	if err := filer.queryObjectRecords(query, nsAPI, &records); err != nil {
 		return err
 	}
 
-	if len(records) != 1 {
-		return fmt.Errorf("more than 1 object found: %d", len(records))
+	if records.TotalRecords == 0 {
+		return fmt.Errorf("object %s not found under namespace %s", name, nsAPI)
 	}
 
-	if err := filer.getObjectByHref(records[0].Link.Self.Href, object); err != nil {
+	if records.TotalRecords != 1 {
+		return fmt.Errorf("found %d object %s under namespace %s, expect 1", records.TotalRecords, name, nsAPI)
+	}
+
+	if err := filer.getObjectByHref(records.Records[0].Link.Self.Href, object); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// getRecordsByQuery retrives the object from the given API namespace using a specific URL query.
-func (filer NetApp) getRecordsByQuery(query url.Values, nsAPI string) ([]Record, error) {
-
-	records := make([]Record, 0)
-
-	c := newHTTPSClient(30*time.Second, true)
-
-	href := strings.Join([]string{filer.config.GetAPIURL(), "api", nsAPI}, "/")
-
-	// create request
-	req, err := http.NewRequest("GET", href, nil)
-	if err != nil {
-		return records, err
-	}
-
-	// guarantee that record's _links field is returned
-	query.Set("fields", "_links")
-
-	req.URL.RawQuery = query.Encode()
-
-	// set request header for basic authentication
-	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
-	req.Header.Set("accept", "application/json")
-
-	res, err := c.Do(req)
-	if err != nil {
-		return records, err
-	}
-
-	// expect status to be 200 (OK)
-	if res.StatusCode != 200 {
-		return records, fmt.Errorf("response not ok: %s (%d)", res.Status, res.StatusCode)
-	}
-
-	// read response body
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return records, err
-	}
-
-	// unmarshal response body to object structure
-	rec := Records{}
-	if err := json.Unmarshal(httpBodyBytes, &rec); err != nil {
-		return records, err
-	}
-
-	return rec.Records, nil
 }
 
 // delObjectByHref deletes the object at the given API namespace `href`.
@@ -729,8 +715,17 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 	return nil
 }
 
-// getObjectByQuery retrives the object from the given API namespace with query variables.
-func (filer NetApp) getObjectByQuery(query url.Values, nsAPI string, object interface{}) error {
+// queryObjectRecords retrieves object records matching the `query` in a given API namespace `nsAPI`.
+//
+// The returning object should have the following type definition:
+//
+// ```
+// struct {
+//     Records []TypeOfObject `json:"records"`
+//     ...
+// }
+// ```
+func (filer NetApp) queryObjectRecords(query url.Values, nsAPI string, object interface{}) error {
 
 	c := newHTTPSClient(10*time.Second, true)
 
@@ -744,10 +739,7 @@ func (filer NetApp) getObjectByQuery(query url.Values, nsAPI string, object inte
 
 	// set request header for basic authentication
 	req.SetBasicAuth(filer.config.GetAPIUser(), filer.config.GetAPIPass())
-	// NOTE: adding "Accept: application/json" to header can causes the API server
-	//       to not returning "_links" attribute containing API href to the object.
-	//       Therefore, it is not set here.
-	//req.Header.Set("accept", "application/json")
+	req.Header.Set("accept", "application/json")
 
 	req.URL.RawQuery = query.Encode()
 
@@ -1076,17 +1068,15 @@ type QuotaRule struct {
 	Type   string      `json:"type"`
 	Space  *QuotaLimit `json:"space,omitempty"`
 	Files  *QuotaLimit `json:"files,omitempty"`
+	Link   *Link       `json:"_links,omitempty"`
 }
 
+// QuotaReport defines the quota report
 type QuotaReport struct {
 	SVM    Record      `json:"svm"`
 	Volume Record      `json:"volume"`
 	QTree  *Record     `json:"qtree,omitempty"`
 	Space  *QuotaUsage `json:"space,omitempty"`
-}
-
-type VolumeQuotaReport struct {
-	Records []*QuotaReport `json:"records"`
 }
 
 // QuotaLimit defines the quota limitation.

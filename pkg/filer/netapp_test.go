@@ -90,20 +90,19 @@ func TestUnmarshal(t *testing.T) {
 	t.Logf("%+v", records)
 }
 
-func TestGetDefaultQuotRule(t *testing.T) {
+func TestGetDefaultQuotaRule(t *testing.T) {
 
 	r, err := netapp.(NetApp).getDefaultQuotaRule(groupname)
 
 	if err != nil {
-		t.Errorf("fail to get default quota policy: %s\n", err)
+		t.Errorf("fail to get default quota rule: %s\n", err)
 	}
 
-	if r.QTree.Name != "" {
-		t.Errorf("not a default quota rule, name=%s\n", r.QTree.Name)
+	if r == nil {
+		t.Errorf("default quota rule for %s not found\n", groupname)
+	} else {
+		t.Logf("quota rule for %s: %+v\n", groupname, r.Space)
 	}
-
-	t.Logf("quota rule: %+v\n", r)
-
 }
 
 func TestCreateProject(t *testing.T) {

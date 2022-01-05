@@ -7,9 +7,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 
 	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
 	"github.com/Donders-Institute/filer-gateway/internal/task"
@@ -150,24 +148,9 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// wait the ppath to present on the filesystem up to 1 minute.  Sometimes it appears immeidately; but it can be that
-	// there is a significant delay between the volume creation and the path's availability to the host on which
-	// the filer-gateway api server is running.
-	tick := time.Now()
-	for {
-		if time.Since(tick) > time.Minute {
-			log.Errorf("timeout waiting for file path to be available: ", ppath)
-			break
-		}
-		if _, err := os.Stat(ppath); os.IsNotExist(err) {
-			log.Debugf("wait for file path to be available: ", ppath)
-			time.Sleep(3 * time.Second)
-		} else {
-			break
-		}
-	}
-
-	// make sure ppath is presented under the `api-server.ProjectRoot` directory.
+	// create symlink under the `api-server.ProjectRoot` directory for the case that the
+	// project is not created on the main filer system (i.e. the filer mounted directly
+	// under the `api-server.ProjectRoot`).
 	if _, err := os.Stat(spath); os.IsNotExist(err) {
 		// make symlink to ppath
 		if err := os.Symlink(ppath, spath); err != nil {
@@ -175,7 +158,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// ACL setting on the filesystem path of the project storage.
+	// perform ACL settings for updating members.
 	managers := make([]string, 0)
 	contributors := make([]string, 0)
 	viewers := make([]string, 0)
@@ -194,7 +177,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// set user acl
+	// set members
 	if len(managers)+len(contributors)+len(viewers) > 0 {
 		runner := acl.Runner{
 			Managers:     strings.Join(managers, ","),
@@ -216,7 +199,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		}
 	}
 
-	// delete user acl
+	// delete members
 	if len(udelete) > 0 {
 		udelstr := strings.Join(udelete, ",")
 		runner := acl.Runner{
@@ -326,41 +309,13 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 			return err
 		}
 		log.Debugf("home space created on %s at path %s", data.Storage.System, u.HomeDir)
-
-		// change owner and group for the homedir
-		nuid, _ := strconv.Atoi(u.Uid)
-		ngid, _ := strconv.Atoi(u.Gid)
-
-		// wait the home directory to present on the filesystem up to 1 minute.  Sometimes it appears immeidately; but it can be that
-		// there is a significant delay between the qtree creation and the path's availability to the host on which
-		// the filer-gateway api server is running.
-		tick := time.Now()
-		for {
-			if time.Since(tick) > time.Minute {
-				log.Errorf("timeout waiting for file path to be available: ", u.HomeDir)
-				break
-			}
-			if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
-				log.Debugf("wait for file path to be available: ", u.HomeDir)
-				time.Sleep(3 * time.Second)
-			} else {
-				break
-			}
-		}
-
-		if err := os.Chown(u.HomeDir, nuid, ngid); err != nil {
-			log.Errorf("fail to set owner of home space %s: %s", u.HomeDir, err)
-			return err
-		}
-
 	} else {
 		log.Warnf("skip home space creation as path already exists: %s", u.HomeDir)
-	}
-
-	// update storage quota
-	if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
-		log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
-		return err
+		// update storage quota
+		if err := api.SetHomeQuota(u.Username, g.Name, int(data.Storage.QuotaGb)); err != nil {
+			log.Errorf("fail to set home space quota for %s: %s", u.HomeDir, err)
+			return err
+		}
 	}
 
 	// notify api server to update cache for the user
