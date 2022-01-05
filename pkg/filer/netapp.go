@@ -295,71 +295,47 @@ func (filer NetApp) SetHomeQuota(username, groupname string, quotaGiB int) error
 }
 
 // GetProjectQuotaInBytes retrieves quota of a project in bytes.
-func (filer NetApp) GetProjectQuotaInBytes(projectID string) (int64, int64, error) {
+func (filer NetApp) GetProjectQuotaInBytes(projectID string) (quota, usage int64, err error) {
 	switch filer.config.ProjectMode {
 	case "volume":
 		// check if volume with the same name already exists.
 		vol := Volume{}
 
-		if err := filer.getObjectByName(filer.volName(projectID), apiNsNetappVolumes, &vol); err != nil {
-			return 0, 0, fmt.Errorf("cannot get project volume %s: %s", projectID, err)
+		if err = filer.getObjectByName(filer.volName(projectID), apiNsNetappVolumes, &vol); err != nil {
+			err = fmt.Errorf("cannot get project volume %s: %s", projectID, err)
+			return
 		}
 
-		return vol.Size, vol.Space.Used, nil
+		quota = vol.Size
+		usage = vol.Space.Used
+		return
 
 	case "qtree":
-
-		r, err := filer.getQtreeQuotaReport(filer.config.VolumeProjectQtrees, projectID)
-
-		if err != nil {
-			return 0, 0, err
+		if r, ierr := filer.getQtreeQuotaReport(filer.config.VolumeProjectQtrees, projectID); ierr != nil {
+			err = fmt.Errorf("cannot get quota report for project %s: %s", projectID, ierr)
+			return
+		} else {
+			quota = r.Space.HardLimit
+			usage = r.Space.Used.Total
+			return
 		}
 
-		return r.Space.HardLimit, r.Space.Used.Total, nil
-
 	default:
-		return 0, 0, fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+		err = fmt.Errorf("unsupported project mode: %s", filer.config.ProjectMode)
+		return
 	}
 }
 
 // GetHomeQuotaInBytes retrieves quota of a user home space in bytes.
-func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (int64, int64, error) {
-
-	r, err := filer.getQtreeQuotaReport(groupname, username)
-
-	if err != nil {
-		return 0, 0, err
+func (filer NetApp) GetHomeQuotaInBytes(username, groupname string) (quota, usage int64, err error) {
+	if r, ierr := filer.getQtreeQuotaReport(groupname, username); ierr != nil {
+		err = fmt.Errorf("cannot get quota report for user %s, group %s: %s", username, groupname, ierr)
+		return
+	} else {
+		quota = r.Space.HardLimit
+		usage = r.Space.Used.Total
+		return
 	}
-
-	return r.Space.HardLimit, r.Space.Used.Total, nil
-
-	// qry := url.Values{}
-	// qry.Set("volume.name", groupname)
-	// qry.Set("qtree.name", username)
-
-	// records, err := filer.getRecordsByQuery(qry, apiNsNetappQuotaRules)
-	// if err != nil {
-	// 	return 0, fmt.Errorf("fail to check quota rule for volume %s qtree %s: %s", groupname, username, err)
-	// }
-
-	// if len(records) == 0 { // no qtree specific quota rule, try to get the default rule
-	// 	rule, err := filer.getDefaultQuotaRule(groupname)
-	// 	if err != nil {
-	// 		log.Errorf("cannot get default quota rule for volume %s", groupname)
-	// 	}
-	// 	if rule == nil {
-	// 		return 0, fmt.Errorf("quota rule for volume %s qtree %s doesn't exist", groupname, username)
-	// 	}
-	// 	return rule.Space.HardLimit, nil
-	// }
-
-	// // with qtree specific quota rule
-	// rule := QuotaRule{}
-	// if err := filer.getObjectByHref(records[0].Link.Self.Href, &rule); err != nil {
-	// 	return 0, fmt.Errorf("cannot get quota rule for volume %s qtree %s", groupname, username)
-	// }
-
-	// return rule.Space.HardLimit, nil
 }
 
 // createQtree implements the generic logic of creating a qtree in a volume, with given
@@ -1122,6 +1098,6 @@ type QuotaLimit struct {
 type QuotaUsage struct {
 	HardLimit int64 `json:"hard_limit,omitempty"`
 	Used      struct {
-		Total int64 `json:total`
+		Total int64 `json:"total"`
 	} `json:"used,omitempty"`
 }
