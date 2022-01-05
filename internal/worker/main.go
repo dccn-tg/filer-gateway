@@ -103,7 +103,7 @@ func main() {
 			ApiNotifierClient: redis.NewClient(redisOpts),
 		},
 	).OnStartFunc(func(r *bokchoy.Request) error {
-		log.Infof("[%s] started with %d retries, payload: %s", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
+		log.Infof("[%s] started with %d retries, payload: %v", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
 		return nil
 	}).OnFailureFunc(func(r *bokchoy.Request) error {
 		log.Infof("[%s] failed with error: %s", r.Task.ID, r.Task.Error)
@@ -120,7 +120,7 @@ func main() {
 			ApiNotifierClient: redis.NewClient(redisOpts),
 		},
 	).OnStartFunc(func(r *bokchoy.Request) error {
-		log.Infof("[%s] started with %d retries, payload: %s", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
+		log.Infof("[%s] started with %d retries, payload: %v", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
 		return nil
 	}).OnFailureFunc(func(r *bokchoy.Request) error {
 		log.Infof("[%s] failed with error: %s", r.Task.ID, r.Task.Error)

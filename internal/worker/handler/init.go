@@ -94,8 +94,6 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
-	log.Infof("[%s] start with payload: %+v", r.Task.ID, data)
-
 	// `spath` is the logical project path under the de-facto top-level directory for all presented projects defined by `hapi.PathProject`.
 	// It may be a physical directory or a symbolic link to a physical directory on a different storage system.
 	spath := filepath.Join(hapi.PathProject, data.ProjectID)
@@ -232,8 +230,6 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		h.ApiNotifierClient.Publish(context.Background(), "api_pcache_update", string(m))
 	}
 
-	log.Infof("[%s] complete successfully", r.Task.ID)
-
 	return nil
 }
 
@@ -260,8 +256,6 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 		log.Errorf("[%s] fail to de-serialize (unmarshal) payload: %s", r.Task.ID, err)
 		return err
 	}
-
-	log.Infof("[%s] start with payload: %+v", r.Task.ID, data)
 
 	// check if user exists on the system.
 	u, err := user.Lookup(data.UserID)
@@ -328,8 +322,6 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 	if m, err := json.Marshal(p); err == nil {
 		h.ApiNotifierClient.Publish(context.Background(), "api_ucache_update", string(m))
 	}
-
-	log.Infof("[%s] complete successfully", r.Task.ID)
 
 	return nil
 }
