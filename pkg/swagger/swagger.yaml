@@ -534,6 +534,9 @@ definitions:
         $ref: '#/definitions/storagePatchRequest'
       members:
         $ref: '#/definitions/members'
+      recursion:
+        description: apply ACL setting for members recursively on existing files/directories.
+        type: boolean
 
   requestBodyUserResource:
     description: JSON object describing resource to be set to the user.
@@ -559,6 +562,9 @@ definitions:
         $ref: '#/definitions/storageRequest'
       members:
         $ref: '#/definitions/members'
+      recursion:
+        description: apply ACL setting for members recursively on existing files/directories.
+        type: boolean
     required:
       - projectID
       - storage

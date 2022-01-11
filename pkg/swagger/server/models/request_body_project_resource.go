@@ -21,6 +21,9 @@ type RequestBodyProjectResource struct {
 	// members
 	Members Members `json:"members,omitempty"`
 
+	// apply ACL setting for members recursively on existing files/directories.
+	Recursion bool `json:"recursion,omitempty"`
+
 	// storage
 	Storage *StoragePatchRequest `json:"storage,omitempty"`
 }

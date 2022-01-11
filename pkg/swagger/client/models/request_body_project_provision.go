@@ -27,6 +27,9 @@ type RequestBodyProjectProvision struct {
 	// Required: true
 	ProjectID *ProjectID `json:"projectID"`
 
+	// apply ACL setting for members recursively on existing files/directories.
+	Recursion bool `json:"recursion,omitempty"`
+
 	// storage
 	// Required: true
 	Storage *StorageRequest `json:"storage"`

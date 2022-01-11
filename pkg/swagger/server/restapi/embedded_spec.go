@@ -585,6 +585,10 @@ func init() {
         "projectID": {
           "$ref": "#/definitions/projectID"
         },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
+        },
         "storage": {
           "$ref": "#/definitions/storageRequest"
         }
@@ -595,6 +599,10 @@ func init() {
       "properties": {
         "members": {
           "$ref": "#/definitions/members"
+        },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
         },
         "storage": {
           "$ref": "#/definitions/storagePatchRequest"
@@ -1436,6 +1444,10 @@ func init() {
         "projectID": {
           "$ref": "#/definitions/projectID"
         },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
+        },
         "storage": {
           "$ref": "#/definitions/storageRequest"
         }
@@ -1446,6 +1458,10 @@ func init() {
       "properties": {
         "members": {
           "$ref": "#/definitions/members"
+        },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
         },
         "storage": {
           "$ref": "#/definitions/storagePatchRequest"
