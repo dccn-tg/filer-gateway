@@ -5,6 +5,7 @@ type SetProjectResource struct {
 	ProjectID string `json:"projectID"`
 	Storage   Storage
 	Members   []Member
+	Recursion bool
 }
 
 // SetUserResource defines json (un)marshal-able task data for setting user resource.

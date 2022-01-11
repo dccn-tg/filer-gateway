@@ -158,7 +158,8 @@ func CreateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 				System:  *params.ProjectProvisionData.Storage.System,
 				QuotaGb: *params.ProjectProvisionData.Storage.QuotaGb,
 			},
-			Members: make([]task.Member, 0),
+			Members:   make([]task.Member, 0),
+			Recursion: params.ProjectProvisionData.Recursion,
 		}
 
 		for _, m := range params.ProjectProvisionData.Members {
@@ -244,7 +245,8 @@ func UpdateProject(ctx context.Context, bok *bokchoy.Bokchoy) func(params operat
 				System:  "none",
 				QuotaGb: -1,
 			},
-			Members: make([]task.Member, 0),
+			Members:   make([]task.Member, 0),
+			Recursion: params.ProjectUpdateData.Recursion,
 		}
 
 		if params.ProjectUpdateData.Storage != nil {
