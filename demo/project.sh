@@ -38,13 +38,21 @@ function input() {
     echo -n "add member [Y/n]:" > /dev/tty
     read ans && [ "$ans" == "" ] && ans="y"
 
+    cmembers=0
     while [ "${ans,,}" == "y" ]; do
         prj_member=$( input2json userID role )
         data=$( jq ".members += [${prj_member}]" <<< ${data} )
+	cmembers=$(($cmembers + 1))
 
         echo -n "add another member [y/N]:" > /dev/tty
         read ans && [ "$ans" == "" ] && ans="n"
     done
+
+    if [ $cmembers -gt 0 ]; then
+        echo -n "add members recursively [y/N]:" > /dev/tty
+        read ans && [ "$ans" == "" ] && ans="n"
+        [ "${ans,,}" == "y" ] && data=$( jq ".recursion = true" <<< ${data} )
+    fi
 
     echo $data | jq '.storage.quotaGb=(.storage.quotaGb|tonumber)' && return 0
 }
