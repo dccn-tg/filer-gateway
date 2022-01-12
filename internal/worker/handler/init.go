@@ -16,6 +16,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
+	ufp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
 	"github.com/hurngchunlee/bokchoy"
@@ -94,18 +95,18 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
-	// `spath` is the logical project path under the de-facto top-level directory for all presented projects defined by `hapi.PathProject`.
+	// `lpath` is the logical project path under the de-facto top-level directory for all presented projects defined by `hapi.PathProject`.
 	// It may be a physical directory or a symbolic link to a physical directory on a different storage system.
-	spath := filepath.Join(hapi.PathProject, data.ProjectID)
+	lpath := filepath.Join(hapi.PathProject, data.ProjectID)
 
 	// determine the physical project directory and the corresponding storage api.
 	var ppath string
 	var api filer.Filer
 	if data.Storage.System == "none" {
 		// storage system name is not provided, assuming the project storage has been provisioned at `spath`
-		// - resolving `ppath` from the physical path of `spath`
+		// - resolving `ppath` from the locgical path of `lpath`
 		// - resolving `api` from the physical path
-		if ppath, err = filepath.EvalSymlinks(spath); err != nil {
+		if ppath, err = filepath.EvalSymlinks(lpath); err != nil {
 			log.Errorf("[%s] fail to resolve storage system path: %s", r.Task.ID, err)
 			return err
 		}
@@ -149,10 +150,10 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	// create symlink under the `api-server.ProjectRoot` directory for the case that the
 	// project is not created on the main filer system (i.e. the filer mounted directly
 	// under the `api-server.ProjectRoot`).
-	if _, err := os.Stat(spath); os.IsNotExist(err) {
+	if _, err := os.Stat(lpath); os.IsNotExist(err) {
 		// make symlink to ppath
-		if err := os.Symlink(ppath, spath); err != nil {
-			log.Errorf("[%s] fail to make symlink %s -> %s: %s", r.Task.ID, spath, ppath, err)
+		if err := os.Symlink(ppath, lpath); err != nil {
+			log.Errorf("[%s] fail to make symlink %s -> %s: %s", r.Task.ID, lpath, ppath, err)
 		}
 	}
 
@@ -177,47 +178,124 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// set members
 	if len(managers)+len(contributors)+len(viewers) > 0 {
-		runner := acl.Runner{
-			Managers:     strings.Join(managers, ","),
-			Contributors: strings.Join(contributors, ","),
-			Viewers:      strings.Join(viewers, ","),
-			RootPath:     ppath,
-			Traverse:     false,
-			Force:        false,
-			FollowLink:   false,
-			SkipFiles:    false,
-			Silence:      true,
-			Nthreads:     4,
-		}
 
-		if ec, err := runner.SetRoles(); ec != 0 || err != nil {
-			err = fmt.Errorf("fail to set member roles (ec=%d): %s", ec, err)
-			log.Errorf("[%s] %s", r.Task.ID, err)
-			return err
+		switch data.Recursion {
+		case true:
+			// use runner to set ACL recursively
+			log.Debugf("[%s] setting ACL for members with recursion: %s", r.Task.ID, data.ProjectID)
+
+			runner := acl.Runner{
+				Managers:     strings.Join(managers, ","),
+				Contributors: strings.Join(contributors, ","),
+				Viewers:      strings.Join(viewers, ","),
+				RootPath:     ppath,
+				Traverse:     false,
+				Force:        false,
+				FollowLink:   false,
+				SkipFiles:    false,
+				Silence:      true,
+				Nthreads:     4,
+			}
+
+			if ec, err := runner.SetRoles(); ec != 0 || err != nil {
+				err = fmt.Errorf("fail to set member roles (ec=%d): %s", ec, err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
+		case false:
+
+			// use roler to set top-level ACL
+			log.Debugf("[%s] setting ACL for members without recursion: %s", r.Task.ID, data.ProjectID)
+
+			// state the physical path to get the mode
+			ppathInfo, err := os.Stat(ppath)
+			if err != nil {
+				err = fmt.Errorf("fail to get info of %s: %s", ppath, err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
+
+			spathMode := ufp.FilePathMode{
+				Path: ppath,
+				Mode: ppathInfo.Mode(),
+			}
+
+			roler := acl.GetRoler(spathMode)
+
+			// construct acl.RoleMap
+			rmap := acl.RoleMap{
+				acl.Manager:     managers,
+				acl.Contributor: contributors,
+				acl.Viewer:      viewers,
+			}
+
+			if _, err := roler.SetRoles(spathMode, rmap, false, false); err != nil {
+				err = fmt.Errorf("fail to set member roles %s", err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
 		}
 	}
 
 	// delete members
 	if len(udelete) > 0 {
-		udelstr := strings.Join(udelete, ",")
-		runner := acl.Runner{
-			RootPath:     ppath,
-			Managers:     udelstr,
-			Contributors: udelstr,
-			Viewers:      udelstr,
-			Traversers:   udelstr,
-			FollowLink:   false,
-			SkipFiles:    false,
-			Nthreads:     4,
-			Silence:      true,
-			Traverse:     false,
-			Force:        false,
-		}
+		switch data.Recursion {
+		case true:
+			// delete ACL recursively
+			log.Debugf("[%s] deleting ACL for members with recursion: %s", r.Task.ID, data.ProjectID)
 
-		if ec, err := runner.RemoveRoles(); ec != 0 || err != nil {
-			err = fmt.Errorf("fail to remove member roles (ec=%d): %s", ec, err)
-			log.Errorf("[%s] %s", r.Task.ID, err)
-			return err
+			udelstr := strings.Join(udelete, ",")
+			runner := acl.Runner{
+				RootPath:     ppath,
+				Managers:     udelstr,
+				Contributors: udelstr,
+				Viewers:      udelstr,
+				Traversers:   udelstr,
+				FollowLink:   false,
+				SkipFiles:    false,
+				Nthreads:     4,
+				Silence:      true,
+				Traverse:     false,
+				Force:        false,
+			}
+
+			if ec, err := runner.RemoveRoles(); ec != 0 || err != nil {
+				err = fmt.Errorf("fail to remove member roles (ec=%d): %s", ec, err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
+
+		case false:
+			// delete ACL only on top-level project directory
+			log.Debugf("[%s] deleting ACL for members without recursion: %s", r.Task.ID, data.ProjectID)
+
+			// state the physical path to get the mode
+			ppathInfo, err := os.Stat(ppath)
+			if err != nil {
+				err = fmt.Errorf("fail to get info of %s: %s", ppath, err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
+
+			spathMode := ufp.FilePathMode{
+				Path: ppath,
+				Mode: ppathInfo.Mode(),
+			}
+
+			roler := acl.GetRoler(spathMode)
+
+			// construct acl.RoleMap
+			rmap := acl.RoleMap{
+				acl.Manager:     udelete,
+				acl.Contributor: udelete,
+				acl.Viewer:      udelete,
+			}
+
+			if _, err := roler.DelRoles(spathMode, rmap, false, false); err != nil {
+				err = fmt.Errorf("fail to remove member roles %s", err)
+				log.Errorf("[%s] %s", r.Task.ID, err)
+				return err
+			}
 		}
 	}
 
