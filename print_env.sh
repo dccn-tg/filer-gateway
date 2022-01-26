@@ -24,5 +24,8 @@ echo
 echo "# configuration file for worker"
 echo "CFG_WORKER=$CFG_WORKER"
 echo
+echo "# concurrency of filer-gateway worker (i.e. number of concurrent updates on filer)"
+echo "WORKER_CONCURRENCY=$WORKER_CONCURRENCY"
+echo
 echo '# service port for external client'
 echo "FILER_GATEWAY_EXTERNAL_PORT=$FILER_GATEWAY_EXTERNAL_PORT"

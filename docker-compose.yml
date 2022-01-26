@@ -51,7 +51,7 @@ services:
     depends_on:
       - db
       - api-server
-    command: -r redis://db:6379 -c /etc/filer-gateway/config.yml
+    command: -r redis://db:6379 -c /etc/filer-gateway/config.yml -p ${WORKER_CONCURRENCY:-1}
     logging:
       driver: "json-file"
       options:
