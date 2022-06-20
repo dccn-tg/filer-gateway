@@ -244,6 +244,8 @@ func main() {
 			return false
 		}
 
+		fmt.Printf("%s\n", scopes)
+
 		for _, scope := range scopes {
 			if !inScope(scope) {
 				return nil, errors.New(401, "token not in scope: %s", scope)
