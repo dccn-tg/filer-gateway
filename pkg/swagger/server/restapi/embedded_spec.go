@@ -869,7 +869,7 @@ func init() {
     "oauth2": {
       "type": "oauth2",
       "flow": "application",
-      "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
+      "tokenUrl": "https://login.dccn.nl/connect/token",
       "scopes": {
         "urn:dccn:filer-gateway:*": "general access scope for filer-gateway APIs"
       }
@@ -1728,7 +1728,7 @@ func init() {
     "oauth2": {
       "type": "oauth2",
       "flow": "application",
-      "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
+      "tokenUrl": "https://login.dccn.nl/connect/token",
       "scopes": {
         "urn:dccn:filer-gateway:*": "general access scope for filer-gateway APIs"
       }
