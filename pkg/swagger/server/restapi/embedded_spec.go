@@ -871,7 +871,7 @@ func init() {
       "flow": "application",
       "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
       "scopes": {
-        "filer-gateway": "general access scope for filer-gateway APIs"
+        "urn:dccn:filer-gateway:*": "general access scope for filer-gateway APIs"
       }
     }
   }
@@ -1730,7 +1730,7 @@ func init() {
       "flow": "application",
       "tokenUrl": "https://auth-dev.dccn.nl/connect/token",
       "scopes": {
-        "filer-gateway": "general access scope for filer-gateway APIs"
+        "urn:dccn:filer-gateway:*": "general access scope for filer-gateway APIs"
       }
     }
   }

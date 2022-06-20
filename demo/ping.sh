@@ -10,7 +10,7 @@
 auth_host=${API_AUTH_URL}
 auth_client_id="${API_CLIENT_ID}"
 auth_client_secret="${API_CLIENT_SECRET}"
-auth_scopes=filer-gateway
+auth_scopes="urn:dccn:filer-gateway:*"
 
 token_cache=/tmp/.pdb_token_$(whoami)
 
