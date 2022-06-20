@@ -31,7 +31,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -93,7 +93,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -193,7 +193,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -335,7 +335,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -435,7 +435,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -890,7 +890,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -952,7 +952,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -1052,7 +1052,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -1194,7 +1194,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {
@@ -1294,7 +1294,7 @@ func init() {
         "security": [
           {
             "oauth2": [
-              "filer-gateway"
+              "urn:dccn:filer-gateway:*"
             ]
           },
           {

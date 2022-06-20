@@ -30,7 +30,7 @@ paths:
     get:
       summary: endpoint for API server health check.
       security:
-        - oauth2: [filer-gateway]
+        - oauth2: [urn:dccn:filer-gateway:*]
         - basicAuth: []
           apiKeyHeader: []
       consumes:
@@ -73,7 +73,7 @@ paths:
       summary: provision filer resource for a new user.
 
       security:
-        - oauth2: [filer-gateway]
+        - oauth2: [urn:dccn:filer-gateway:*]
         - basicAuth: []
           apiKeyHeader: []
 
@@ -110,7 +110,7 @@ paths:
       summary: update filer resource for an existing user.
     
       security:
-        - oauth2: [filer-gateway]
+        - oauth2: [urn:dccn:filer-gateway:*]
         - basicAuth: []
           apiKeyHeader: []
 
@@ -213,7 +213,7 @@ paths:
       summary: provision filer resource for a new project.
 
       security:
-        - oauth2: [filer-gateway]
+        - oauth2: [urn:dccn:filer-gateway:*]
         - basicAuth: []
           apiKeyHeader: []
 
@@ -250,7 +250,7 @@ paths:
       summary: update filer resource for an existing project.
 
       security:
-        - oauth2: [filer-gateway]
+        - oauth2: [urn:dccn:filer-gateway:*]
         - basicAuth: []
           apiKeyHeader: []
 
