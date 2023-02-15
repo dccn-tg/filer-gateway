@@ -99,9 +99,16 @@ func (filer CephFs) SetProjectQuota(projectID string, quotaGiB int) error {
 	}
 
 	// set quota by setting the directory's extended attribute `ceph.quota.max_bytes`.
+	// NOTE: the value `0` should be replaced with a small value (e.g. 1024 bytes) as
+	//       the value `0` literally means "remove the quota limit".
+	qb := 1024
+	if quotaGiB > 0 {
+		qb = quotaGiB << 30
+	}
+
 	if err := setfattr(ppath, []string{
 		"-n", "ceph.quota.max_bytes",
-		"-v", fmt.Sprintf("%d", quotaGiB<<30),
+		"-v", fmt.Sprintf("%d", qb),
 	}); err != nil {
 		return err
 	}
