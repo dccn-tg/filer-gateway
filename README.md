@@ -72,6 +72,10 @@ The second way of update is implemented with the Redis' [Pub/Sub](https://redis.
 For updating the cache of a specific project, one sends a message `{"project": "<number>"}` to the channel `api_pcache_update`.
 For updating the cache of a specific user, one sends a message `{"user":"<username>"}` to the channel `api_ucache_update`.
 
+### Statistics
+
+Statistics of filer usage, project storage quota/usage, etc. are exported as the [Prometheus](ttps://prometheus.io) metrics via the `/metrics` endpoint.
+
 ## Build
 
 It requires [Golang](https://golang.org/) version >= 1.14 to build the source code.
