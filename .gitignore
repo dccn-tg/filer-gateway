@@ -6,6 +6,9 @@
 *.dylib
 bin/**
 
+# logs
+log/**
+
 # Test binary, built with `go test -c`
 *.test
 
