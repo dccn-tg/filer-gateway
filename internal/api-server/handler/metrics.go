@@ -10,6 +10,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 )
 
 type CustomResponder func(http.ResponseWriter, runtime.Producer)
@@ -27,10 +29,23 @@ func NewCustomResponder(r *http.Request, h http.Handler) middleware.Responder {
 // GetMetrics handles the metrics request with the Prometheus handler
 func GetMetrics() func(p operations.GetMetricsParams) middleware.Responder {
 
+	promRegistry := prometheus.NewRegistry()
+	promRegistry.MustRegister(opsProcessed)
+
+	log.Debugf("GetMetrics called %p", promRegistry)
+
 	recordMetrics()
 
 	return func(p operations.GetMetricsParams) middleware.Responder {
-		return NewCustomResponder(p.HTTPRequest, promhttp.Handler())
+		return NewCustomResponder(
+			p.HTTPRequest,
+			promhttp.HandlerFor(
+				promRegistry,
+				promhttp.HandlerOpts{
+					EnableOpenMetrics: false,
+				},
+			),
+		)
 	}
 }
 
