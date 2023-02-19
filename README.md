@@ -67,7 +67,7 @@ The caches are updated in two ways:
 1. all data in the caches are refreshed every 10 minutes.
 1. data concerning a project or a user is updated after changes are made on the filer via the `POST` and `PATCH` APIs.
 
-The second way of update is implemented with the Redis' [Pub/Sub](https://redis.io/topics/pubsub), and thus it can be easily exploited by 3rd-party tools/applications to trigger cache update.
+The second way is implemented with the Redis' [Pub/Sub](https://redis.io/topics/pubsub). Thus, any 3rd-party tool can interact directly with the Redis to trigger cache update for a specific project or user.
 
 For updating the cache of a specific project, one sends a message `{"project": "<number>"}` to the channel `api_pcache_update`.
 For updating the cache of a specific user, one sends a message `{"user":"<username>"}` to the channel `api_ucache_update`.
