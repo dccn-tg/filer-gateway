@@ -63,7 +63,8 @@ func NewPatchUsersIDOK() *PatchUsersIDOK {
 	return &PatchUsersIDOK{}
 }
 
-/* PatchUsersIDOK describes a response with status code 200, with default header values.
+/*
+PatchUsersIDOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -71,9 +72,44 @@ type PatchUsersIDOK struct {
 	Payload *models.ResponseBodyTaskResource
 }
 
+// IsSuccess returns true when this patch users Id o k response has a 2xx status code
+func (o *PatchUsersIDOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this patch users Id o k response has a 3xx status code
+func (o *PatchUsersIDOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this patch users Id o k response has a 4xx status code
+func (o *PatchUsersIDOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this patch users Id o k response has a 5xx status code
+func (o *PatchUsersIDOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this patch users Id o k response a status code equal to that given
+func (o *PatchUsersIDOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the patch users Id o k response
+func (o *PatchUsersIDOK) Code() int {
+	return 200
+}
+
 func (o *PatchUsersIDOK) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK  %+v", 200, o.Payload)
 }
+
+func (o *PatchUsersIDOK) String() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK  %+v", 200, o.Payload)
+}
+
 func (o *PatchUsersIDOK) GetPayload() *models.ResponseBodyTaskResource {
 	return o.Payload
 }
@@ -95,14 +131,49 @@ func NewPatchUsersIDNoContent() *PatchUsersIDNoContent {
 	return &PatchUsersIDNoContent{}
 }
 
-/* PatchUsersIDNoContent describes a response with status code 204, with default header values.
+/*
+PatchUsersIDNoContent describes a response with status code 204, with default header values.
 
 no content
 */
 type PatchUsersIDNoContent struct {
 }
 
+// IsSuccess returns true when this patch users Id no content response has a 2xx status code
+func (o *PatchUsersIDNoContent) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this patch users Id no content response has a 3xx status code
+func (o *PatchUsersIDNoContent) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this patch users Id no content response has a 4xx status code
+func (o *PatchUsersIDNoContent) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this patch users Id no content response has a 5xx status code
+func (o *PatchUsersIDNoContent) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this patch users Id no content response a status code equal to that given
+func (o *PatchUsersIDNoContent) IsCode(code int) bool {
+	return code == 204
+}
+
+// Code gets the status code for the patch users Id no content response
+func (o *PatchUsersIDNoContent) Code() int {
+	return 204
+}
+
 func (o *PatchUsersIDNoContent) Error() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent ", 204)
+}
+
+func (o *PatchUsersIDNoContent) String() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent ", 204)
 }
 
@@ -116,7 +187,8 @@ func NewPatchUsersIDBadRequest() *PatchUsersIDBadRequest {
 	return &PatchUsersIDBadRequest{}
 }
 
-/* PatchUsersIDBadRequest describes a response with status code 400, with default header values.
+/*
+PatchUsersIDBadRequest describes a response with status code 400, with default header values.
 
 bad request
 */
@@ -124,9 +196,44 @@ type PatchUsersIDBadRequest struct {
 	Payload *models.ResponseBody400
 }
 
+// IsSuccess returns true when this patch users Id bad request response has a 2xx status code
+func (o *PatchUsersIDBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this patch users Id bad request response has a 3xx status code
+func (o *PatchUsersIDBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this patch users Id bad request response has a 4xx status code
+func (o *PatchUsersIDBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this patch users Id bad request response has a 5xx status code
+func (o *PatchUsersIDBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this patch users Id bad request response a status code equal to that given
+func (o *PatchUsersIDBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
+// Code gets the status code for the patch users Id bad request response
+func (o *PatchUsersIDBadRequest) Code() int {
+	return 400
+}
+
 func (o *PatchUsersIDBadRequest) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest  %+v", 400, o.Payload)
 }
+
+func (o *PatchUsersIDBadRequest) String() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest  %+v", 400, o.Payload)
+}
+
 func (o *PatchUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
 	return o.Payload
 }
@@ -148,7 +255,8 @@ func NewPatchUsersIDNotFound() *PatchUsersIDNotFound {
 	return &PatchUsersIDNotFound{}
 }
 
-/* PatchUsersIDNotFound describes a response with status code 404, with default header values.
+/*
+PatchUsersIDNotFound describes a response with status code 404, with default header values.
 
 user not found
 */
@@ -156,9 +264,44 @@ type PatchUsersIDNotFound struct {
 	Payload string
 }
 
+// IsSuccess returns true when this patch users Id not found response has a 2xx status code
+func (o *PatchUsersIDNotFound) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this patch users Id not found response has a 3xx status code
+func (o *PatchUsersIDNotFound) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this patch users Id not found response has a 4xx status code
+func (o *PatchUsersIDNotFound) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this patch users Id not found response has a 5xx status code
+func (o *PatchUsersIDNotFound) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this patch users Id not found response a status code equal to that given
+func (o *PatchUsersIDNotFound) IsCode(code int) bool {
+	return code == 404
+}
+
+// Code gets the status code for the patch users Id not found response
+func (o *PatchUsersIDNotFound) Code() int {
+	return 404
+}
+
 func (o *PatchUsersIDNotFound) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound  %+v", 404, o.Payload)
 }
+
+func (o *PatchUsersIDNotFound) String() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound  %+v", 404, o.Payload)
+}
+
 func (o *PatchUsersIDNotFound) GetPayload() string {
 	return o.Payload
 }
@@ -178,7 +321,8 @@ func NewPatchUsersIDInternalServerError() *PatchUsersIDInternalServerError {
 	return &PatchUsersIDInternalServerError{}
 }
 
-/* PatchUsersIDInternalServerError describes a response with status code 500, with default header values.
+/*
+PatchUsersIDInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -186,9 +330,44 @@ type PatchUsersIDInternalServerError struct {
 	Payload *models.ResponseBody500
 }
 
+// IsSuccess returns true when this patch users Id internal server error response has a 2xx status code
+func (o *PatchUsersIDInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this patch users Id internal server error response has a 3xx status code
+func (o *PatchUsersIDInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this patch users Id internal server error response has a 4xx status code
+func (o *PatchUsersIDInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this patch users Id internal server error response has a 5xx status code
+func (o *PatchUsersIDInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this patch users Id internal server error response a status code equal to that given
+func (o *PatchUsersIDInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the patch users Id internal server error response
+func (o *PatchUsersIDInternalServerError) Code() int {
+	return 500
+}
+
 func (o *PatchUsersIDInternalServerError) Error() string {
 	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *PatchUsersIDInternalServerError) String() string {
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *PatchUsersIDInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

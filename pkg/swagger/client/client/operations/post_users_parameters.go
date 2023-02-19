@@ -54,10 +54,12 @@ func NewPostUsersParamsWithHTTPClient(client *http.Client) *PostUsersParams {
 	}
 }
 
-/* PostUsersParams contains all the parameters to send to the API endpoint
-   for the post users operation.
+/*
+PostUsersParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the post users operation.
+
+	Typically these are written to a http.Request.
 */
 type PostUsersParams struct {
 

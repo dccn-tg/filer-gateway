@@ -15,9 +15,10 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/hurngchunlee/bokchoy v0.2.2-0.20211124141242-0c2c2bbb0154
 	github.com/jessevdk/go-flags v1.5.0
+	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/rs/cors v1.8.0
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.9.0
 	github.com/square/go-jose v2.6.0+incompatible
-	golang.org/x/net v0.0.0-20211118161319-6a13c67c3ce4
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 )

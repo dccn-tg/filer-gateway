@@ -2,18 +2,18 @@
 
 // Package restapi filer-gateway
 //
-//  filer gateway APIs
-//  Schemes:
-//    http
-//  Host: localhost
-//  BasePath: /v1
-//  Version: 0.2.0
+//	filer gateway APIs
+//	Schemes:
+//	  http
+//	Host: localhost
+//	BasePath: /v1
+//	Version: 0.2.0
 //
-//  Consumes:
-//    - application/json
+//	Consumes:
+//	  - application/json
 //
-//  Produces:
-//    - application/json
+//	Produces:
+//	  - application/json
 //
 // swagger:meta
 package restapi

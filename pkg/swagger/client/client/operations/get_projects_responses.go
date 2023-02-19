@@ -45,7 +45,8 @@ func NewGetProjectsOK() *GetProjectsOK {
 	return &GetProjectsOK{}
 }
 
-/* GetProjectsOK describes a response with status code 200, with default header values.
+/*
+GetProjectsOK describes a response with status code 200, with default header values.
 
 success
 */
@@ -53,9 +54,44 @@ type GetProjectsOK struct {
 	Payload *models.ResponseBodyProjects
 }
 
+// IsSuccess returns true when this get projects o k response has a 2xx status code
+func (o *GetProjectsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get projects o k response has a 3xx status code
+func (o *GetProjectsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get projects o k response has a 4xx status code
+func (o *GetProjectsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get projects o k response has a 5xx status code
+func (o *GetProjectsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get projects o k response a status code equal to that given
+func (o *GetProjectsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get projects o k response
+func (o *GetProjectsOK) Code() int {
+	return 200
+}
+
 func (o *GetProjectsOK) Error() string {
 	return fmt.Sprintf("[GET /projects][%d] getProjectsOK  %+v", 200, o.Payload)
 }
+
+func (o *GetProjectsOK) String() string {
+	return fmt.Sprintf("[GET /projects][%d] getProjectsOK  %+v", 200, o.Payload)
+}
+
 func (o *GetProjectsOK) GetPayload() *models.ResponseBodyProjects {
 	return o.Payload
 }
@@ -77,7 +113,8 @@ func NewGetProjectsInternalServerError() *GetProjectsInternalServerError {
 	return &GetProjectsInternalServerError{}
 }
 
-/* GetProjectsInternalServerError describes a response with status code 500, with default header values.
+/*
+GetProjectsInternalServerError describes a response with status code 500, with default header values.
 
 failure
 */
@@ -85,9 +122,44 @@ type GetProjectsInternalServerError struct {
 	Payload *models.ResponseBody500
 }
 
+// IsSuccess returns true when this get projects internal server error response has a 2xx status code
+func (o *GetProjectsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get projects internal server error response has a 3xx status code
+func (o *GetProjectsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get projects internal server error response has a 4xx status code
+func (o *GetProjectsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get projects internal server error response has a 5xx status code
+func (o *GetProjectsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get projects internal server error response a status code equal to that given
+func (o *GetProjectsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
+// Code gets the status code for the get projects internal server error response
+func (o *GetProjectsInternalServerError) Code() int {
+	return 500
+}
+
 func (o *GetProjectsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError  %+v", 500, o.Payload)
 }
+
+func (o *GetProjectsInternalServerError) String() string {
+	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError  %+v", 500, o.Payload)
+}
+
 func (o *GetProjectsInternalServerError) GetPayload() *models.ResponseBody500 {
 	return o.Payload
 }

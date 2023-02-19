@@ -16,7 +16,8 @@ import (
 // GetUsersIDOKCode is the HTTP code returned for type GetUsersIDOK
 const GetUsersIDOKCode int = 200
 
-/*GetUsersIDOK success
+/*
+GetUsersIDOK success
 
 swagger:response getUsersIdOK
 */
@@ -60,7 +61,8 @@ func (o *GetUsersIDOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 // GetUsersIDBadRequestCode is the HTTP code returned for type GetUsersIDBadRequest
 const GetUsersIDBadRequestCode int = 400
 
-/*GetUsersIDBadRequest bad request
+/*
+GetUsersIDBadRequest bad request
 
 swagger:response getUsersIdBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetUsersIDBadRequest) WriteResponse(rw http.ResponseWriter, producer ru
 // GetUsersIDNotFoundCode is the HTTP code returned for type GetUsersIDNotFound
 const GetUsersIDNotFoundCode int = 404
 
-/*GetUsersIDNotFound user not found
+/*
+GetUsersIDNotFound user not found
 
 swagger:response getUsersIdNotFound
 */
@@ -146,7 +149,8 @@ func (o *GetUsersIDNotFound) WriteResponse(rw http.ResponseWriter, producer runt
 // GetUsersIDInternalServerErrorCode is the HTTP code returned for type GetUsersIDInternalServerError
 const GetUsersIDInternalServerErrorCode int = 500
 
-/*GetUsersIDInternalServerError failure
+/*
+GetUsersIDInternalServerError failure
 
 swagger:response getUsersIdInternalServerError
 */

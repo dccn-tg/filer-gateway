@@ -49,6 +49,15 @@ paths:
             $ref: '#/definitions/responseBody500'
           description: failure
 
+  /metrics:
+    get:
+      summary: "Prometheus metrics"
+      responses:
+        200:
+          description: ok
+          schema:
+            type: string
+
   /users:
     get:
       summary: get filer resources of all users.

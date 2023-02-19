@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error)
+
 	GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetPingOK, error)
 
 	GetProjects(params *GetProjectsParams, opts ...ClientOption) (*GetProjectsOK, error)
@@ -54,7 +56,45 @@ type ClientService interface {
 }
 
 /*
-  GetPing endpoints for API server health check
+GetMetrics prometheus metrics
+*/
+func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetMetricsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetMetrics",
+		Method:             "GET",
+		PathPattern:        "/metrics",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetMetricsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetMetricsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetMetrics: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+GetPing endpoints for API server health check
 */
 func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetPingOK, error) {
 	// TODO: Validate the params before sending
@@ -93,7 +133,7 @@ func (a *Client) GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoW
 }
 
 /*
-  GetProjects gets filer resources of all projects
+GetProjects gets filer resources of all projects
 */
 func (a *Client) GetProjects(params *GetProjectsParams, opts ...ClientOption) (*GetProjectsOK, error) {
 	// TODO: Validate the params before sending
@@ -131,7 +171,7 @@ func (a *Client) GetProjects(params *GetProjectsParams, opts ...ClientOption) (*
 }
 
 /*
-  GetProjectsID gets filer resource for an existing project
+GetProjectsID gets filer resource for an existing project
 */
 func (a *Client) GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption) (*GetProjectsIDOK, error) {
 	// TODO: Validate the params before sending
@@ -169,7 +209,7 @@ func (a *Client) GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption
 }
 
 /*
-  GetTasksTypeID queries background task status
+GetTasksTypeID queries background task status
 */
 func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOption) (*GetTasksTypeIDOK, error) {
 	// TODO: Validate the params before sending
@@ -207,7 +247,7 @@ func (a *Client) GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOpti
 }
 
 /*
-  GetUsers gets filer resources of all users
+GetUsers gets filer resources of all users
 */
 func (a *Client) GetUsers(params *GetUsersParams, opts ...ClientOption) (*GetUsersOK, error) {
 	// TODO: Validate the params before sending
@@ -245,7 +285,7 @@ func (a *Client) GetUsers(params *GetUsersParams, opts ...ClientOption) (*GetUse
 }
 
 /*
-  GetUsersID gets filer resource for an existing user
+GetUsersID gets filer resource for an existing user
 */
 func (a *Client) GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*GetUsersIDOK, error) {
 	// TODO: Validate the params before sending
@@ -283,7 +323,7 @@ func (a *Client) GetUsersID(params *GetUsersIDParams, opts ...ClientOption) (*Ge
 }
 
 /*
-  PatchProjectsID updates filer resource for an existing project
+PatchProjectsID updates filer resource for an existing project
 */
 func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchProjectsIDOK, *PatchProjectsIDNoContent, error) {
 	// TODO: Validate the params before sending
@@ -323,7 +363,7 @@ func (a *Client) PatchProjectsID(params *PatchProjectsIDParams, authInfo runtime
 }
 
 /*
-  PatchUsersID updates filer resource for an existing user
+PatchUsersID updates filer resource for an existing user
 */
 func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, *PatchUsersIDNoContent, error) {
 	// TODO: Validate the params before sending
@@ -363,7 +403,7 @@ func (a *Client) PatchUsersID(params *PatchUsersIDParams, authInfo runtime.Clien
 }
 
 /*
-  PostProjects provisions filer resource for a new project
+PostProjects provisions filer resource for a new project
 */
 func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostProjectsOK, error) {
 	// TODO: Validate the params before sending
@@ -402,7 +442,7 @@ func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.Clien
 }
 
 /*
-  PostUsers provisions filer resource for a new user
+PostUsers provisions filer resource for a new user
 */
 func (a *Client) PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostUsersOK, error) {
 	// TODO: Validate the params before sending

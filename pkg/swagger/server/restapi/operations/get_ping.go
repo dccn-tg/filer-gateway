@@ -31,10 +31,10 @@ func NewGetPing(ctx *middleware.Context, handler GetPingHandler) *GetPing {
 	return &GetPing{Context: ctx, Handler: handler}
 }
 
-/* GetPing swagger:route GET /ping getPing
+/*
+	GetPing swagger:route GET /ping getPing
 
 endpoint for API server health check.
-
 */
 type GetPing struct {
 	Context *middleware.Context

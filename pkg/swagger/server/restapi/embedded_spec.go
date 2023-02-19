@@ -26,6 +26,19 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/metrics": {
+      "get": {
+        "summary": "Prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "security": [
@@ -885,6 +898,19 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/metrics": {
+      "get": {
+        "summary": "Prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "ok",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "security": [

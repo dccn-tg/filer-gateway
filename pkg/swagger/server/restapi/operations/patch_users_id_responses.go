@@ -16,7 +16,8 @@ import (
 // PatchUsersIDOKCode is the HTTP code returned for type PatchUsersIDOK
 const PatchUsersIDOKCode int = 200
 
-/*PatchUsersIDOK success
+/*
+PatchUsersIDOK success
 
 swagger:response patchUsersIdOK
 */
@@ -60,7 +61,8 @@ func (o *PatchUsersIDOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // PatchUsersIDNoContentCode is the HTTP code returned for type PatchUsersIDNoContent
 const PatchUsersIDNoContentCode int = 204
 
-/*PatchUsersIDNoContent no content
+/*
+PatchUsersIDNoContent no content
 
 swagger:response patchUsersIdNoContent
 */
@@ -84,7 +86,8 @@ func (o *PatchUsersIDNoContent) WriteResponse(rw http.ResponseWriter, producer r
 // PatchUsersIDBadRequestCode is the HTTP code returned for type PatchUsersIDBadRequest
 const PatchUsersIDBadRequestCode int = 400
 
-/*PatchUsersIDBadRequest bad request
+/*
+PatchUsersIDBadRequest bad request
 
 swagger:response patchUsersIdBadRequest
 */
@@ -128,7 +131,8 @@ func (o *PatchUsersIDBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // PatchUsersIDNotFoundCode is the HTTP code returned for type PatchUsersIDNotFound
 const PatchUsersIDNotFoundCode int = 404
 
-/*PatchUsersIDNotFound user not found
+/*
+PatchUsersIDNotFound user not found
 
 swagger:response patchUsersIdNotFound
 */
@@ -170,7 +174,8 @@ func (o *PatchUsersIDNotFound) WriteResponse(rw http.ResponseWriter, producer ru
 // PatchUsersIDInternalServerErrorCode is the HTTP code returned for type PatchUsersIDInternalServerError
 const PatchUsersIDInternalServerErrorCode int = 500
 
-/*PatchUsersIDInternalServerError failure
+/*
+PatchUsersIDInternalServerError failure
 
 swagger:response patchUsersIdInternalServerError
 */

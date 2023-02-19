@@ -31,10 +31,10 @@ func NewPatchUsersID(ctx *middleware.Context, handler PatchUsersIDHandler) *Patc
 	return &PatchUsersID{Context: ctx, Handler: handler}
 }
 
-/* PatchUsersID swagger:route PATCH /users/{id} patchUsersId
+/*
+	PatchUsersID swagger:route PATCH /users/{id} patchUsersId
 
 update filer resource for an existing user.
-
 */
 type PatchUsersID struct {
 	Context *middleware.Context
