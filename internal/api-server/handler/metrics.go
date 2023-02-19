@@ -14,6 +14,8 @@ import (
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
 )
 
+// This trick of integrating promhttp handler with swagger server is taken from
+// the blog: https://www.kaznacheev.me/posts/en/go_swagger_tricks/
 type CustomResponder func(http.ResponseWriter, runtime.Producer)
 
 func (c CustomResponder) WriteResponse(w http.ResponseWriter, p runtime.Producer) {
@@ -27,14 +29,20 @@ func NewCustomResponder(r *http.Request, h http.Handler) middleware.Responder {
 }
 
 // GetMetrics handles the metrics request with the Prometheus handler
-func GetMetrics() func(p operations.GetMetricsParams) middleware.Responder {
+func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) func(p operations.GetMetricsParams) middleware.Responder {
 
 	promRegistry := prometheus.NewRegistry()
-	promRegistry.MustRegister(opsProcessed)
+	promRegistry.MustRegister(
+		userCount,
+		projectCount,
+		projectStorageQuota,
+		projectStorageUsage,
+	)
 
 	log.Debugf("GetMetrics called %p", promRegistry)
 
-	recordMetrics()
+	// run metrics recording function via go-routine
+	go recordMetrics(ucache, pcache)
 
 	return func(p operations.GetMetricsParams) middleware.Responder {
 		return NewCustomResponder(
@@ -49,18 +57,67 @@ func GetMetrics() func(p operations.GetMetricsParams) middleware.Responder {
 	}
 }
 
-func recordMetrics() {
-	go func() {
-		for {
-			opsProcessed.Inc()
-			time.Sleep(2 * time.Second)
-		}
-	}()
-}
-
+// metrics definition
 var (
-	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "myapp_processed_ops_total",
-		Help: "The total number of processed events",
-	})
+	projectCount = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "fgw_project_count",
+			Help: "Total number of project storage directories",
+		},
+	)
+
+	userCount = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "fgw_user_count",
+			Help: "Total number of user home directories",
+		},
+	)
+
+	projectStorageQuota = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "fgw_project_storage_quota",
+			Help: "The project storage quota in GiB",
+		},
+		[]string{
+			// project number
+			"number",
+		},
+	)
+
+	projectStorageUsage = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "fgw_project_storage_usage",
+			Help: "The project storage usage in GiB",
+		},
+		[]string{
+			//project number
+			"number",
+		},
+	)
 )
+
+// metrics recording function in an infinite loop
+func recordMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
+	for {
+
+		// projects
+		i := 0
+		for pnumber, resc := range pcache.getAllResources(false) {
+			i++
+			projectStorageQuota.WithLabelValues(pnumber).Set(
+				float64(*resc.storage.QuotaGb),
+			)
+			projectStorageUsage.WithLabelValues(pnumber).Set(
+				float64(*resc.storage.UsageMb) / 1024,
+			)
+		}
+		projectCount.Set(float64(i))
+
+		// users
+		i = 0
+		userCount.Set(float64(len(ucache.getAllResources(false))))
+
+		// pause 3 minutes for the next update
+		time.Sleep(180 * time.Second)
+	}
+}
