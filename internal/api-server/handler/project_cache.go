@@ -42,7 +42,7 @@ type ProjectResourceCache struct {
 	// IsStopped indicates whether the cache service is stopped.
 	IsStopped bool
 	store     map[string]*projectResource
-	mutex     sync.Mutex
+	mutex     sync.RWMutex
 }
 
 // init initializes the cache with first reload.
@@ -172,7 +172,14 @@ func (c *ProjectResourceCache) refresh() {
 // the cache.  If not available, it will retrieve up-to-date information from the storage
 // (either via the filesystem or the storage's API) and update the cache accordingly.
 func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*projectResource, error) {
-	if r, ok := c.store[pnumber]; !ok || force {
+
+	// try to get resource from the cache
+	c.mutex.RLock()
+	r, ok := c.store[pnumber]
+	c.mutex.Unlock()
+
+	// try to retrieve the resource from upstream filer/storage
+	if !ok || force {
 
 		storage, members, err := getProjectResource([]*filer.QuotaReport{}, pnumber, c.Config)
 		if err != nil {
@@ -185,13 +192,11 @@ func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*project
 			storage: storage,
 			members: members,
 		}
+		r = c.store[pnumber]
 		c.mutex.Unlock()
-
-		// return the data from cache
-		return c.store[pnumber], nil
-	} else {
-		return r, nil
 	}
+
+	return r, nil
 }
 
 // getProjectResource retrieves storage resource and access roles of a given project.

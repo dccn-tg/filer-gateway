@@ -40,7 +40,7 @@ type UserResourceCache struct {
 	// IsStopped indicates whether the cache service is stopped.
 	IsStopped bool
 	store     map[string]*userResource
-	mutex     sync.Mutex
+	mutex     sync.RWMutex
 }
 
 // init initializes the cache with first reload.
@@ -156,7 +156,14 @@ func (c *UserResourceCache) refresh() {
 // the cache.  If not available, it will retrieve up-to-date information from the storage
 // (either via the filesystem or the storage's API) and update the cache accordingly.
 func (c *UserResourceCache) getResource(username string, force bool) (*userResource, error) {
-	if r, ok := c.store[username]; !ok || force {
+
+	// try to get resource from the cache
+	c.mutex.RLock()
+	r, ok := c.store[username]
+	c.mutex.Unlock()
+
+	// try to retrieve the resource from upstream filer/storage
+	if !ok || force {
 
 		storage, err := getUserStorageResource(username, c.Config)
 
@@ -168,13 +175,12 @@ func (c *UserResourceCache) getResource(username string, force bool) (*userResou
 		c.store[username] = &userResource{
 			storage: storage,
 		}
-		c.mutex.Unlock()
 
-		// return the data from cache
-		return c.store[username], nil
-	} else {
-		return r, nil
+		r = c.store[username]
+		c.mutex.Unlock()
 	}
+
+	return r, nil
 }
 
 // getSystemUsers get a list of usernames from the `getent passwd` system call, and filter out
