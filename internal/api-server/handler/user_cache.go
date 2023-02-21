@@ -160,7 +160,7 @@ func (c *UserResourceCache) getResource(username string, force bool) (*userResou
 	// try to get resource from the cache
 	c.mutex.RLock()
 	r, ok := c.store[username]
-	c.mutex.Unlock()
+	c.mutex.RUnlock()
 
 	// try to retrieve the resource from upstream filer/storage
 	if !ok || force {

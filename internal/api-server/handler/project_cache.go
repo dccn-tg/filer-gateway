@@ -176,7 +176,7 @@ func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*project
 	// try to get resource from the cache
 	c.mutex.RLock()
 	r, ok := c.store[pnumber]
-	c.mutex.Unlock()
+	c.mutex.RUnlock()
 
 	// try to retrieve the resource from upstream filer/storage
 	if !ok || force {
