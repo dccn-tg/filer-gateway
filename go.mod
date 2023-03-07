@@ -19,5 +19,5 @@ require (
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.9.0
 	github.com/square/go-jose v2.6.0+incompatible
-	golang.org/x/net v0.0.0-20211118161319-6a13c67c3ce4
+	golang.org/x/net v0.7.0
 )
