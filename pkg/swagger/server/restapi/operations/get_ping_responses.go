@@ -16,7 +16,8 @@ import (
 // GetPingOKCode is the HTTP code returned for type GetPingOK
 const GetPingOKCode int = 200
 
-/*GetPingOK success
+/*
+GetPingOK success
 
 swagger:response getPingOK
 */
@@ -58,7 +59,8 @@ func (o *GetPingOK) WriteResponse(rw http.ResponseWriter, producer runtime.Produ
 // GetPingInternalServerErrorCode is the HTTP code returned for type GetPingInternalServerError
 const GetPingInternalServerErrorCode int = 500
 
-/*GetPingInternalServerError failure
+/*
+GetPingInternalServerError failure
 
 swagger:response getPingInternalServerError
 */

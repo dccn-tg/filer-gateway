@@ -16,7 +16,8 @@ import (
 // PatchProjectsIDOKCode is the HTTP code returned for type PatchProjectsIDOK
 const PatchProjectsIDOKCode int = 200
 
-/*PatchProjectsIDOK success
+/*
+PatchProjectsIDOK success
 
 swagger:response patchProjectsIdOK
 */
@@ -60,7 +61,8 @@ func (o *PatchProjectsIDOK) WriteResponse(rw http.ResponseWriter, producer runti
 // PatchProjectsIDNoContentCode is the HTTP code returned for type PatchProjectsIDNoContent
 const PatchProjectsIDNoContentCode int = 204
 
-/*PatchProjectsIDNoContent no content
+/*
+PatchProjectsIDNoContent no content
 
 swagger:response patchProjectsIdNoContent
 */
@@ -84,7 +86,8 @@ func (o *PatchProjectsIDNoContent) WriteResponse(rw http.ResponseWriter, produce
 // PatchProjectsIDBadRequestCode is the HTTP code returned for type PatchProjectsIDBadRequest
 const PatchProjectsIDBadRequestCode int = 400
 
-/*PatchProjectsIDBadRequest bad request
+/*
+PatchProjectsIDBadRequest bad request
 
 swagger:response patchProjectsIdBadRequest
 */
@@ -128,7 +131,8 @@ func (o *PatchProjectsIDBadRequest) WriteResponse(rw http.ResponseWriter, produc
 // PatchProjectsIDNotFoundCode is the HTTP code returned for type PatchProjectsIDNotFound
 const PatchProjectsIDNotFoundCode int = 404
 
-/*PatchProjectsIDNotFound project not found
+/*
+PatchProjectsIDNotFound project not found
 
 swagger:response patchProjectsIdNotFound
 */
@@ -170,7 +174,8 @@ func (o *PatchProjectsIDNotFound) WriteResponse(rw http.ResponseWriter, producer
 // PatchProjectsIDInternalServerErrorCode is the HTTP code returned for type PatchProjectsIDInternalServerError
 const PatchProjectsIDInternalServerErrorCode int = 500
 
-/*PatchProjectsIDInternalServerError failure
+/*
+PatchProjectsIDInternalServerError failure
 
 swagger:response patchProjectsIdInternalServerError
 */

@@ -31,10 +31,10 @@ func NewPostProjects(ctx *middleware.Context, handler PostProjectsHandler) *Post
 	return &PostProjects{Context: ctx, Handler: handler}
 }
 
-/* PostProjects swagger:route POST /projects postProjects
+/*
+	PostProjects swagger:route POST /projects postProjects
 
 provision filer resource for a new project.
-
 */
 type PostProjects struct {
 	Context *middleware.Context

@@ -31,10 +31,10 @@ func NewPostUsers(ctx *middleware.Context, handler PostUsersHandler) *PostUsers 
 	return &PostUsers{Context: ctx, Handler: handler}
 }
 
-/* PostUsers swagger:route POST /users postUsers
+/*
+	PostUsers swagger:route POST /users postUsers
 
 provision filer resource for a new user.
-
 */
 type PostUsers struct {
 	Context *middleware.Context

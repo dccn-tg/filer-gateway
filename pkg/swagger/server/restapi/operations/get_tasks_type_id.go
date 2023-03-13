@@ -29,10 +29,10 @@ func NewGetTasksTypeID(ctx *middleware.Context, handler GetTasksTypeIDHandler) *
 	return &GetTasksTypeID{Context: ctx, Handler: handler}
 }
 
-/* GetTasksTypeID swagger:route GET /tasks/{type}/{id} getTasksTypeId
+/*
+	GetTasksTypeID swagger:route GET /tasks/{type}/{id} getTasksTypeId
 
 query background task status
-
 */
 type GetTasksTypeID struct {
 	Context *middleware.Context

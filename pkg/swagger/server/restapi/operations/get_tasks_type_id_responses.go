@@ -16,7 +16,8 @@ import (
 // GetTasksTypeIDOKCode is the HTTP code returned for type GetTasksTypeIDOK
 const GetTasksTypeIDOKCode int = 200
 
-/*GetTasksTypeIDOK success
+/*
+GetTasksTypeIDOK success
 
 swagger:response getTasksTypeIdOK
 */
@@ -60,7 +61,8 @@ func (o *GetTasksTypeIDOK) WriteResponse(rw http.ResponseWriter, producer runtim
 // GetTasksTypeIDBadRequestCode is the HTTP code returned for type GetTasksTypeIDBadRequest
 const GetTasksTypeIDBadRequestCode int = 400
 
-/*GetTasksTypeIDBadRequest bad request
+/*
+GetTasksTypeIDBadRequest bad request
 
 swagger:response getTasksTypeIdBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetTasksTypeIDBadRequest) WriteResponse(rw http.ResponseWriter, produce
 // GetTasksTypeIDNotFoundCode is the HTTP code returned for type GetTasksTypeIDNotFound
 const GetTasksTypeIDNotFoundCode int = 404
 
-/*GetTasksTypeIDNotFound task not found
+/*
+GetTasksTypeIDNotFound task not found
 
 swagger:response getTasksTypeIdNotFound
 */
@@ -128,7 +131,8 @@ func (o *GetTasksTypeIDNotFound) WriteResponse(rw http.ResponseWriter, producer 
 // GetTasksTypeIDInternalServerErrorCode is the HTTP code returned for type GetTasksTypeIDInternalServerError
 const GetTasksTypeIDInternalServerErrorCode int = 500
 
-/*GetTasksTypeIDInternalServerError failure
+/*
+GetTasksTypeIDInternalServerError failure
 
 swagger:response getTasksTypeIdInternalServerError
 */

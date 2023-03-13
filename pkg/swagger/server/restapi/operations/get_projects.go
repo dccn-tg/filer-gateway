@@ -29,10 +29,10 @@ func NewGetProjects(ctx *middleware.Context, handler GetProjectsHandler) *GetPro
 	return &GetProjects{Context: ctx, Handler: handler}
 }
 
-/* GetProjects swagger:route GET /projects getProjects
+/*
+	GetProjects swagger:route GET /projects getProjects
 
 get filer resources of all projects.
-
 */
 type GetProjects struct {
 	Context *middleware.Context

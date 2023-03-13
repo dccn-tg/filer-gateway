@@ -183,6 +183,16 @@ func (c *UserResourceCache) getResource(username string, force bool) (*userResou
 	return r, nil
 }
 
+// getAllResources gets resource information of all users from the cache.
+// If `force` argument is `true`, the cache is refreshed (by updating data from the filers) before
+// it returns.
+func (c *UserResourceCache) getAllResources(force bool) map[string]*userResource {
+	if force {
+		c.refresh()
+	}
+	return c.store
+}
+
 // getSystemUsers get a list of usernames from the `getent passwd` system call, and filter out
 // users with UID <= 1000.
 func getSystemUsers() []string {

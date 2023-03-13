@@ -16,7 +16,8 @@ import (
 // GetProjectsOKCode is the HTTP code returned for type GetProjectsOK
 const GetProjectsOKCode int = 200
 
-/*GetProjectsOK success
+/*
+GetProjectsOK success
 
 swagger:response getProjectsOK
 */
@@ -60,7 +61,8 @@ func (o *GetProjectsOK) WriteResponse(rw http.ResponseWriter, producer runtime.P
 // GetProjectsInternalServerErrorCode is the HTTP code returned for type GetProjectsInternalServerError
 const GetProjectsInternalServerErrorCode int = 500
 
-/*GetProjectsInternalServerError failure
+/*
+GetProjectsInternalServerError failure
 
 swagger:response getProjectsInternalServerError
 */

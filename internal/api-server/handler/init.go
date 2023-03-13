@@ -415,7 +415,7 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 	}
 }
 
-// GetProjects implements retrival of resources of all system users with UID >= 1000.
+// GetUsers implements retrival of resources of all system users with UID >= 1000.
 func GetUsers(ucache *UserResourceCache, pcache *ProjectResourceCache) func(params operations.GetUsersParams) middleware.Responder {
 	return func(params operations.GetUsersParams) middleware.Responder {
 

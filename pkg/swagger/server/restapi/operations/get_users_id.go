@@ -29,10 +29,10 @@ func NewGetUsersID(ctx *middleware.Context, handler GetUsersIDHandler) *GetUsers
 	return &GetUsersID{Context: ctx, Handler: handler}
 }
 
-/* GetUsersID swagger:route GET /users/{id} getUsersId
+/*
+	GetUsersID swagger:route GET /users/{id} getUsersId
 
 get filer resource for an existing user.
-
 */
 type GetUsersID struct {
 	Context *middleware.Context

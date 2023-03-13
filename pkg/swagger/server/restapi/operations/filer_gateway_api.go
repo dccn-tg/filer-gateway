@@ -44,6 +44,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetMetricsHandler: GetMetricsHandlerFunc(func(params GetMetricsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetMetrics has not yet been implemented")
+		}),
 		GetPingHandler: GetPingHandlerFunc(func(params GetPingParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation GetPing has not yet been implemented")
 		}),
@@ -139,6 +142,8 @@ type FilerGatewayAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// GetMetricsHandler sets the operation handler for the get metrics operation
+	GetMetricsHandler GetMetricsHandler
 	// GetPingHandler sets the operation handler for the get ping operation
 	GetPingHandler GetPingHandler
 	// GetProjectsHandler sets the operation handler for the get projects operation
@@ -246,6 +251,9 @@ func (o *FilerGatewayAPI) Validate() error {
 		unregistered = append(unregistered, "Oauth2Auth")
 	}
 
+	if o.GetMetricsHandler == nil {
+		unregistered = append(unregistered, "GetMetricsHandler")
+	}
 	if o.GetPingHandler == nil {
 		unregistered = append(unregistered, "GetPingHandler")
 	}
@@ -385,6 +393,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/metrics"] = NewGetMetrics(o.context, o.GetMetricsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

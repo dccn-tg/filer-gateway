@@ -54,10 +54,12 @@ func NewPatchProjectsIDParamsWithHTTPClient(client *http.Client) *PatchProjectsI
 	}
 }
 
-/* PatchProjectsIDParams contains all the parameters to send to the API endpoint
-   for the patch projects ID operation.
+/*
+PatchProjectsIDParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the patch projects ID operation.
+
+	Typically these are written to a http.Request.
 */
 type PatchProjectsIDParams struct {
 

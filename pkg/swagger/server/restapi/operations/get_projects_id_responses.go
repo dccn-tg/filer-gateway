@@ -16,7 +16,8 @@ import (
 // GetProjectsIDOKCode is the HTTP code returned for type GetProjectsIDOK
 const GetProjectsIDOKCode int = 200
 
-/*GetProjectsIDOK success
+/*
+GetProjectsIDOK success
 
 swagger:response getProjectsIdOK
 */
@@ -60,7 +61,8 @@ func (o *GetProjectsIDOK) WriteResponse(rw http.ResponseWriter, producer runtime
 // GetProjectsIDBadRequestCode is the HTTP code returned for type GetProjectsIDBadRequest
 const GetProjectsIDBadRequestCode int = 400
 
-/*GetProjectsIDBadRequest bad request
+/*
+GetProjectsIDBadRequest bad request
 
 swagger:response getProjectsIdBadRequest
 */
@@ -104,7 +106,8 @@ func (o *GetProjectsIDBadRequest) WriteResponse(rw http.ResponseWriter, producer
 // GetProjectsIDNotFoundCode is the HTTP code returned for type GetProjectsIDNotFound
 const GetProjectsIDNotFoundCode int = 404
 
-/*GetProjectsIDNotFound project not found
+/*
+GetProjectsIDNotFound project not found
 
 swagger:response getProjectsIdNotFound
 */
@@ -146,7 +149,8 @@ func (o *GetProjectsIDNotFound) WriteResponse(rw http.ResponseWriter, producer r
 // GetProjectsIDInternalServerErrorCode is the HTTP code returned for type GetProjectsIDInternalServerError
 const GetProjectsIDInternalServerErrorCode int = 500
 
-/*GetProjectsIDInternalServerError failure
+/*
+GetProjectsIDInternalServerError failure
 
 swagger:response getProjectsIdInternalServerError
 */

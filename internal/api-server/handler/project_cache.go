@@ -199,6 +199,16 @@ func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*project
 	return r, nil
 }
 
+// getAllResources gets resource information of all projects from the cache.
+// If `force` argument is `true`, the cache is refreshed (by updating data from the filers) before
+// it returns.
+func (c *ProjectResourceCache) getAllResources(force bool) map[string]*projectResource {
+	if force {
+		c.refresh()
+	}
+	return c.store
+}
+
 // getProjectResource retrieves storage resource and access roles of a given project.
 func getProjectResource(netappQuotaReports []*filer.QuotaReport, pnumber string, cfg config.Configuration) (*models.StorageResponse, []*models.Member, error) {
 

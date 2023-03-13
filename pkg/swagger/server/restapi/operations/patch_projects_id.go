@@ -31,10 +31,10 @@ func NewPatchProjectsID(ctx *middleware.Context, handler PatchProjectsIDHandler)
 	return &PatchProjectsID{Context: ctx, Handler: handler}
 }
 
-/* PatchProjectsID swagger:route PATCH /projects/{id} patchProjectsId
+/*
+	PatchProjectsID swagger:route PATCH /projects/{id} patchProjectsId
 
 update filer resource for an existing project.
-
 */
 type PatchProjectsID struct {
 	Context *middleware.Context

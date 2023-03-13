@@ -257,6 +257,8 @@ func main() {
 	// associate handler functions with implementations
 	api.GetPingHandler = operations.GetPingHandlerFunc(handler.GetPing(cfg))
 
+	api.GetMetricsHandler = operations.GetMetricsHandlerFunc(handler.GetMetrics(&ucache, &pcache))
+
 	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
 
 	api.GetProjectsIDHandler = operations.GetProjectsIDHandlerFunc(handler.GetProjectResource(&pcache))

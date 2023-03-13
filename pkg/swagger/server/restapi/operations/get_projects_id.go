@@ -29,10 +29,10 @@ func NewGetProjectsID(ctx *middleware.Context, handler GetProjectsIDHandler) *Ge
 	return &GetProjectsID{Context: ctx, Handler: handler}
 }
 
-/* GetProjectsID swagger:route GET /projects/{id} getProjectsId
+/*
+	GetProjectsID swagger:route GET /projects/{id} getProjectsId
 
 get filer resource for an existing project.
-
 */
 type GetProjectsID struct {
 	Context *middleware.Context

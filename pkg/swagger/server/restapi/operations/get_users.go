@@ -29,10 +29,10 @@ func NewGetUsers(ctx *middleware.Context, handler GetUsersHandler) *GetUsers {
 	return &GetUsers{Context: ctx, Handler: handler}
 }
 
-/* GetUsers swagger:route GET /users getUsers
+/*
+	GetUsers swagger:route GET /users getUsers
 
 get filer resources of all users.
-
 */
 type GetUsers struct {
 	Context *middleware.Context

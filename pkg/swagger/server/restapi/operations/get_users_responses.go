@@ -16,7 +16,8 @@ import (
 // GetUsersOKCode is the HTTP code returned for type GetUsersOK
 const GetUsersOKCode int = 200
 
-/*GetUsersOK success
+/*
+GetUsersOK success
 
 swagger:response getUsersOK
 */
@@ -60,7 +61,8 @@ func (o *GetUsersOK) WriteResponse(rw http.ResponseWriter, producer runtime.Prod
 // GetUsersInternalServerErrorCode is the HTTP code returned for type GetUsersInternalServerError
 const GetUsersInternalServerErrorCode int = 500
 
-/*GetUsersInternalServerError failure
+/*
+GetUsersInternalServerError failure
 
 swagger:response getUsersInternalServerError
 */

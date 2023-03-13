@@ -16,7 +16,8 @@ import (
 // PostProjectsOKCode is the HTTP code returned for type PostProjectsOK
 const PostProjectsOKCode int = 200
 
-/*PostProjectsOK success
+/*
+PostProjectsOK success
 
 swagger:response postProjectsOK
 */
@@ -60,7 +61,8 @@ func (o *PostProjectsOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 // PostProjectsBadRequestCode is the HTTP code returned for type PostProjectsBadRequest
 const PostProjectsBadRequestCode int = 400
 
-/*PostProjectsBadRequest bad request
+/*
+PostProjectsBadRequest bad request
 
 swagger:response postProjectsBadRequest
 */
@@ -104,7 +106,8 @@ func (o *PostProjectsBadRequest) WriteResponse(rw http.ResponseWriter, producer 
 // PostProjectsInternalServerErrorCode is the HTTP code returned for type PostProjectsInternalServerError
 const PostProjectsInternalServerErrorCode int = 500
 
-/*PostProjectsInternalServerError failure
+/*
+PostProjectsInternalServerError failure
 
 swagger:response postProjectsInternalServerError
 */
