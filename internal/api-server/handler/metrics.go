@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/go-openapi/runtime"
@@ -41,10 +40,8 @@ func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) func(p 
 
 	log.Debugf("GetMetrics called %p", promRegistry)
 
-	// run metrics recording function via go-routine
-	go recordMetrics(ucache, pcache)
-
 	return func(p operations.GetMetricsParams) middleware.Responder {
+		collectMetrics(ucache, pcache)
 		return NewCustomResponder(
 			p.HTTPRequest,
 			promhttp.HandlerFor(
@@ -97,27 +94,22 @@ var (
 )
 
 // metrics recording function in an infinite loop
-func recordMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
-	for {
-
-		// projects
-		i := 0
-		for pnumber, resc := range pcache.getAllResources(false) {
-			i++
-			projectStorageQuota.WithLabelValues(pnumber).Set(
-				float64(*resc.storage.QuotaGb),
-			)
-			projectStorageUsage.WithLabelValues(pnumber).Set(
-				float64(*resc.storage.UsageMb) / 1024,
-			)
-		}
-		projectCount.Set(float64(i))
-
-		// users
-		i = 0
-		userCount.Set(float64(len(ucache.getAllResources(false))))
-
-		// pause 3 minutes for the next update
-		time.Sleep(180 * time.Second)
+func collectMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
+	// projects
+	projectStorageQuota.Reset()
+	projectStorageUsage.Reset()
+	i := 0
+	for pnumber, resc := range pcache.getAllResources(false) {
+		i++
+		projectStorageQuota.WithLabelValues(pnumber).Set(
+			float64(*resc.storage.QuotaGb),
+		)
+		projectStorageUsage.WithLabelValues(pnumber).Set(
+			float64(*resc.storage.UsageMb) / 1024,
+		)
 	}
+	projectCount.Set(float64(i))
+
+	// users
+	userCount.Set(float64(len(ucache.getAllResources(false))))
 }
