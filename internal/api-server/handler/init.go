@@ -331,10 +331,11 @@ func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 		//       takes time to propergate to the system this service runs.
 		task, err := bok.Queue(QueueSetUser).Publish(ctx, &t,
 			bokchoy.WithTimeout(1*time.Hour),
-			bokchoy.WithMaxRetries(2),
+			bokchoy.WithMaxRetries(3),
 			bokchoy.WithRetryIntervals([]time.Duration{
 				15 * time.Second,
 				30 * time.Second,
+				60 * time.Second,
 			}),
 			bokchoy.WithTTL(7*24*time.Hour))
 
