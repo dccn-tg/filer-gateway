@@ -327,10 +327,15 @@ func CreateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 		}
 
 		// publish task to the queue, and set timeout to 12 hours
-		// TODO: the timeout should be optimized!!
+		// NOTE: extra attempts are added to handle the situation that the newly created account in AD
+		//       takes time to propergate to the system this service runs.
 		task, err := bok.Queue(QueueSetUser).Publish(ctx, &t,
 			bokchoy.WithTimeout(1*time.Hour),
-			bokchoy.WithMaxRetries(0),
+			bokchoy.WithMaxRetries(2),
+			bokchoy.WithRetryIntervals([]time.Duration{
+				15 * time.Second,
+				30 * time.Second,
+			}),
 			bokchoy.WithTTL(7*24*time.Hour))
 
 		if err != nil {
