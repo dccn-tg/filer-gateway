@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
 	"os/exec"
 	"os/user"
 	"runtime"
@@ -182,7 +181,7 @@ func (c *UserResourceCache) getResource(username string, force bool) (*userResou
 	}
 
 	if !ok {
-		return nil, user.UnknownUserError(fmt.Sprintf("user not found: %s", username))
+		return nil, user.UnknownUserError(username)
 	}
 
 	return r, nil
