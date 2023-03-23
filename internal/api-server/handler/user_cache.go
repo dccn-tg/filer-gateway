@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"os/user"
 	"runtime"
@@ -168,16 +169,20 @@ func (c *UserResourceCache) getResource(username string, force bool) (*userResou
 		storage, err := getUserStorageResource(username, c.Config)
 
 		if err != nil {
-			return nil, err
-		}
+			log.Errorf("fail to get storage resource from upstreamer filer/storage: %s", err.Error())
+		} else {
+			c.mutex.Lock()
+			c.store[username] = &userResource{
+				storage: storage,
+			}
 
-		c.mutex.Lock()
-		c.store[username] = &userResource{
-			storage: storage,
+			r, ok = c.store[username]
+			c.mutex.Unlock()
 		}
+	}
 
-		r = c.store[username]
-		c.mutex.Unlock()
+	if !ok {
+		return nil, user.UnknownUserError(fmt.Sprintf("user not found: %s", username))
 	}
 
 	return r, nil

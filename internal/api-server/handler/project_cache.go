@@ -183,17 +183,24 @@ func (c *ProjectResourceCache) getResource(pnumber string, force bool) (*project
 
 		storage, members, err := getProjectResource([]*filer.QuotaReport{}, pnumber, c.Config)
 		if err != nil {
-			return nil, err
+			log.Errorf("fail to get storage resource from upstreamer filer/storage: %s", err.Error())
+		} else {
+			// update cache with data retrieved from the filer.
+			c.mutex.Lock()
+			c.store[pnumber] = &projectResource{
+				storage: storage,
+				members: members,
+			}
+			r, ok = c.store[pnumber]
+			c.mutex.Unlock()
 		}
+	}
 
-		// update cache with data retrieved from the filer.
-		c.mutex.Lock()
-		c.store[pnumber] = &projectResource{
-			storage: storage,
-			members: members,
+	if !ok {
+		return nil, &ResponseError{
+			code: 404,
+			err:  fmt.Sprintf("project resource not found: %s", pnumber),
 		}
-		r = c.store[pnumber]
-		c.mutex.Unlock()
 	}
 
 	return r, nil
