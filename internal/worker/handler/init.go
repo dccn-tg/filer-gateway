@@ -330,7 +330,7 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 	}
 
 	// get project detail
-	pdb, err := pdb.New(cfg.PDB)
+	pdb, err := pdb.New(cfg.Pdb)
 	if err != nil {
 		return fmt.Errorf("cannot read config for pdb: %s", err)
 	}
@@ -341,7 +341,7 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 	}
 
 	// send email to project managers
-	m := mailer.New(cfg.Mail)
+	m := mailer.New(cfg.Smtp)
 	for _, manager := range managers {
 		if u, err := pdb.GetUser(manager); err != nil {
 			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)

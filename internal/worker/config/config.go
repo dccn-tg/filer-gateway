@@ -16,8 +16,8 @@ type Configuration struct {
 	NetApp  filer.NetAppConfig
 	FreeNas filer.FreeNasConfig
 	CephFs  filer.CephFsConfig
-	Mail    tscfg.SMTPConfiguration
-	PDB     tscfg.PDBConfiguration
+	Smtp    tscfg.SMTPConfiguration
+	Pdb     tscfg.PDBConfiguration
 }
 
 // LoadConfig reads configuration file `cpath` and returns the
