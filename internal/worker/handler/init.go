@@ -342,10 +342,20 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 
 	// send email to project managers
 	m := mailer.New(cfg.Smtp)
+	localRelay := false
+	if cfg.Smtp.Host == "localhost" || strings.HasSuffix(cfg.Smtp.Host, "dccn.nl") {
+		localRelay = true
+	}
+
 	for _, manager := range managers {
 		if u, err := pdb.GetUser(manager); err != nil {
 			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)
 		} else {
+			// if DCCN local email relay is used, only the email in form of `{account_name}@localhos`
+			// is allowed.
+			if localRelay {
+				u.Email = fmt.Sprintf("%s@localhost", manager)
+			}
 			err := m.NotifyProjectProvisioned(*u, projectID, p.Name)
 			if err != nil {
 				log.Errorf("cannot notify manager %s for project %s: %s", u.Email, projectID, err)
