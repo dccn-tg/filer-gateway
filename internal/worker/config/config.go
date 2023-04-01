@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/Donders-Institute/filer-gateway/pkg/filer"
+	tscfg "github.com/Donders-Institute/tg-toolset-golang/pkg/config"
 	"github.com/spf13/viper"
 )
 
@@ -15,6 +16,8 @@ type Configuration struct {
 	NetApp  filer.NetAppConfig
 	FreeNas filer.FreeNasConfig
 	CephFs  filer.CephFsConfig
+	Mail    tscfg.SMTPConfiguration
+	PDB     tscfg.PDBConfiguration
 }
 
 // LoadConfig reads configuration file `cpath` and returns the

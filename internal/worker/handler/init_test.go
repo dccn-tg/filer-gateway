@@ -37,3 +37,20 @@ func TestGetFilerAPI(t *testing.T) {
 		assertEqual(t, reflect.TypeOf(api), reflect.TypeOf(tobj[sys]), "")
 	}
 }
+
+func TestNotifyProjectProvisioned(t *testing.T) {
+
+	pathCfg := os.Getenv("FILER_GATEWAY_WORKER_CONFIG")
+
+	h := SetProjectResourceHandler{
+		ConfigFile: pathCfg,
+	}
+
+	managers := []string{"honlee"}
+	projectID := "3010000.01"
+
+	err := h.notifyProjectProvisioned(projectID, managers)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+}

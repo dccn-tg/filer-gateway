@@ -23,3 +23,24 @@ cephfs:
   projectRoot: /project_cephfs
   projectUser: project
   projectGroup: project_g
+
+# configuration for connecting the SMTP server for notifications.
+smtp:
+  host: localhost
+  port: 25
+  auth_plain_user: ""
+  auth_plain_pass: ""
+
+# configuration for connecting the project database.
+pdb:
+  version: 1
+  v1:
+    db_host: "db.intranet.dccn.nl"
+    db_port: 3306
+    db_user: "acl"
+    db_pass: ""
+    db_name: "fcdc"
+  v2:
+    auth_client_secret: ""
+    auth_url: "https://auth-dev.dccn.nl"
+    core_api_url: "http://dccn-pl001.dccn.nl:4334/graphql"

@@ -18,7 +18,9 @@ import (
 
 	ufp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
 	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	"github.com/Donders-Institute/tg-toolset-golang/pkg/mailer"
 	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
+	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/pdb"
 	"github.com/hurngchunlee/bokchoy"
 )
 
@@ -128,9 +130,11 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// only performs storage quota update when
 	// - requested quota >= 0
+	isNewProject := false
 	if data.Storage.QuotaGb >= 0 {
 		// create project namespace or update project quota depending on whether the project directory exists.
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
+			isNewProject = true
 			// call filer API to create project volume and/or namespace
 			if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
 				log.Errorf("[%s] fail to create space for project %s: %s", r.Task.ID, data.ProjectID, err)
@@ -308,6 +312,48 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		h.ApiNotifierClient.Publish(context.Background(), "api_pcache_update", string(m))
 	}
 
+	// notify managers if new project is created
+	if isNewProject {
+		err := h.notifyProjectProvisioned(data.ProjectID, managers)
+		if err != nil {
+			log.Errorf("[%s] %s", r.Task.ID, err)
+		}
+	}
+
+	return nil
+}
+
+func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, managers []string) error {
+	cfg, err := config.LoadConfig(h.ConfigFile)
+	if err != nil {
+		return fmt.Errorf("cannot read config for mailer: %s", err)
+	}
+
+	// get project detail
+	pdb, err := pdb.New(cfg.PDB)
+	if err != nil {
+		return fmt.Errorf("cannot read config for pdb: %s", err)
+	}
+
+	p, err := pdb.GetProject(projectID)
+	if err != nil {
+		return fmt.Errorf("cannot get information of project %s: %s", projectID, err)
+	}
+
+	// send email to project managers
+	m := mailer.New(cfg.Mail)
+	for _, manager := range managers {
+		if u, err := pdb.GetUser(manager); err != nil {
+			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)
+		} else {
+			err := m.NotifyProjectProvisioned(*u, projectID, p.Name)
+			if err != nil {
+				log.Errorf("cannot notify manager %s for project %s: %s", u.Email, projectID, err)
+			} else {
+				log.Infof("manager %s notified for provisioned project %s", manager, projectID)
+			}
+		}
+	}
 	return nil
 }
 
