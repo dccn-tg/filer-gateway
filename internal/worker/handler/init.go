@@ -347,6 +347,12 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 		localRelay = true
 	}
 
+	data := mailer.ProjectAlertTemplateData{
+		ProjectID:    projectID,
+		ProjectTitle: p.Name,
+		SenderName:   "DCCN TG Helpdesk",
+	}
+
 	for _, manager := range managers {
 		if u, err := pdb.GetUser(manager); err != nil {
 			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)
@@ -356,7 +362,16 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 			if localRelay {
 				u.Email = fmt.Sprintf("%s@localhost", manager)
 			}
-			err := m.NotifyProjectProvisioned(*u, projectID, p.Name)
+
+			data.RecipientName = u.DisplayName()
+
+			subject, body, err := mailer.ComposeProjectProvisionedAlert(data)
+			if err != nil {
+				log.Errorf("cannot compose message to notify manager %s for project %s: %s", u.Email, projectID, err)
+				continue
+			}
+
+			err = m.SendMail("helpdesk@donders.ru.nl", u.Email, subject, body)
 			if err != nil {
 				log.Errorf("cannot notify manager %s for project %s: %s", u.Email, projectID, err)
 			} else {
