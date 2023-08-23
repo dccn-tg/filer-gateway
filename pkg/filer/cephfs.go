@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 )
 
 // CephFsConfig implements the `Config` interface and extends it with configurations

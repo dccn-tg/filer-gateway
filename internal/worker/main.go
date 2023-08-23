@@ -13,9 +13,9 @@ import (
 	"github.com/hurngchunlee/bokchoy/logging"
 	"github.com/hurngchunlee/bokchoy/middleware"
 
-	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
-	hworker "github.com/Donders-Institute/filer-gateway/internal/worker/handler"
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	hapi "github.com/dccn-tg/filer-gateway/internal/api-server/handler"
+	hworker "github.com/dccn-tg/filer-gateway/internal/worker/handler"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 )
 
 var (

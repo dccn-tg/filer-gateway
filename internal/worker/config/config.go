@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/filer"
-	tscfg "github.com/Donders-Institute/tg-toolset-golang/pkg/config"
+	"github.com/dccn-tg/filer-gateway/pkg/filer"
+	tscfg "github.com/dccn-tg/tg-toolset-golang/pkg/config"
 	"github.com/spf13/viper"
 )
 

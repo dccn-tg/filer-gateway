@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 )
 
 var (

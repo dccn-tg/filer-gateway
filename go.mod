@@ -1,9 +1,9 @@
-module github.com/Donders-Institute/filer-gateway
+module github.com/dccn-tg/filer-gateway
 
 go 1.20
 
 require (
-	github.com/Donders-Institute/tg-toolset-golang v1.16.1-0.20230502090446-317a64cb79ce
+	github.com/dccn-tg/tg-toolset-golang v1.22.0
 	github.com/go-openapi/errors v0.20.1
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.0

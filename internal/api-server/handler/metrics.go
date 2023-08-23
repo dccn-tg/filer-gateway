@@ -3,14 +3,14 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 )
 
 // This trick of integrating promhttp handler with swagger server is taken from

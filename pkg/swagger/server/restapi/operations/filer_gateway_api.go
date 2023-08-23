@@ -19,7 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
 )
 
 // NewFilerGatewayAPI creates a new FilerGateway instance

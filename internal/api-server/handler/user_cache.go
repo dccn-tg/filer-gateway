@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
-	"github.com/Donders-Institute/filer-gateway/internal/task"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	"github.com/dccn-tg/filer-gateway/internal/api-server/config"
+	"github.com/dccn-tg/filer-gateway/internal/task"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 	"github.com/go-redis/redis/v8"
 )
 

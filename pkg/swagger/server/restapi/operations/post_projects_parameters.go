@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
 )
 
 // NewPostProjectsParams creates a new PostProjectsParams object

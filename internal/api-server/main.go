@@ -7,11 +7,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
-	"github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
+	"github.com/dccn-tg/filer-gateway/internal/api-server/config"
+	"github.com/dccn-tg/filer-gateway/internal/api-server/handler"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/restapi"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/restapi/operations"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/loads"
 	"github.com/go-redis/redis/v8"
@@ -23,7 +23,7 @@ import (
 	"github.com/hurngchunlee/bokchoy/logging"
 	"github.com/hurngchunlee/bokchoy/middleware"
 
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
 )
 
 var (

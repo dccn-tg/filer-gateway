@@ -9,18 +9,18 @@ import (
 	"path/filepath"
 	"strings"
 
-	hapi "github.com/Donders-Institute/filer-gateway/internal/api-server/handler"
-	"github.com/Donders-Institute/filer-gateway/internal/task"
-	"github.com/Donders-Institute/filer-gateway/internal/worker/config"
-	"github.com/Donders-Institute/filer-gateway/pkg/filer"
+	hapi "github.com/dccn-tg/filer-gateway/internal/api-server/handler"
+	"github.com/dccn-tg/filer-gateway/internal/task"
+	"github.com/dccn-tg/filer-gateway/internal/worker/config"
+	"github.com/dccn-tg/filer-gateway/pkg/filer"
 
 	"github.com/go-redis/redis/v8"
 
-	ufp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
-	"github.com/Donders-Institute/tg-toolset-golang/pkg/mailer"
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/pdb"
+	ufp "github.com/dccn-tg/tg-toolset-golang/pkg/filepath"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
+	"github.com/dccn-tg/tg-toolset-golang/pkg/mailer"
+	"github.com/dccn-tg/tg-toolset-golang/project/pkg/acl"
+	"github.com/dccn-tg/tg-toolset-golang/project/pkg/pdb"
 	"github.com/hurngchunlee/bokchoy"
 )
 
@@ -371,7 +371,7 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 				continue
 			}
 
-			err = m.SendMail("helpdesk@donders.ru.nl", u.Email, subject, body)
+			err = m.SendMail("helpdesk@donders.ru.nl", subject, body, []string{u.Email})
 			if err != nil {
 				log.Errorf("cannot notify manager %s for project %s: %s", u.Email, projectID, err)
 			} else {

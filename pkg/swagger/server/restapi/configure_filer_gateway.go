@@ -11,8 +11,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/rs/cors"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/restapi/operations"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../server --name FilerGateway --spec ../../swagger.yaml --principal models.Principle --exclude-main

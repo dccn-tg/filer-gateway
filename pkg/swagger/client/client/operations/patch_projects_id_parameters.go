@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/client/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/client/models"
 )
 
 // NewPatchProjectsIDParams creates a new PatchProjectsIDParams object,

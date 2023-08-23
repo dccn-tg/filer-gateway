@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
 )
 
 // PatchProjectsIDHandlerFunc turns a function with the right signature into a patch projects ID handler

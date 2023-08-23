@@ -10,13 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Donders-Institute/filer-gateway/internal/api-server/config"
-	"github.com/Donders-Institute/filer-gateway/internal/task"
-	"github.com/Donders-Institute/filer-gateway/pkg/filer"
-	"github.com/Donders-Institute/filer-gateway/pkg/swagger/server/models"
-	fp "github.com/Donders-Institute/tg-toolset-golang/pkg/filepath"
-	log "github.com/Donders-Institute/tg-toolset-golang/pkg/logger"
-	"github.com/Donders-Institute/tg-toolset-golang/project/pkg/acl"
+	"github.com/dccn-tg/filer-gateway/internal/api-server/config"
+	"github.com/dccn-tg/filer-gateway/internal/task"
+	"github.com/dccn-tg/filer-gateway/pkg/filer"
+	"github.com/dccn-tg/filer-gateway/pkg/swagger/server/models"
+	fp "github.com/dccn-tg/tg-toolset-golang/pkg/filepath"
+	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
+	"github.com/dccn-tg/tg-toolset-golang/project/pkg/acl"
 	"github.com/go-redis/redis/v8"
 )
 
