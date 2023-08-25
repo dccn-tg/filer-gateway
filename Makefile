@@ -22,16 +22,16 @@ api-server:
 
 swagger:
 	swagger validate pkg/swagger/swagger.yaml
-	go generate github.com/Donders-Institute/filer-gateway/internal/api-server github.com/Donders-Institute/filer-gateway/pkg/swagger
+	go generate github.com/dccn-tg/filer-gateway/internal/api-server github.com/dccn-tg/filer-gateway/pkg/swagger
 
 doc: swagger
 	swagger serve pkg/swagger/swagger.yaml
 
 test_worker: build
-	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/Donders-Institute/filer-gateway/internal/worker/... 
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/dccn-tg/filer-gateway/internal/worker/... 
 
 test_api-server: build
-	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/Donders-Institute/filer-gateway/internal/api-server/... 
+	GOOS=$(GOOS) GO111MODULE=$(GO111MODULE) go test -v github.com/dccn-tg/filer-gateway/internal/api-server/... 
 
 clean:
 	rm -rf bin
