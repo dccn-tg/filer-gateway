@@ -111,6 +111,7 @@ func (m *ResponseBodyTaskResource) ContextValidate(ctx context.Context, formats 
 func (m *ResponseBodyTaskResource) contextValidateTaskID(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.TaskID != nil {
+
 		if err := m.TaskID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskID")
@@ -127,6 +128,7 @@ func (m *ResponseBodyTaskResource) contextValidateTaskID(ctx context.Context, fo
 func (m *ResponseBodyTaskResource) contextValidateTaskStatus(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.TaskStatus != nil {
+
 		if err := m.TaskStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("taskStatus")

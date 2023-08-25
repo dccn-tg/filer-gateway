@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	DeleteUsersID(params *DeleteUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteUsersIDOK, error)
+
 	GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error)
 
 	GetPing(params *GetPingParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*GetPingOK, error)
@@ -53,6 +55,45 @@ type ClientService interface {
 	PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostUsersOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+DeleteUsersID deletes home directory of an existing user
+*/
+func (a *Client) DeleteUsersID(params *DeleteUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*DeleteUsersIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteUsersIDParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteUsersID",
+		Method:             "DELETE",
+		PathPattern:        "/users/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &DeleteUsersIDReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteUsersIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DeleteUsersID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*

@@ -117,6 +117,11 @@ func (m *RequestBodyProjectResource) contextValidateMembers(ctx context.Context,
 func (m *RequestBodyProjectResource) contextValidateStorage(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Storage != nil {
+
+		if swag.IsZero(m.Storage) { // not required
+			return nil
+		}
+
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")

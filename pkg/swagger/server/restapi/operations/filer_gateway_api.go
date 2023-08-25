@@ -44,6 +44,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		DeleteUsersIDHandler: DeleteUsersIDHandlerFunc(func(params DeleteUsersIDParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation DeleteUsersID has not yet been implemented")
+		}),
 		GetMetricsHandler: GetMetricsHandlerFunc(func(params GetMetricsParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetMetrics has not yet been implemented")
 		}),
@@ -142,6 +145,8 @@ type FilerGatewayAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// DeleteUsersIDHandler sets the operation handler for the delete users ID operation
+	DeleteUsersIDHandler DeleteUsersIDHandler
 	// GetMetricsHandler sets the operation handler for the get metrics operation
 	GetMetricsHandler GetMetricsHandler
 	// GetPingHandler sets the operation handler for the get ping operation
@@ -251,6 +256,9 @@ func (o *FilerGatewayAPI) Validate() error {
 		unregistered = append(unregistered, "Oauth2Auth")
 	}
 
+	if o.DeleteUsersIDHandler == nil {
+		unregistered = append(unregistered, "DeleteUsersIDHandler")
+	}
 	if o.GetMetricsHandler == nil {
 		unregistered = append(unregistered, "GetMetricsHandler")
 	}
@@ -393,6 +401,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/users/{id}"] = NewDeleteUsersID(o.context, o.DeleteUsersIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -478,6 +490,6 @@ func (o *FilerGatewayAPI) AddMiddlewareFor(method, path string, builder middlewa
 	}
 	o.Init()
 	if h, ok := o.handlers[um][path]; ok {
-		o.handlers[method][path] = builder(h)
+		o.handlers[um][path] = builder(h)
 	}
 }

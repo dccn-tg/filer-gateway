@@ -444,6 +444,64 @@ func init() {
           }
         }
       },
+      "delete": {
+        "security": [
+          {
+            "oauth2": [
+              "urn:dccn:filer-gateway:*"
+            ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "delete home directory of an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
       "patch": {
         "security": [
           {
@@ -1291,6 +1349,64 @@ func init() {
             "description": "success",
             "schema": {
               "$ref": "#/definitions/responseBodyUserResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "oauth2": [
+              "urn:dccn:filer-gateway:*"
+            ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "delete home directory of an existing user.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "user identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
           "400": {

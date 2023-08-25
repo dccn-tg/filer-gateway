@@ -123,6 +123,7 @@ func (m *ResponseBodyProjectMembers) contextValidateMembers(ctx context.Context,
 func (m *ResponseBodyProjectMembers) contextValidateProjectID(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ProjectID != nil {
+
 		if err := m.ProjectID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("projectID")

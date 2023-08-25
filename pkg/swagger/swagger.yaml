@@ -197,6 +197,45 @@ paths:
           description: failure
           schema:
             $ref: '#/definitions/responseBody500'
+    delete:
+      summary: delete home directory of an existing user.
+    
+      security:
+        - oauth2: [urn:dccn:filer-gateway:*]
+        - basicAuth: []
+          apiKeyHeader: []
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: user identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyTaskResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: user not found
+          schema:
+            type: string
+            enum: [user not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
 
   /projects:
     get:

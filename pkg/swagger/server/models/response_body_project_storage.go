@@ -111,6 +111,7 @@ func (m *ResponseBodyProjectStorage) ContextValidate(ctx context.Context, format
 func (m *ResponseBodyProjectStorage) contextValidateProjectID(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ProjectID != nil {
+
 		if err := m.ProjectID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("projectID")
@@ -127,6 +128,7 @@ func (m *ResponseBodyProjectStorage) contextValidateProjectID(ctx context.Contex
 func (m *ResponseBodyProjectStorage) contextValidateStorage(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Storage != nil {
+
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")

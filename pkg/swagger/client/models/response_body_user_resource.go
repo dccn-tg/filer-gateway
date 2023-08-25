@@ -155,6 +155,7 @@ func (m *ResponseBodyUserResource) contextValidateMemberOf(ctx context.Context, 
 func (m *ResponseBodyUserResource) contextValidateStorage(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.Storage != nil {
+
 		if err := m.Storage.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("storage")
@@ -171,6 +172,7 @@ func (m *ResponseBodyUserResource) contextValidateStorage(ctx context.Context, f
 func (m *ResponseBodyUserResource) contextValidateUserID(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.UserID != nil {
+
 		if err := m.UserID.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("userID")

@@ -63,6 +63,11 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
+	if api.DeleteUsersIDHandler == nil {
+		api.DeleteUsersIDHandler = operations.DeleteUsersIDHandlerFunc(func(params operations.DeleteUsersIDParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation operations.DeleteUsersID has not yet been implemented")
+		})
+	}
 	if api.GetMetricsHandler == nil {
 		api.GetMetricsHandler = operations.GetMetricsHandlerFunc(func(params operations.GetMetricsParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetMetrics has not yet been implemented")
