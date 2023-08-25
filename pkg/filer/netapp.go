@@ -254,6 +254,11 @@ func (filer NetApp) CreateHome(username, groupname string, quotaGiB int) error {
 	return filer.SetHomeQuota(username, groupname, quotaGiB)
 }
 
+// DeleteHome deletes a home directory as qtree `username` under the volume `groupname`.
+func (filer NetApp) DeleteHome(username, groupname string) error {
+	return filer.deleteQtree(username, groupname)
+}
+
 // SetProjectQuota updates the quota of a project space.
 func (filer NetApp) SetProjectQuota(projectID string, quotaGiB int) error {
 
@@ -388,6 +393,31 @@ func (filer NetApp) createQtree(name, volume string, permission int, exportPolic
 	}
 
 	return nil
+}
+
+// deleteQtree implements the generic logic of deleting a qtree in a volume.
+func (filer NetApp) deleteQtree(name, volume string) error {
+	// check if qtree with "name" exists in "volume"
+	qry := url.Values{}
+	qry.Set("name", name)
+	qry.Set("volume.name", volume)
+	qry.Set("fields", "_links")
+
+	var qtrees struct {
+		Records      []*QTree `json:"records"`
+		TotalRecords int      `json:"num_records"`
+	}
+
+	if err := filer.queryObjectRecords(qry, apiNsNetappQtrees, &qtrees); err != nil {
+		return fmt.Errorf("fail to check qtree %s of volume %s: %s", name, volume, err)
+	}
+
+	if qtrees.TotalRecords == 0 {
+		return fmt.Errorf("qtree %s of volume %s does not exist", name, volume)
+	}
+
+	// blocking operation to delete the qtree.
+	return filer.delObjectByHref(qtrees.Records[0].Link.Self.Href)
 }
 
 // setQtreeQuota implements the generic logic of setting quota rule on a given volume.
@@ -717,10 +747,12 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 // The returning object should have the following type definition:
 //
 // ```
-// struct {
-//     Records []TypeOfObject `json:"records"`
-//     ...
-// }
+//
+//	struct {
+//	    Records []TypeOfObject `json:"records"`
+//	    ...
+//	}
+//
 // ```
 func (filer NetApp) queryObjectRecords(query url.Values, nsAPI string, object interface{}) error {
 

@@ -474,3 +474,84 @@ func (h *SetUserResourceHandler) Handle(r *bokchoy.Request) error {
 
 	return nil
 }
+
+// DelUserResourceHandler implements `bokchoy.Handler` for applying deletion on user home dir qtree.
+type DelUserResourceHandler struct {
+	// Configuration file for the worker
+	ConfigFile        string
+	ApiNotifierClient *redis.Client
+}
+
+// Handle performs user resource update based on the request payload.
+func (h *DelUserResourceHandler) Handle(r *bokchoy.Request) error {
+
+	res, err := json.Marshal(r.Task.Payload)
+	if err != nil {
+		log.Errorf("[%s] fail to serialize (marshal) payload: %s", r.Task.ID, err)
+		return err
+	}
+
+	var data task.DelUserResource
+
+	err = json.Unmarshal(res, &data)
+	if err != nil {
+		log.Errorf("[%s] fail to de-serialize (unmarshal) payload: %s", r.Task.ID, err)
+		return err
+	}
+
+	// check if user exists on the system.
+	u, err := user.Lookup(data.UserID)
+	if err != nil {
+		log.Errorf("[%s] fail to find user %s: %s", r.Task.ID, data.UserID, err)
+		return err
+	}
+
+	// get user's primary group.
+	g, err := user.LookupGroupId(u.Gid)
+	if err != nil {
+		log.Errorf("[%s] fail to get user's primary group id %s: %s", r.Task.ID, u.Gid, err)
+		return err
+	}
+
+	// check if user's home dir is under the group namespace
+	gdir := filepath.Join("/home", g.Name)
+
+	if !strings.Contains(u.HomeDir, gdir) {
+		err = fmt.Errorf("user home dir %s not in group dir %s", u.HomeDir, gdir)
+		log.Errorf("[%s] %s", r.Task.ID, err)
+		return err
+	}
+
+	// home directory doesn't exist, skip qtree deletion
+	if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+		log.Debugf("[%s] home dir %s doesn't exist, skip deletion", r.Task.ID, u.HomeDir)
+	} else {
+		// check if the homedir contains data
+		if empty, _ := filer.IsDirEmpty(u.HomeDir); !empty {
+			log.Errorf("[%s] home dir %s not empty", r.Task.ID, u.HomeDir)
+			return err
+		}
+		// perform deletion
+		// get filer API, for home qtree, the system is always "netapp"
+		api, err := getFilerAPIBySystem("netapp", h.ConfigFile)
+		if err != nil {
+			log.Errorf("[%s] fail to load filer api: %s", r.Task.ID, err)
+			return err
+		}
+		if err := api.DeleteHome(u.Username, g.Name); err != nil {
+			log.Errorf("[%s] fail to delete user qtree, user: %s group:%s", u.Username, g.Name)
+			return err
+		}
+	}
+
+	// notify api server to update cache for the user
+	p := task.UpdateUserPayload{
+		UserID: data.UserID,
+	}
+
+	if m, err := json.Marshal(p); err == nil {
+		h.ApiNotifierClient.Publish(context.Background(), "api_ucache_update", string(m))
+	}
+
+	return nil
+}

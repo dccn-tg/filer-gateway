@@ -130,6 +130,23 @@ func main() {
 		return nil
 	})
 
+	// add handler to handle tasks in the queue of `hapi.QueueDelUser`
+	bok.Queue(hapi.QueueDelUser).Handle(
+		&hworker.DelUserResourceHandler{
+			ConfigFile:        *configFile,
+			ApiNotifierClient: redis.NewClient(redisOpts),
+		},
+	).OnStartFunc(func(r *bokchoy.Request) error {
+		log.Infof("[%s] started with %d retries, payload: %v", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
+		return nil
+	}).OnFailureFunc(func(r *bokchoy.Request) error {
+		log.Errorf("[%s] failed with error: %s", r.Task.ID, r.Task.Error)
+		return nil
+	}).OnSuccessFunc(func(r *bokchoy.Request) error {
+		log.Infof("[%s] succeeded", r.Task.ID)
+		return nil
+	})
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 

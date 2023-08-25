@@ -138,7 +138,12 @@ func (filer FreeNas) CreateProject(projectID string, quotaGiB int) error {
 
 // CreateHome is not supported on FreeNAS and therefore it always returns an error.
 func (filer FreeNas) CreateHome(username, groupname string, quotaGiB int) error {
-	return fmt.Errorf("user home on FreeNAS is not supported")
+	return fmt.Errorf("not supported")
+}
+
+// DeleteHome deletes a home directory as qtree `username` under the volume `groupname`.
+func (filer FreeNas) DeleteHome(username, groupname string) error {
+	return fmt.Errorf("not supported")
 }
 
 // SetProjectQuota updates the size of the dataset for the specific dataset.
@@ -412,21 +417,22 @@ type permissionOptions struct {
 	StripACL  bool `json:"stripacl"`
 }
 
-// {
-// 	"alldirs": false,
-// 	"ro": false,
-// 	"quiet": false,
-// 	"maproot_user": "root",
-// 	"maproot_group": "project_g",
-// 	"mapall_user": null,
-// 	"mapall_group": null,
-// 	"security": ["SYS"],
-// 	"paths": [],
-// 	"networks": [
-// 	 "131.174.44.0/24",
-// 	 "131.174.45.0/24"
-// 	]
-//   }
+//	{
+//		"alldirs": false,
+//		"ro": false,
+//		"quiet": false,
+//		"maproot_user": "root",
+//		"maproot_group": "project_g",
+//		"mapall_user": null,
+//		"mapall_group": null,
+//		"security": ["SYS"],
+//		"paths": [],
+//		"networks": [
+//		 "131.174.44.0/24",
+//		 "131.174.45.0/24"
+//		]
+//	  }
+//
 // nfs defines the JSON data structure for setting a NFS sharing.
 type nfs struct {
 	AllDirs      bool     `json:"alldirs"`

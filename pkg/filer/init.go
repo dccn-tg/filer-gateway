@@ -5,8 +5,10 @@ package filer
 
 import (
 	"crypto/tls"
+	"io"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
@@ -22,6 +24,21 @@ func init() {
 
 	// initialize logger
 	log.NewLogger(cfg, log.InstanceLogrusLogger)
+}
+
+// Common function to check if given directory is empty (i.e. contains no files or sub-directories).
+func IsDirEmpty(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err // Either not empty or error, suits both cases
 }
 
 // New function returns the corresponding File implementation based on the
@@ -49,6 +66,7 @@ type Config interface {
 type Filer interface {
 	CreateProject(projectID string, quotaGiB int) error
 	CreateHome(username, groupname string, quotaGiB int) error
+	DeleteHome(username, groupname string) error
 	SetProjectQuota(projectID string, quotaGiB int) error
 	SetHomeQuota(username, groupname string, quotaGiB int) error
 	GetProjectQuotaInBytes(projectID string) (int64, int64, error)

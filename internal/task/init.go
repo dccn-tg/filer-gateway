@@ -14,6 +14,11 @@ type SetUserResource struct {
 	Storage Storage
 }
 
+// DelUserResource defines json (un)marshal-able task data for deleting user resource.
+type DelUserResource struct {
+	UserID string `json:"userID"`
+}
+
 // Member defines json (un)marshal-able member information for project resource.
 type Member struct {
 	UserID string `json:"userID"`

@@ -273,6 +273,7 @@ func main() {
 	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource(&ucache, &pcache))
 	api.PostUsersHandler = operations.PostUsersHandlerFunc(handler.CreateUserResource(ctx, bok))
 	api.PatchUsersIDHandler = operations.PatchUsersIDHandlerFunc(handler.UpdateUserResource(ctx, bok))
+	api.DeleteUsersIDHandler = operations.DeleteUsersIDHandlerFunc(handler.DeleteUserResource(ctx, bok))
 
 	// configure API
 	server.ConfigureAPI()

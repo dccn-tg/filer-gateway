@@ -36,6 +36,9 @@ var (
 	// QueueSetUser is the queue name for setting user resources.
 	QueueSetUser string = "tasks.setUser"
 
+	// QueueDelUser is the queue name for deleting qtree of user's home directory.
+	QueueDelUser string = "tasks.delUser"
+
 	// DefaultHomeStorageSystem is the name of the default storage system used for user's home directory
 	DefaultHomeStorageSystem = "netapp"
 )
@@ -77,23 +80,18 @@ func GetPing(cfg config.Configuration) func(params operations.GetPingParams, pri
 	}
 }
 
-// GetTask retrieves task status.
+// GetTask retrieves task status from one or multiple queues depending on the task type.
 func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.GetTasksTypeIDParams) middleware.Responder {
 	return func(params operations.GetTasksTypeIDParams) middleware.Responder {
 		id := params.ID
 
-		var qn string
-
+		var qns []string
 		switch t := params.Type; t {
 		case "project":
-			qn = QueueSetProject
+			qns = []string{QueueSetProject}
 		case "user":
-			qn = QueueSetUser
+			qns = []string{QueueSetUser, QueueDelUser}
 		default:
-			qn = ""
-		}
-
-		if qn == "" {
 			return operations.NewGetTasksTypeIDBadRequest().WithPayload(
 				&models.ResponseBody400{
 					ErrorMessage: fmt.Sprintf("invalid task type: %s", params.Type),
@@ -102,42 +100,52 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 		}
 
 		// retrieve task from the queue
-		task, err := bok.Queue(qn).Get(ctx, id)
+		for i, qn := range qns {
+			task, err := bok.Queue(qn).Get(ctx, id)
 
-		if err != nil {
-			if err == bokchoy.ErrTaskNotFound { // task not found
-				return operations.NewGetTasksTypeIDNotFound()
+			// found task in the queue, return immediately with task status
+			if err == nil {
+				taskStatus := task.StatusDisplay()
+				taskRslt := ""
+				taskErr := ""
+				if task.Result != nil {
+					taskRslt = fmt.Sprintf("%s", task.Result)
+				}
+				if task.Error != nil {
+					taskErr = fmt.Sprintf("%s", task.Error)
+				}
+
+				tid := models.TaskID(task.ID)
+
+				return operations.NewGetTasksTypeIDOK().WithPayload(
+					&models.ResponseBodyTaskResource{
+						TaskID: &tid,
+						TaskStatus: &models.TaskStatus{
+							Status: &taskStatus,
+							Result: &taskRslt,
+							Error:  &taskErr,
+						},
+					},
+				)
 			}
-			return operations.NewGetTasksTypeIDInternalServerError().WithPayload(
-				&models.ResponseBody500{
-					ErrorMessage: err.Error(),
-					ExitCode:     TaskQueueError,
-				},
-			)
+
+			// task not found in this queue, look into the next queue
+			if i < len(qns) {
+				continue
+			}
+
+			// still get err getting task in the last queue, and it is not taskNotFound error
+			if err != bokchoy.ErrTaskNotFound {
+				return operations.NewGetTasksTypeIDInternalServerError().WithPayload(
+					&models.ResponseBody500{
+						ErrorMessage: err.Error(),
+						ExitCode:     TaskQueueError,
+					},
+				)
+			}
 		}
 
-		taskStatus := task.StatusDisplay()
-		taskRslt := ""
-		taskErr := ""
-		if task.Result != nil {
-			taskRslt = fmt.Sprintf("%s", task.Result)
-		}
-		if task.Error != nil {
-			taskErr = fmt.Sprintf("%s", task.Error)
-		}
-
-		tid := models.TaskID(task.ID)
-
-		return operations.NewGetTasksTypeIDOK().WithPayload(
-			&models.ResponseBodyTaskResource{
-				TaskID: &tid,
-				TaskStatus: &models.TaskStatus{
-					Status: &taskStatus,
-					Result: &taskRslt,
-					Error:  &taskErr,
-				},
-			},
-		)
+		return operations.NewGetTasksTypeIDNotFound()
 	}
 }
 
@@ -409,6 +417,71 @@ func UpdateUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 		tid := models.TaskID(task.ID)
 
 		return operations.NewPostUsersOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID: &tid,
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
+			},
+		)
+	}
+}
+
+// DeleteUserResource handles the request for deleting user home qtree from the filer by
+// formulating the request into a asynchronous task.
+//
+// If there are still data in the qtree, it returns 400 error immediately.
+//
+// task configuration:
+// - canceled if running more than 1 hour.
+// - no retry.
+// - result is kept for 7 days.
+func DeleteUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.DeleteUsersIDParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.DeleteUsersIDParams, principle *models.Principle) middleware.Responder {
+
+		// check if user exists on the system.
+		u, err := user.Lookup(params.ID)
+		if err != nil {
+			return operations.NewDeleteUsersIDNotFound().WithPayload(err.Error())
+		}
+
+		// check if user's home directory is empty.
+		if empty, err := filer.IsDirEmpty(u.HomeDir); !empty || err != nil {
+			return operations.NewDeleteUsersIDBadRequest().WithPayload(
+				&models.ResponseBody400{
+					ErrorMessage: fmt.Sprintf("user home is not empty: %s", err),
+				},
+			)
+		}
+
+		// construct task data from request data
+		t := task.DelUserResource{
+			UserID: params.ID,
+		}
+
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueDelUser).Publish(ctx, &t,
+			bokchoy.WithTimeout(1*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
+
+		if err != nil {
+			return operations.NewDeleteUsersIDInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		taskStatus := task.StatusDisplay()
+
+		tid := models.TaskID(task.ID)
+
+		return operations.NewDeleteUsersIDOK().WithPayload(
 			&models.ResponseBodyTaskResource{
 				TaskID: &tid,
 				TaskStatus: &models.TaskStatus{

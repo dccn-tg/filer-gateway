@@ -194,6 +194,11 @@ func (filer CephFs) CreateHome(username, groupname string, quotaGiB int) error {
 	return fmt.Errorf("not supported")
 }
 
+// DeleteHome deletes a home directory as qtree `username` under the volume `groupname`.
+func (filer CephFs) DeleteHome(username, groupname string) error {
+	return fmt.Errorf("not supported")
+}
+
 // SetHomeQuota always returns an error with "not supported" message, given that
 // Ceph filesystem is not used for personal home directory.
 func (filer CephFs) SetHomeQuota(username, groupname string, quotaGiB int) error {
