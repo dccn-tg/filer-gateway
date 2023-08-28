@@ -116,6 +116,7 @@ func (c *ProjectResourceCache) refresh() {
 				storage, members, err := getProjectResource(reports, pnumber, c.Config)
 				if err != nil {
 					log.Errorf("cannot get filer resource for %s: %s", pnumber, err)
+					continue
 				}
 				resources <- struct {
 					pnumber  string
