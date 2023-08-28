@@ -62,7 +62,7 @@ func (o *DeleteUsersIDOK) WriteResponse(rw http.ResponseWriter, producer runtime
 const DeleteUsersIDBadRequestCode int = 400
 
 /*
-DeleteUsersIDBadRequest bad request
+DeleteUsersIDBadRequest bad request, e.g. home directory is not empty
 
 swagger:response deleteUsersIdBadRequest
 */

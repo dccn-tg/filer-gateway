@@ -480,7 +480,7 @@ func init() {
             }
           },
           "400": {
-            "description": "bad request",
+            "description": "bad request, e.g. home directory is not empty",
             "schema": {
               "$ref": "#/definitions/responseBody400"
             }
@@ -1410,7 +1410,7 @@ func init() {
             }
           },
           "400": {
-            "description": "bad request",
+            "description": "bad request, e.g. home directory is not empty",
             "schema": {
               "$ref": "#/definitions/responseBody400"
             }

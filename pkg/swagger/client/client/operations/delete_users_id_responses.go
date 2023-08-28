@@ -128,7 +128,7 @@ func NewDeleteUsersIDBadRequest() *DeleteUsersIDBadRequest {
 /*
 DeleteUsersIDBadRequest describes a response with status code 400, with default header values.
 
-bad request
+bad request, e.g. home directory is not empty
 */
 type DeleteUsersIDBadRequest struct {
 	Payload *models.ResponseBody400
