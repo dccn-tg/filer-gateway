@@ -454,7 +454,7 @@ func DeleteUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 			return operations.NewDeleteUsersIDInternalServerError().WithPayload(
 				&models.ResponseBody500{
 					ErrorMessage: fmt.Sprintf("fail to check home directory: %s", err.Error()),
-					ExitCode:     TaskQueueError,
+					ExitCode:     1, // an artificial exit code indicating failure in checking home directory
 				},
 			)
 		}
