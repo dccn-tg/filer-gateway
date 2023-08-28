@@ -22,6 +22,7 @@ Operations:
     new: creates new space for a user.
     get: retrieves filer information about the user.
     set: configures quota of the user's home space.
+    del: delete the qtree of the user's home space.
 EOF
 
 }
@@ -95,6 +96,32 @@ function setUser() {
     waitTask $id user
 }
 
+function delUser() {
+    echo -n "userID: " > /dev/tty
+    read ans && [ "$ans" == "" ] && return 1
+    usr=$ans
+
+    echo -n "delete user space ($usr) [y/N]:"
+    read ans
+    [ "${ans}" == "" ] && ans="n"
+    [ "${ans,,}" == "n" ] && return 0 ||
+        echo -n "password for api user ($API_USER): " > /dev/tty &&
+        read -s pass &&
+        out=$( ${CURL} -X DELETE -u "${API_USER}:${pass}" \
+            -H 'content-type: application/json' \
+            -H "X-API-Key: ${API_KEY}" \
+            "${API_URL}/users/${usr}" )
+    echo
+    echo $out | jq
+    echo
+
+    # waiting for task to reach the end state
+    id=$(echo $out | jq '.taskID' | sed 's/"//g')
+    [ "$id" == "null" ] && echo "cannot find task id" >&2 && return 1
+
+    waitTask $id user
+}
+
 function getUser() {
     echo -n "userID: " > /dev/tty
     read ans && [ "$ans" == "" ] && return 1
@@ -115,5 +142,8 @@ new)
     ;;
 set)
     setUser
+    ;;
+del)
+    delUser
     ;;
 esac
