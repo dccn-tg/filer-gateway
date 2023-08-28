@@ -100,6 +100,9 @@ func collectMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
 	projectStorageUsage.Reset()
 	i := 0
 	for pnumber, resc := range pcache.getAllResources(false) {
+
+		log.Debugf("storage quota and usage: %s %+v\n", pnumber, resc)
+
 		i++
 		projectStorageQuota.WithLabelValues(pnumber).Set(
 			float64(*resc.storage.QuotaGb),
