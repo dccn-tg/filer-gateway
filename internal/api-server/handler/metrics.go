@@ -101,7 +101,10 @@ func collectMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
 	i := 0
 	for pnumber, resc := range pcache.getAllResources(false) {
 
-		log.Debugf("storage quota and usage: %s %+v\n", pnumber, resc)
+		if resc.storage == nil {
+			log.Warnf("invalid storage data %+v, project %s", resc, pnumber)
+			continue
+		}
 
 		i++
 		projectStorageQuota.WithLabelValues(pnumber).Set(
