@@ -448,10 +448,21 @@ func DeleteUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 		}
 
 		// check if user's home directory is empty.
-		if empty, err := filer.IsDirEmpty(u.HomeDir); !empty || err != nil {
+		empty, err := filer.IsDirEmpty(u.HomeDir)
+
+		if err != nil {
+			return operations.NewDeleteUsersIDInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: fmt.Sprintf("fail to check home directory: %s", err.Error()),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		if !empty {
 			return operations.NewDeleteUsersIDBadRequest().WithPayload(
 				&models.ResponseBody400{
-					ErrorMessage: fmt.Sprintf("user home is not empty: %s", err),
+					ErrorMessage: fmt.Sprintf("user home is not empty: %s", u.HomeDir),
 				},
 			)
 		}
