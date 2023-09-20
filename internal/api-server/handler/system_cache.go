@@ -83,8 +83,8 @@ func (c *SystemInfoCache) refresh() {
 		} else {
 			// update with new system info
 			d[s] = &systemInfo{
-				totalGiB: total << 30,
-				usedGiB:  used << 30,
+				totalGiB: total >> 30,
+				usedGiB:  used >> 30,
 			}
 		}
 	}
