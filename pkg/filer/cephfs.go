@@ -39,6 +39,10 @@ func (filer CephFs) GetProjectRoot() string {
 // GetSystemSpaceInBytes returns the total and used storage space in bytes
 func (filer CephFs) GetSystemSpaceInBytes() (int64, int64, error) {
 
+	// NOTE: this implementation approach assumes a single CephFS system so that
+	//       one can determine the storage space/usage by using the unix's stat on
+	//       a filesystem mount point.
+
 	var total, used int64
 
 	var stat unix.Statfs_t
