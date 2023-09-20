@@ -33,6 +33,7 @@ var (
 	redisURL    *string
 	configFile  *string
 
+	scache handler.SystemInfoCache
 	pcache handler.ProjectResourceCache
 	ucache handler.UserResourceCache
 )
@@ -92,6 +93,13 @@ func main() {
 	// initialize Cache
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
+
+	// system cache
+	scache = handler.SystemInfoCache{
+		Config:  cfg,
+		Context: ctx,
+	}
+	scache.Init()
 
 	// project cache
 	ppubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_pcache_update")
@@ -257,7 +265,7 @@ func main() {
 	// associate handler functions with implementations
 	api.GetPingHandler = operations.GetPingHandlerFunc(handler.GetPing(cfg))
 
-	api.GetMetricsHandler = operations.GetMetricsHandlerFunc(handler.GetMetrics(&ucache, &pcache))
+	api.GetMetricsHandler = operations.GetMetricsHandlerFunc(handler.GetMetrics(&ucache, &pcache, &scache))
 
 	api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(handler.GetTask(ctx, bok))
 

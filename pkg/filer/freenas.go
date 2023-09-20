@@ -146,6 +146,11 @@ func (filer FreeNas) DeleteHome(username, groupname string) error {
 	return fmt.Errorf("not supported")
 }
 
+// GetSystemSpaceInBytes returns the total and used storage space in bytes
+func (filer FreeNas) GetSystemSpaceInBytes() (int64, int64, error) {
+	return 0, 0, fmt.Errorf("not supported")
+}
+
 // SetProjectQuota updates the size of the dataset for the specific dataset.
 func (filer FreeNas) SetProjectQuota(projectID string, quotaGiB int) error {
 

@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	log "github.com/dccn-tg/tg-toolset-golang/pkg/logger"
+	"golang.org/x/sys/unix"
 )
 
 // CephFsConfig implements the `Config` interface and extends it with configurations
@@ -33,6 +34,23 @@ type CephFs struct {
 // GetProjectRoot returns the root path in which projects are hosted on the CephFS system.
 func (filer CephFs) GetProjectRoot() string {
 	return filer.config.ProjectRoot
+}
+
+// GetSystemSpaceInBytes returns the total and used storage space in bytes
+func (filer CephFs) GetSystemSpaceInBytes() (int64, int64, error) {
+
+	var total, used int64
+
+	var stat unix.Statfs_t
+
+	if err := unix.Statfs(filer.config.ProjectRoot, &stat); err != nil {
+		return total, used, err
+	}
+
+	// Available blocks * size per block = available space in bytes
+	total = int64(stat.Blocks) * stat.Bsize
+	used = int64(stat.Blocks-stat.Bavail) * stat.Bsize
+	return total, used, nil
 }
 
 // CreateProject creates a new project directory on the Ceph filesystem mounted under

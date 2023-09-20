@@ -28,7 +28,7 @@ func NewCustomResponder(r *http.Request, h http.Handler) middleware.Responder {
 }
 
 // GetMetrics handles the metrics request with the Prometheus handler
-func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) func(p operations.GetMetricsParams) middleware.Responder {
+func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache, scache *SystemInfoCache) func(p operations.GetMetricsParams) middleware.Responder {
 
 	promRegistry := prometheus.NewRegistry()
 	promRegistry.MustRegister(
@@ -41,7 +41,7 @@ func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) func(p 
 	log.Debugf("GetMetrics called %p", promRegistry)
 
 	return func(p operations.GetMetricsParams) middleware.Responder {
-		collectMetrics(ucache, pcache)
+		collectMetrics(ucache, pcache, scache)
 		return NewCustomResponder(
 			p.HTTPRequest,
 			promhttp.HandlerFor(
@@ -91,10 +91,45 @@ var (
 			"number",
 		},
 	)
+
+	storageTotal = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "fgw_storage_total",
+			Help: "The total storage capacity in GiB",
+		},
+		[]string{
+			//storage system
+			"system",
+		},
+	)
+
+	storageUsed = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "fgw_storage_used",
+			Help: "The total storage usage in GiB",
+		},
+		[]string{
+			//storage system
+			"system",
+		},
+	)
 )
 
 // metrics recording function in an infinite loop
-func collectMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache) {
+func collectMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache, scache *SystemInfoCache) {
+
+	// total and used storage space
+	storageTotal.Reset()
+	storageUsed.Reset()
+	for s, info := range scache.getAllSystems(false) {
+		storageTotal.WithLabelValues(s).Set(
+			float64(info.totalGiB),
+		)
+		storageUsed.WithLabelValues(s).Set(
+			float64(info.usedGiB),
+		)
+	}
+
 	// projects
 	projectStorageQuota.Reset()
 	projectStorageUsage.Reset()

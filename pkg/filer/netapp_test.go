@@ -105,6 +105,14 @@ func TestGetDefaultQuotaRule(t *testing.T) {
 	}
 }
 
+func TestGetSystemSpaceInBytes(t *testing.T) {
+	if total, used, err := netapp.GetSystemSpaceInBytes(); err != nil {
+		t.Errorf("fail to get system space: %s", err)
+	} else {
+		t.Logf("total: %d, used: %d", total, used)
+	}
+}
+
 func TestCreateProject(t *testing.T) {
 	if err := netapp.CreateProject(netappProjectID, 10); err != nil {
 		t.Errorf("fail to create project volume: %s", err)

@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// apiNsNetappCluster is the API namespace for OnTAP cluster item.
+	apiNsNetappCluster string = "/storage/cluster"
 	// apiNsNetappSvms is the API namespace for OnTAP SVM items.
 	apiNsNetappSvms string = "/svm/svms"
 	// apiNsNetappJobs is the API namespace for OnTAP cluster job items.
@@ -95,6 +97,27 @@ func (filer NetApp) volName(projectID string) string {
 // GetProjectRoot returns the root path in which projects are hosted on the NetApp filer.
 func (filer NetApp) GetProjectRoot() string {
 	return filer.config.ProjectRoot
+}
+
+// GetSystemSpaceInBytes returns the total and used storage space in bytes
+func (filer NetApp) GetSystemSpaceInBytes() (int64, int64, error) {
+
+	var total, used int64
+
+	cluster := Cluster{}
+	href := strings.Join([]string{
+		"/api",
+		apiNsNetappCluster,
+	}, "/")
+
+	if err := filer.getObjectByHref(href, &cluster); err != nil {
+		return total, used, fmt.Errorf("fail to get cluster info %s: %s", filer.config.Vserver, err)
+	}
+
+	total = cluster.BlockStorage.Size
+	used = cluster.BlockStorage.Used
+
+	return total, used, nil
 }
 
 // CreateProject provisions a project space on the filer with the given quota.
@@ -1054,6 +1077,11 @@ type Space struct {
 // SnapshotConfig of a OnTAP volume.
 type SnapshotConfig struct {
 	ReservePercent int `json:"reserve_percent"`
+}
+
+// Cluster of OnTAP
+type Cluster struct {
+	BlockStorage Space `json:"block_storage"`
 }
 
 // SVM of OnTAP
