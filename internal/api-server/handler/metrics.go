@@ -32,6 +32,8 @@ func GetMetrics(ucache *UserResourceCache, pcache *ProjectResourceCache, scache 
 
 	promRegistry := prometheus.NewRegistry()
 	promRegistry.MustRegister(
+		storageTotal,
+		storageUsed,
 		userCount,
 		projectCount,
 		projectStorageQuota,
