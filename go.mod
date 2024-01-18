@@ -20,8 +20,8 @@ require (
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.10.1
 	github.com/square/go-jose v2.6.0+incompatible
-	golang.org/x/net v0.10.0
 	golang.org/x/sys v0.15.0
+	golang.org/x/net v0.17.0
 )
 
 require (
