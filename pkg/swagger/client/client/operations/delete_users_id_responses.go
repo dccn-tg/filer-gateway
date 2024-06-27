@@ -29,8 +29,8 @@ func (o *DeleteUsersIDReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return result, nil
-	case 400:
-		result := NewDeleteUsersIDBadRequest()
+	case 403:
+		result := NewDeleteUsersIDForbidden()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -120,65 +120,65 @@ func (o *DeleteUsersIDOK) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-// NewDeleteUsersIDBadRequest creates a DeleteUsersIDBadRequest with default headers values
-func NewDeleteUsersIDBadRequest() *DeleteUsersIDBadRequest {
-	return &DeleteUsersIDBadRequest{}
+// NewDeleteUsersIDForbidden creates a DeleteUsersIDForbidden with default headers values
+func NewDeleteUsersIDForbidden() *DeleteUsersIDForbidden {
+	return &DeleteUsersIDForbidden{}
 }
 
 /*
-DeleteUsersIDBadRequest describes a response with status code 400, with default header values.
+DeleteUsersIDForbidden describes a response with status code 403, with default header values.
 
-bad request, e.g. home directory is not empty
+home directory deletion is rejected by the server due to, for example, home directory is not empty
 */
-type DeleteUsersIDBadRequest struct {
-	Payload *models.ResponseBody400
+type DeleteUsersIDForbidden struct {
+	Payload *models.ResponseBody403
 }
 
-// IsSuccess returns true when this delete users Id bad request response has a 2xx status code
-func (o *DeleteUsersIDBadRequest) IsSuccess() bool {
+// IsSuccess returns true when this delete users Id forbidden response has a 2xx status code
+func (o *DeleteUsersIDForbidden) IsSuccess() bool {
 	return false
 }
 
-// IsRedirect returns true when this delete users Id bad request response has a 3xx status code
-func (o *DeleteUsersIDBadRequest) IsRedirect() bool {
+// IsRedirect returns true when this delete users Id forbidden response has a 3xx status code
+func (o *DeleteUsersIDForbidden) IsRedirect() bool {
 	return false
 }
 
-// IsClientError returns true when this delete users Id bad request response has a 4xx status code
-func (o *DeleteUsersIDBadRequest) IsClientError() bool {
+// IsClientError returns true when this delete users Id forbidden response has a 4xx status code
+func (o *DeleteUsersIDForbidden) IsClientError() bool {
 	return true
 }
 
-// IsServerError returns true when this delete users Id bad request response has a 5xx status code
-func (o *DeleteUsersIDBadRequest) IsServerError() bool {
+// IsServerError returns true when this delete users Id forbidden response has a 5xx status code
+func (o *DeleteUsersIDForbidden) IsServerError() bool {
 	return false
 }
 
-// IsCode returns true when this delete users Id bad request response a status code equal to that given
-func (o *DeleteUsersIDBadRequest) IsCode(code int) bool {
-	return code == 400
+// IsCode returns true when this delete users Id forbidden response a status code equal to that given
+func (o *DeleteUsersIDForbidden) IsCode(code int) bool {
+	return code == 403
 }
 
-// Code gets the status code for the delete users Id bad request response
-func (o *DeleteUsersIDBadRequest) Code() int {
-	return 400
+// Code gets the status code for the delete users Id forbidden response
+func (o *DeleteUsersIDForbidden) Code() int {
+	return 403
 }
 
-func (o *DeleteUsersIDBadRequest) Error() string {
-	return fmt.Sprintf("[DELETE /users/{id}][%d] deleteUsersIdBadRequest  %+v", 400, o.Payload)
+func (o *DeleteUsersIDForbidden) Error() string {
+	return fmt.Sprintf("[DELETE /users/{id}][%d] deleteUsersIdForbidden  %+v", 403, o.Payload)
 }
 
-func (o *DeleteUsersIDBadRequest) String() string {
-	return fmt.Sprintf("[DELETE /users/{id}][%d] deleteUsersIdBadRequest  %+v", 400, o.Payload)
+func (o *DeleteUsersIDForbidden) String() string {
+	return fmt.Sprintf("[DELETE /users/{id}][%d] deleteUsersIdForbidden  %+v", 403, o.Payload)
 }
 
-func (o *DeleteUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
+func (o *DeleteUsersIDForbidden) GetPayload() *models.ResponseBody403 {
 	return o.Payload
 }
 
-func (o *DeleteUsersIDBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *DeleteUsersIDForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ResponseBody400)
+	o.Payload = new(models.ResponseBody403)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -196,7 +196,7 @@ func NewDeleteUsersIDNotFound() *DeleteUsersIDNotFound {
 /*
 DeleteUsersIDNotFound describes a response with status code 404, with default header values.
 
-user not found
+user or user's home directory not found
 */
 type DeleteUsersIDNotFound struct {
 	Payload string
