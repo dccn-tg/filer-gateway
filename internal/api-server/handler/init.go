@@ -67,12 +67,6 @@ var (
 	TaskQueueError int64 = 106
 )
 
-// Common payload for the ResponseBody500.
-var responseNotImplemented = models.ResponseBody500{
-	ErrorMessage: "not implemented",
-	ExitCode:     NotImplementedError,
-}
-
 // GetPing returns dummy string for health check, including the authentication.
 func GetPing(cfg config.Configuration) func(params operations.GetPingParams, principle *models.Principle) middleware.Responder {
 	return func(params operations.GetPingParams, principle *models.Principle) middleware.Responder {
@@ -447,6 +441,11 @@ func DeleteUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 			return operations.NewDeleteUsersIDNotFound().WithPayload(err.Error())
 		}
 
+		// check if user's home directory exists.
+		if _, err := os.Stat(u.HomeDir); os.IsNotExist(err) {
+			return operations.NewDeleteUsersIDNotFound().WithPayload(err.Error())
+		}
+
 		// check if user's home directory is empty.
 		empty, err := filer.IsDirEmpty(u.HomeDir)
 
@@ -460,8 +459,8 @@ func DeleteUserResource(ctx context.Context, bok *bokchoy.Bokchoy) func(params o
 		}
 
 		if !empty {
-			return operations.NewDeleteUsersIDBadRequest().WithPayload(
-				&models.ResponseBody400{
+			return operations.NewDeleteUsersIDForbidden().WithPayload(
+				&models.ResponseBody403{
 					ErrorMessage: fmt.Sprintf("user home is not empty: %s", u.HomeDir),
 				},
 			)

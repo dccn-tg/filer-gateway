@@ -223,15 +223,15 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/responseBodyTaskResource'
-        400:
-          description: bad request, e.g. home directory is not empty
+        403:
+          description: home directory deletion is rejected by the server due to, for example, home directory is not empty
           schema:
-            $ref: '#/definitions/responseBody400'
+            $ref: '#/definitions/responseBody403'
         404:
-          description: user not found
+          description: user or user's home directory not found
           schema:
             type: string
-            enum: [user not found]
+            enum: [user or home directory not found]
         500:
           description: failure
           schema:
@@ -377,72 +377,6 @@ paths:
           schema:
             $ref: '#/definitions/responseBody500'
 
-  # /projects/{id}/members:
-  #   get:
-  #     summary: retrieves project members and their filer roles.
-
-  #     produces:
-  #       - application/json
-
-  #     parameters:
-  #       - in: path
-  #         name: id
-  #         description: project identifier
-  #         type: string
-  #         required: true
-
-  #     responses:
-  #       200:
-  #         description: success
-  #         schema:
-  #           $ref: '#/definitions/responseBodyProjectMembers'
-  #       400:
-  #         description: bad request
-  #         schema:
-  #           $ref: '#/definitions/responseBody400'
-  #       404:
-  #         description: project not found
-  #         schema:
-  #           type: string
-  #           enum: [project not found]
-  #       500:
-  #         description: failure
-  #         schema:
-  #           $ref: '#/definitions/responseBody500'
-
-  # /projects/{id}/storage:
-  #   get:
-  #     summary: retrieves storage resource information of a project.
-
-  #     produces:
-  #       - application/json
-
-  #     parameters:
-  #       - in: path
-  #         name: id
-  #         description: project identifier
-  #         type: string
-  #         required: true
-
-  #     responses:
-  #       200:
-  #         description: success
-  #         schema:
-  #           $ref: '#/definitions/responseBodyProjectStorage'
-  #       400:
-  #         description: bad request
-  #         schema:
-  #           $ref: '#/definitions/responseBody400'
-  #       404:
-  #         description: project not found
-  #         schema:
-  #           type: string
-  #           enum: [project not found]
-  #       500:
-  #         description: failure
-  #         schema:
-  #           $ref: '#/definitions/responseBody500'
-
   /tasks/{type}/{id}:
     get:
       summary: query background task status
@@ -486,6 +420,13 @@ definitions:
     properties:
       errorMessage:
         description: error message specifying the bad request.
+        type: string
+
+  responseBody403:
+    description: JSON object containing error message concerning forbidden request.
+    properties:
+      errorMessage:
+        description: error message specifying the forbidden request.
         type: string
 
   responseBody500:

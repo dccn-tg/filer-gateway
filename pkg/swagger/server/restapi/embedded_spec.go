@@ -479,18 +479,18 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
-          "400": {
-            "description": "bad request, e.g. home directory is not empty",
+          "403": {
+            "description": "home directory deletion is rejected by the server due to, for example, home directory is not empty",
             "schema": {
-              "$ref": "#/definitions/responseBody400"
+              "$ref": "#/definitions/responseBody403"
             }
           },
           "404": {
-            "description": "user not found",
+            "description": "user or user's home directory not found",
             "schema": {
               "type": "string",
               "enum": [
-                "user not found"
+                "user or home directory not found"
               ]
             }
           },
@@ -707,6 +707,15 @@ func init() {
       "properties": {
         "errorMessage": {
           "description": "error message specifying the bad request.",
+          "type": "string"
+        }
+      }
+    },
+    "responseBody403": {
+      "description": "JSON object containing error message concerning forbidden request.",
+      "properties": {
+        "errorMessage": {
+          "description": "error message specifying the forbidden request.",
           "type": "string"
         }
       }
@@ -1409,18 +1418,18 @@ func init() {
               "$ref": "#/definitions/responseBodyTaskResource"
             }
           },
-          "400": {
-            "description": "bad request, e.g. home directory is not empty",
+          "403": {
+            "description": "home directory deletion is rejected by the server due to, for example, home directory is not empty",
             "schema": {
-              "$ref": "#/definitions/responseBody400"
+              "$ref": "#/definitions/responseBody403"
             }
           },
           "404": {
-            "description": "user not found",
+            "description": "user or user's home directory not found",
             "schema": {
               "type": "string",
               "enum": [
-                "user not found"
+                "user or home directory not found"
               ]
             }
           },
@@ -1637,6 +1646,15 @@ func init() {
       "properties": {
         "errorMessage": {
           "description": "error message specifying the bad request.",
+          "type": "string"
+        }
+      }
+    },
+    "responseBody403": {
+      "description": "JSON object containing error message concerning forbidden request.",
+      "properties": {
+        "errorMessage": {
+          "description": "error message specifying the forbidden request.",
           "type": "string"
         }
       }

@@ -58,43 +58,43 @@ func (o *DeleteUsersIDOK) WriteResponse(rw http.ResponseWriter, producer runtime
 	}
 }
 
-// DeleteUsersIDBadRequestCode is the HTTP code returned for type DeleteUsersIDBadRequest
-const DeleteUsersIDBadRequestCode int = 400
+// DeleteUsersIDForbiddenCode is the HTTP code returned for type DeleteUsersIDForbidden
+const DeleteUsersIDForbiddenCode int = 403
 
 /*
-DeleteUsersIDBadRequest bad request, e.g. home directory is not empty
+DeleteUsersIDForbidden home directory deletion is rejected by the server due to, for example, home directory is not empty
 
-swagger:response deleteUsersIdBadRequest
+swagger:response deleteUsersIdForbidden
 */
-type DeleteUsersIDBadRequest struct {
+type DeleteUsersIDForbidden struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *models.ResponseBody400 `json:"body,omitempty"`
+	Payload *models.ResponseBody403 `json:"body,omitempty"`
 }
 
-// NewDeleteUsersIDBadRequest creates DeleteUsersIDBadRequest with default headers values
-func NewDeleteUsersIDBadRequest() *DeleteUsersIDBadRequest {
+// NewDeleteUsersIDForbidden creates DeleteUsersIDForbidden with default headers values
+func NewDeleteUsersIDForbidden() *DeleteUsersIDForbidden {
 
-	return &DeleteUsersIDBadRequest{}
+	return &DeleteUsersIDForbidden{}
 }
 
-// WithPayload adds the payload to the delete users Id bad request response
-func (o *DeleteUsersIDBadRequest) WithPayload(payload *models.ResponseBody400) *DeleteUsersIDBadRequest {
+// WithPayload adds the payload to the delete users Id forbidden response
+func (o *DeleteUsersIDForbidden) WithPayload(payload *models.ResponseBody403) *DeleteUsersIDForbidden {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the delete users Id bad request response
-func (o *DeleteUsersIDBadRequest) SetPayload(payload *models.ResponseBody400) {
+// SetPayload sets the payload to the delete users Id forbidden response
+func (o *DeleteUsersIDForbidden) SetPayload(payload *models.ResponseBody403) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *DeleteUsersIDBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *DeleteUsersIDForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(400)
+	rw.WriteHeader(403)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
@@ -107,7 +107,7 @@ func (o *DeleteUsersIDBadRequest) WriteResponse(rw http.ResponseWriter, producer
 const DeleteUsersIDNotFoundCode int = 404
 
 /*
-DeleteUsersIDNotFound user not found
+DeleteUsersIDNotFound user or user's home directory not found
 
 swagger:response deleteUsersIdNotFound
 */
