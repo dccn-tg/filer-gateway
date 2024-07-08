@@ -10,7 +10,7 @@ RUN ls -l /tmp/filer-gateway && GOOS=linux go build -a -installsuffix cgo -o bin
 RUN ls -l /tmp/filer-gateway && GOOS=linux go build -a -installsuffix cgo -o bin/filer-gateway-worker internal/worker/main.go
 
 # stage 1: build image for the api-server
-FROM centos:7 as api-server
+FROM almalinux:8 as api-server
 RUN ulimit -n 1024 && yum install -y nfs4-acl-tools sssd-client attr acl && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root
 EXPOSE 8080
@@ -21,7 +21,7 @@ COPY --from=0 /tmp/filer-gateway/bin/filer-gateway-api .
 ENTRYPOINT ["./filer-gateway-api"]
 
 # stage 2: build image for the worker
-FROM centos:7 as worker
+FROM almalinux:8 as worker
 RUN ulimit -n 1024 && yum install -y nfs4-acl-tools sssd-client attr acl && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root
 VOLUME ["/project", "project_freenas", "/project_cephfs", "/home"]
