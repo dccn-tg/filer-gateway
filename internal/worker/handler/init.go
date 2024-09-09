@@ -37,8 +37,6 @@ func getFilerAPIBySystem(system, configFile string) (filer.Filer, error) {
 	switch system {
 	case "netapp":
 		fConfig = cfg.NetApp
-	case "freenas":
-		fConfig = cfg.FreeNas
 	case "cephfs":
 		fConfig = cfg.CephFs
 	default:
@@ -58,7 +56,7 @@ func getFilerAPIByPath(path, configFile string) (filer.Filer, error) {
 		return nil, fmt.Errorf("fail to laod filer configuration %s: %s", configFile, err)
 	}
 
-	for _, api := range []filer.Filer{filer.New("netapp", cfg.NetApp), filer.New("freenas", cfg.FreeNas), filer.New("cephfs", cfg.CephFs)} {
+	for _, api := range []filer.Filer{filer.New("netapp", cfg.NetApp), filer.New("cephfs", cfg.CephFs)} {
 		if strings.HasPrefix(path, filepath.Clean(api.GetProjectRoot())+"/") {
 			return api, nil
 		}

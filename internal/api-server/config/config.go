@@ -16,7 +16,6 @@ type Configuration struct {
 	Auth         map[string]string
 	JwksEndpoint string
 	NetApp       filer.NetAppConfig
-	FreeNas      filer.FreeNasConfig
 	CephFs       filer.CephFsConfig
 }
 

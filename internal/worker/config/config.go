@@ -13,11 +13,10 @@ import (
 // Configuration is the data structure for marshaling the
 // config.yml file using the viper configuration framework.
 type Configuration struct {
-	NetApp  filer.NetAppConfig
-	FreeNas filer.FreeNasConfig
-	CephFs  filer.CephFsConfig
-	Smtp    tscfg.SMTPConfiguration
-	Pdb     tscfg.PDBConfiguration
+	NetApp filer.NetAppConfig
+	CephFs filer.CephFsConfig
+	Smtp   tscfg.SMTPConfiguration
+	Pdb    tscfg.PDBConfiguration
 }
 
 // LoadConfig reads configuration file `cpath` and returns the

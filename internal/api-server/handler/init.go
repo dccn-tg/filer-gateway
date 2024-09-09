@@ -768,8 +768,6 @@ func getStorageSystem(cfg config.Configuration, path string) string {
 	path, _ = filepath.EvalSymlinks(path)
 
 	switch true {
-	case strings.HasPrefix(path, filer.New("freenas", cfg.FreeNas).GetProjectRoot()):
-		return "freenas"
 	case strings.HasPrefix(path, filer.New("cephfs", cfg.CephFs).GetProjectRoot()):
 		return "cephfs"
 	case strings.HasPrefix(path, filer.New("netapp", cfg.NetApp).GetProjectRoot()):
@@ -804,8 +802,6 @@ func getStorageQuota(cfg config.Configuration, path string, isHomePath bool) (sy
 		f = filer.New("cephfs", cfg.CephFs)
 	case "netapp":
 		f = filer.New("netapp", cfg.NetApp)
-	case "freenas":
-		f = filer.New("freenas", cfg.FreeNas)
 	default:
 		err = &ResponseError{code: 500, err: fmt.Sprintf("unsupported storage system: %s", system)}
 		return
