@@ -16,6 +16,7 @@ require (
 	github.com/hurngchunlee/bokchoy v0.2.2-0.20211124141242-0c2c2bbb0154
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/prometheus/client_golang v1.14.0
+	github.com/rs/cors v1.11.0
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.10.1
 	github.com/square/go-jose v2.6.0+incompatible
@@ -55,7 +56,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/rs/cors v1.11.0 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
