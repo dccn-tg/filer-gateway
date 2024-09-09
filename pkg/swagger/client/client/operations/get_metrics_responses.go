@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -77,11 +78,13 @@ func (o *GetMetricsOK) Code() int {
 }
 
 func (o *GetMetricsOK) Error() string {
-	return fmt.Sprintf("[GET /metrics][%d] getMetricsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /metrics][%d] getMetricsOK %s", 200, payload)
 }
 
 func (o *GetMetricsOK) String() string {
-	return fmt.Sprintf("[GET /metrics][%d] getMetricsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /metrics][%d] getMetricsOK %s", 200, payload)
 }
 
 func (o *GetMetricsOK) GetPayload() string {

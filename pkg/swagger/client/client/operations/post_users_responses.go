@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -91,11 +92,13 @@ func (o *PostUsersOK) Code() int {
 }
 
 func (o *PostUsersOK) Error() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersOK %s", 200, payload)
 }
 
 func (o *PostUsersOK) String() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersOK %s", 200, payload)
 }
 
 func (o *PostUsersOK) GetPayload() *models.ResponseBodyTaskResource {
@@ -159,11 +162,13 @@ func (o *PostUsersBadRequest) Code() int {
 }
 
 func (o *PostUsersBadRequest) Error() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersBadRequest %s", 400, payload)
 }
 
 func (o *PostUsersBadRequest) String() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersBadRequest %s", 400, payload)
 }
 
 func (o *PostUsersBadRequest) GetPayload() *models.ResponseBody400 {
@@ -227,11 +232,13 @@ func (o *PostUsersInternalServerError) Code() int {
 }
 
 func (o *PostUsersInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersInternalServerError %s", 500, payload)
 }
 
 func (o *PostUsersInternalServerError) String() string {
-	return fmt.Sprintf("[POST /users][%d] postUsersInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /users][%d] postUsersInternalServerError %s", 500, payload)
 }
 
 func (o *PostUsersInternalServerError) GetPayload() *models.ResponseBody500 {

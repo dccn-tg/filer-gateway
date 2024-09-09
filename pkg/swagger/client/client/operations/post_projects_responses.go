@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -91,11 +92,13 @@ func (o *PostProjectsOK) Code() int {
 }
 
 func (o *PostProjectsOK) Error() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsOK %s", 200, payload)
 }
 
 func (o *PostProjectsOK) String() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsOK %s", 200, payload)
 }
 
 func (o *PostProjectsOK) GetPayload() *models.ResponseBodyTaskResource {
@@ -159,11 +162,13 @@ func (o *PostProjectsBadRequest) Code() int {
 }
 
 func (o *PostProjectsBadRequest) Error() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsBadRequest %s", 400, payload)
 }
 
 func (o *PostProjectsBadRequest) String() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsBadRequest %s", 400, payload)
 }
 
 func (o *PostProjectsBadRequest) GetPayload() *models.ResponseBody400 {
@@ -227,11 +232,13 @@ func (o *PostProjectsInternalServerError) Code() int {
 }
 
 func (o *PostProjectsInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsInternalServerError %s", 500, payload)
 }
 
 func (o *PostProjectsInternalServerError) String() string {
-	return fmt.Sprintf("[POST /projects][%d] postProjectsInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /projects][%d] postProjectsInternalServerError %s", 500, payload)
 }
 
 func (o *PostProjectsInternalServerError) GetPayload() *models.ResponseBody500 {

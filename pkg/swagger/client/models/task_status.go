@@ -30,7 +30,7 @@ type TaskStatus struct {
 
 	// task status from the last execution.
 	// Required: true
-	// Enum: [waiting processing failed succeeded canceled]
+	// Enum: ["waiting","processing","failed","succeeded","canceled"]
 	Status *string `json:"status"`
 }
 

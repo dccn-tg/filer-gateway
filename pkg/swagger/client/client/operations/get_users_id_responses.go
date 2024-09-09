@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -97,11 +98,13 @@ func (o *GetUsersIDOK) Code() int {
 }
 
 func (o *GetUsersIDOK) Error() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK %s", 200, payload)
 }
 
 func (o *GetUsersIDOK) String() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdOK %s", 200, payload)
 }
 
 func (o *GetUsersIDOK) GetPayload() *models.ResponseBodyUserResource {
@@ -165,11 +168,13 @@ func (o *GetUsersIDBadRequest) Code() int {
 }
 
 func (o *GetUsersIDBadRequest) Error() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdBadRequest %s", 400, payload)
 }
 
 func (o *GetUsersIDBadRequest) String() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdBadRequest %s", 400, payload)
 }
 
 func (o *GetUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
@@ -233,11 +238,13 @@ func (o *GetUsersIDNotFound) Code() int {
 }
 
 func (o *GetUsersIDNotFound) Error() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdNotFound %s", 404, payload)
 }
 
 func (o *GetUsersIDNotFound) String() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdNotFound %s", 404, payload)
 }
 
 func (o *GetUsersIDNotFound) GetPayload() string {
@@ -299,11 +306,13 @@ func (o *GetUsersIDInternalServerError) Code() int {
 }
 
 func (o *GetUsersIDInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdInternalServerError %s", 500, payload)
 }
 
 func (o *GetUsersIDInternalServerError) String() string {
-	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /users/{id}][%d] getUsersIdInternalServerError %s", 500, payload)
 }
 
 func (o *GetUsersIDInternalServerError) GetPayload() *models.ResponseBody500 {
