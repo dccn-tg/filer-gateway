@@ -24,11 +24,10 @@ func TestGetFilerAPI(t *testing.T) {
 	pathCfg := os.Getenv("FILER_GATEWAY_WORKER_CONFIG")
 
 	tobj := map[string]filer.Filer{
-		"netapp":  filer.NetApp{},
-		"freenas": filer.FreeNas{},
+		"netapp": filer.NetApp{},
 	}
 
-	for _, sys := range []string{"netapp", "freenas"} {
+	for _, sys := range []string{"netapp"} {
 		api, err := getFilerAPIBySystem(sys, pathCfg)
 		if err != nil {
 			t.Errorf("%s", err)

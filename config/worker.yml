@@ -10,15 +10,6 @@ netapp:
   exportPolicyHome: "dccn-home-nfs-vpn"
   exportPolicyProject: "dccn-projects"
 
-freenas:
-  apiURL: https://freenas.dccn.nl/api/v2.0
-  apiUser: root
-  apiPass:
-  projectRoot: /project_freenas
-  projectUser: project
-  projectGroup: project_g
-  zfsDatasetPrefix: zpool001/project
-
 cephfs:
   projectRoot: /project_cephfs
   projectUser: project

@@ -12,9 +12,6 @@ echo
 echo "# volume for project directory"
 echo "PROJECT_VOL=$PROJECT_VOL"
 echo
-echo "# volume for project_freenas directory"
-echo "PROJECT_FREENAS_VOL=$PROJECT_FREENAS_VOL"
-echo
 echo "# volume for project_cephfs directory"
 echo "PROJECT_CEPHFS_VOL=$PROJECT_CEPHFS_VOL"
 echo

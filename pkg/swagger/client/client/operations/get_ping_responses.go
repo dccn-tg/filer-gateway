@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -85,11 +86,13 @@ func (o *GetPingOK) Code() int {
 }
 
 func (o *GetPingOK) Error() string {
-	return fmt.Sprintf("[GET /ping][%d] getPingOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /ping][%d] getPingOK %s", 200, payload)
 }
 
 func (o *GetPingOK) String() string {
-	return fmt.Sprintf("[GET /ping][%d] getPingOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /ping][%d] getPingOK %s", 200, payload)
 }
 
 func (o *GetPingOK) GetPayload() string {
@@ -151,11 +154,13 @@ func (o *GetPingInternalServerError) Code() int {
 }
 
 func (o *GetPingInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /ping][%d] getPingInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /ping][%d] getPingInternalServerError %s", 500, payload)
 }
 
 func (o *GetPingInternalServerError) String() string {
-	return fmt.Sprintf("[GET /ping][%d] getPingInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /ping][%d] getPingInternalServerError %s", 500, payload)
 }
 
 func (o *GetPingInternalServerError) GetPayload() *models.ResponseBody500 {

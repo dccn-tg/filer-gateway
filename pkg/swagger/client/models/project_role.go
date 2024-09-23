@@ -26,7 +26,7 @@ type ProjectRole struct {
 
 	// role of the member.
 	// Required: true
-	// Enum: [manager contributor viewer traverse]
+	// Enum: ["manager","contributor","viewer","traverse"]
 	Role *string `json:"role"`
 }
 

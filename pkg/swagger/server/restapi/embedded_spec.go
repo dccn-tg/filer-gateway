@@ -866,7 +866,6 @@ func init() {
           "type": "string",
           "enum": [
             "netapp",
-            "freenas",
             "cephfs"
           ]
         }
@@ -889,7 +888,6 @@ func init() {
           "type": "string",
           "enum": [
             "netapp",
-            "freenas",
             "cephfs"
           ]
         },
@@ -1805,7 +1803,6 @@ func init() {
           "type": "string",
           "enum": [
             "netapp",
-            "freenas",
             "cephfs"
           ]
         }
@@ -1828,7 +1825,6 @@ func init() {
           "type": "string",
           "enum": [
             "netapp",
-            "freenas",
             "cephfs"
           ]
         },

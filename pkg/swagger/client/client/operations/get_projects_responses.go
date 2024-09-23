@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -85,11 +86,13 @@ func (o *GetProjectsOK) Code() int {
 }
 
 func (o *GetProjectsOK) Error() string {
-	return fmt.Sprintf("[GET /projects][%d] getProjectsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /projects][%d] getProjectsOK %s", 200, payload)
 }
 
 func (o *GetProjectsOK) String() string {
-	return fmt.Sprintf("[GET /projects][%d] getProjectsOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /projects][%d] getProjectsOK %s", 200, payload)
 }
 
 func (o *GetProjectsOK) GetPayload() *models.ResponseBodyProjects {
@@ -153,11 +156,13 @@ func (o *GetProjectsInternalServerError) Code() int {
 }
 
 func (o *GetProjectsInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError %s", 500, payload)
 }
 
 func (o *GetProjectsInternalServerError) String() string {
-	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /projects][%d] getProjectsInternalServerError %s", 500, payload)
 }
 
 func (o *GetProjectsInternalServerError) GetPayload() *models.ResponseBody500 {

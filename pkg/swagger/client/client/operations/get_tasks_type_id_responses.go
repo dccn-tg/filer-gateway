@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -97,11 +98,13 @@ func (o *GetTasksTypeIDOK) Code() int {
 }
 
 func (o *GetTasksTypeIDOK) Error() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdOK %s", 200, payload)
 }
 
 func (o *GetTasksTypeIDOK) String() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdOK %s", 200, payload)
 }
 
 func (o *GetTasksTypeIDOK) GetPayload() *models.ResponseBodyTaskResource {
@@ -165,11 +168,13 @@ func (o *GetTasksTypeIDBadRequest) Code() int {
 }
 
 func (o *GetTasksTypeIDBadRequest) Error() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdBadRequest %s", 400, payload)
 }
 
 func (o *GetTasksTypeIDBadRequest) String() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdBadRequest %s", 400, payload)
 }
 
 func (o *GetTasksTypeIDBadRequest) GetPayload() *models.ResponseBody400 {
@@ -232,11 +237,11 @@ func (o *GetTasksTypeIDNotFound) Code() int {
 }
 
 func (o *GetTasksTypeIDNotFound) Error() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdNotFound ", 404)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdNotFound", 404)
 }
 
 func (o *GetTasksTypeIDNotFound) String() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdNotFound ", 404)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdNotFound", 404)
 }
 
 func (o *GetTasksTypeIDNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -289,11 +294,13 @@ func (o *GetTasksTypeIDInternalServerError) Code() int {
 }
 
 func (o *GetTasksTypeIDInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdInternalServerError %s", 500, payload)
 }
 
 func (o *GetTasksTypeIDInternalServerError) String() string {
-	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /tasks/{type}/{id}][%d] getTasksTypeIdInternalServerError %s", 500, payload)
 }
 
 func (o *GetTasksTypeIDInternalServerError) GetPayload() *models.ResponseBody500 {

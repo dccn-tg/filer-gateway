@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -103,11 +104,13 @@ func (o *PatchProjectsIDOK) Code() int {
 }
 
 func (o *PatchProjectsIDOK) Error() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdOK %s", 200, payload)
 }
 
 func (o *PatchProjectsIDOK) String() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdOK %s", 200, payload)
 }
 
 func (o *PatchProjectsIDOK) GetPayload() *models.ResponseBodyTaskResource {
@@ -170,11 +173,11 @@ func (o *PatchProjectsIDNoContent) Code() int {
 }
 
 func (o *PatchProjectsIDNoContent) Error() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNoContent ", 204)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNoContent", 204)
 }
 
 func (o *PatchProjectsIDNoContent) String() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNoContent ", 204)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNoContent", 204)
 }
 
 func (o *PatchProjectsIDNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -227,11 +230,13 @@ func (o *PatchProjectsIDBadRequest) Code() int {
 }
 
 func (o *PatchProjectsIDBadRequest) Error() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdBadRequest %s", 400, payload)
 }
 
 func (o *PatchProjectsIDBadRequest) String() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdBadRequest %s", 400, payload)
 }
 
 func (o *PatchProjectsIDBadRequest) GetPayload() *models.ResponseBody400 {
@@ -295,11 +300,13 @@ func (o *PatchProjectsIDNotFound) Code() int {
 }
 
 func (o *PatchProjectsIDNotFound) Error() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNotFound %s", 404, payload)
 }
 
 func (o *PatchProjectsIDNotFound) String() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdNotFound %s", 404, payload)
 }
 
 func (o *PatchProjectsIDNotFound) GetPayload() string {
@@ -361,11 +368,13 @@ func (o *PatchProjectsIDInternalServerError) Code() int {
 }
 
 func (o *PatchProjectsIDInternalServerError) Error() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdInternalServerError %s", 500, payload)
 }
 
 func (o *PatchProjectsIDInternalServerError) String() string {
-	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /projects/{id}][%d] patchProjectsIdInternalServerError %s", 500, payload)
 }
 
 func (o *PatchProjectsIDInternalServerError) GetPayload() *models.ResponseBody500 {

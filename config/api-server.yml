@@ -4,7 +4,5 @@ auth:
 jwksEndpoint: https://auth-dev.dccn.nl/.well-known/openid-configuration/jwks 
 netapp:
   projectRoot: /project
-freenas:
-  projectRoot: /project_freenas
 cephfs:
   projectRoot: /project_cephfs

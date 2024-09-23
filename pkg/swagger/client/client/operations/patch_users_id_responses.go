@@ -6,6 +6,7 @@ package operations
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -103,11 +104,13 @@ func (o *PatchUsersIDOK) Code() int {
 }
 
 func (o *PatchUsersIDOK) Error() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK %s", 200, payload)
 }
 
 func (o *PatchUsersIDOK) String() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdOK %s", 200, payload)
 }
 
 func (o *PatchUsersIDOK) GetPayload() *models.ResponseBodyTaskResource {
@@ -170,11 +173,11 @@ func (o *PatchUsersIDNoContent) Code() int {
 }
 
 func (o *PatchUsersIDNoContent) Error() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent ", 204)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent", 204)
 }
 
 func (o *PatchUsersIDNoContent) String() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent ", 204)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNoContent", 204)
 }
 
 func (o *PatchUsersIDNoContent) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -227,11 +230,13 @@ func (o *PatchUsersIDBadRequest) Code() int {
 }
 
 func (o *PatchUsersIDBadRequest) Error() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest %s", 400, payload)
 }
 
 func (o *PatchUsersIDBadRequest) String() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest  %+v", 400, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdBadRequest %s", 400, payload)
 }
 
 func (o *PatchUsersIDBadRequest) GetPayload() *models.ResponseBody400 {
@@ -295,11 +300,13 @@ func (o *PatchUsersIDNotFound) Code() int {
 }
 
 func (o *PatchUsersIDNotFound) Error() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound %s", 404, payload)
 }
 
 func (o *PatchUsersIDNotFound) String() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound  %+v", 404, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdNotFound %s", 404, payload)
 }
 
 func (o *PatchUsersIDNotFound) GetPayload() string {
@@ -361,11 +368,13 @@ func (o *PatchUsersIDInternalServerError) Code() int {
 }
 
 func (o *PatchUsersIDInternalServerError) Error() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError %s", 500, payload)
 }
 
 func (o *PatchUsersIDInternalServerError) String() string {
-	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError  %+v", 500, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PATCH /users/{id}][%d] patchUsersIdInternalServerError %s", 500, payload)
 }
 
 func (o *PatchUsersIDInternalServerError) GetPayload() *models.ResponseBody500 {
