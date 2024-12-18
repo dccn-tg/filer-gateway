@@ -351,6 +351,34 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 		SenderName:   "DCCN TG Helpdesk",
 	}
 
+	template := `Storage of your project {{.ProjectID}} has been initalized!
+
+Dear {{.RecipientName}},
+
+The storage of your project {{.ProjectID}} with title
+
+    {{.ProjectTitle}}
+
+has been initialised.
+
+You may now access the storage via the following paths:
+
+    * on Windows desktop: P:\{{.ProjectID}}
+    * in the cluster: /project/{{.ProjectID}}
+
+For managing data access permission for project collaborators, please follow the guide:
+
+    http://hpc.dccn.nl/docs/project_storage/access_management.html
+
+For more information about the project storage, please refer to the intranet page:
+
+    https://intranet.donders.ru.nl/index.php?id=4733
+
+Should you have any questions, please don't hesitate to contact the TG helpdesk <helpdesk@donders.ru.nl>.
+
+Best regards, {{.SenderName}}
+	`
+
 	for _, manager := range managers {
 		if u, err := pdb.GetUser(manager); err != nil {
 			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)
@@ -363,7 +391,7 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 
 			data.RecipientName = u.DisplayName()
 
-			subject, body, err := mailer.ComposeProjectProvisionedAlert(data)
+			subject, body, err := mailer.ComposeMessageFromTemplate(template, data)
 			if err != nil {
 				log.Errorf("cannot compose message to notify manager %s for project %s: %s", u.Email, projectID, err)
 				continue
