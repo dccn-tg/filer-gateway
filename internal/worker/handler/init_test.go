@@ -46,9 +46,10 @@ func TestNotifyProjectProvisioned(t *testing.T) {
 	}
 
 	managers := []string{"honlee"}
+	contributors := []string{"honlee"}
 	projectID := "3010000.01"
 
-	err := h.notifyProjectProvisioned(projectID, managers)
+	err := h.notifyProjectProvisioned(projectID, managers, contributors)
 	if err != nil {
 		t.Errorf("%s", err)
 	}

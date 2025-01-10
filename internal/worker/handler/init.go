@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -312,7 +313,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// notify managers if new project is created
 	if isNewProject {
-		err := h.notifyProjectProvisioned(data.ProjectID, managers)
+		err := h.notifyProjectProvisioned(data.ProjectID, managers, contributors)
 		if err != nil {
 			log.Errorf("[%s] %s", r.Task.ID, err)
 		}
@@ -321,19 +322,19 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 	return nil
 }
 
-func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, managers []string) error {
+func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, managers, contributors []string) error {
 	cfg, err := config.LoadConfig(h.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("cannot read config for mailer: %s", err)
 	}
 
 	// get project detail
-	pdb, err := pdb.New(cfg.Pdb)
+	ipdb, err := pdb.New(cfg.Pdb)
 	if err != nil {
 		return fmt.Errorf("cannot read config for pdb: %s", err)
 	}
 
-	p, err := pdb.GetProject(projectID)
+	p, err := ipdb.GetProject(projectID)
 	if err != nil {
 		return fmt.Errorf("cannot get information of project %s: %s", projectID, err)
 	}
@@ -351,57 +352,120 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 		SenderName:   "DCCN TG Helpdesk",
 	}
 
-	template := `Storage of your project {{.ProjectID}} has been initalized!
+	var template string
+	var mailTemplate string
+
+	recipients := managers
+
+	switch p.Kind {
+	case pdb.Dataset:
+		recipients = append(recipients, contributors...)
+		mailTemplate = "/etc/filer-gateway/new-dataset-project.template"
+		template = `Storage of your dataset project {{.ProjectID}} has been initalized!
 
 Dear {{.RecipientName}},
 
-The storage of your project {{.ProjectID}} with title
+The storage of your dataset project {{.ProjectID}} with title
 
-    {{.ProjectTitle}}
+	{{.ProjectTitle}}
+
+has been initialised.
+
+As a data custodian, you are given the contributor (i.e. read-write) permission for building the dataset.  You may access the storage via the following paths:
+
+	* on Windows desktop: R:\{{.ProjectID}}
+	* in the cluster: /project_cephfs/{{.ProjectID}}
+
+Please note that data in this project SHOULD NOT be unique as the storage is NOT backed up.
+
+After you complete the dataset build process, please notify the DCCN helpdesk (helpdesk@donders.ru.nl).  An adjustment on the data access control by the TG is required to allow you managing the data sharing.
+
+For procedures related to managing the dataset project, please refer to:
+
+	https://intranet.donders.ru.nl/index.php?id=dataset
+
+Should you have any questions, please don't hesitate to contact the DCCN datasupport <datasupport@donders.ru.nl>.
+
+Best regards, {{.SenderName}}
+		`
+
+	default:
+		mailTemplate = "/etc/filer-gateway/new-research-project.template"
+		template = `Storage of your research project {{.ProjectID}} has been initalized!
+
+Dear {{.RecipientName}},
+
+The storage of your research project {{.ProjectID}} with title
+
+	{{.ProjectTitle}}
 
 has been initialised.
 
 You may now access the storage via the following paths:
 
-    * on Windows desktop: P:\{{.ProjectID}}
-    * in the cluster: /project/{{.ProjectID}}
+	* on Windows desktop: P:\{{.ProjectID}}
+	* in the cluster: /project/{{.ProjectID}}
 
 For managing data access permission for project collaborators, please follow the guide:
 
-    http://hpc.dccn.nl/docs/project_storage/access_management.html
+	http://hpc.dccn.nl/docs/project_storage/access_management.html
 
 For more information about the project storage, please refer to the intranet page:
 
-    https://intranet.donders.ru.nl/index.php?id=4733
+	https://intranet.donders.ru.nl/index.php?id=4733
 
 Should you have any questions, please don't hesitate to contact the TG helpdesk <helpdesk@donders.ru.nl>.
 
 Best regards, {{.SenderName}}
-	`
+		`
+	}
 
-	for _, manager := range managers {
-		if u, err := pdb.GetUser(manager); err != nil {
-			log.Errorf("cannot get information of manager %s: %s, skip notification", manager, err)
+	// validity check on the template file
+	if state, err := os.Stat(mailTemplate); errors.Is(err, os.ErrNotExist) { // template file doesn't exist
+		mailTemplate = ""
+	} else if !state.Mode().IsRegular() { // template file is not a regular file
+		mailTemplate = ""
+	} else if state.Size() < 100 && state.Size() > 10240 { // template file size is less than 100 or larger than 10K bytes (suspicious content)
+		mailTemplate = ""
+	}
+
+	for _, recipient := range recipients {
+		if u, err := ipdb.GetUser(recipient); err != nil {
+			log.Errorf("cannot get information of recipient %s: %s, skip notification", recipient, err)
 		} else {
 			// if DCCN local email relay is used, only the email in form of `{account_name}@localhos`
 			// is allowed.
 			if localRelay {
-				u.Email = fmt.Sprintf("%s@localhost", manager)
+				u.Email = fmt.Sprintf("%s@localhost", recipient)
 			}
 
 			data.RecipientName = u.DisplayName()
 
-			subject, body, err := mailer.ComposeMessageFromTemplate(template, data)
+			var subject string
+			var body string
+			var err error
+
+			if mailTemplate != "" {
+				if subject, body, err = mailer.ComposeMessageFromTemplateFile(mailTemplate, data); err != nil {
+					log.Errorf("cannot compose message from template file %s: %s", mailTemplate, err)
+
+					// fallback to compose mail with built-in template
+					subject, body, err = mailer.ComposeMessageFromTemplate(template, data)
+				}
+			} else {
+				subject, body, err = mailer.ComposeMessageFromTemplate(template, data)
+			}
+
 			if err != nil {
-				log.Errorf("cannot compose message to notify manager %s for project %s: %s", u.Email, projectID, err)
+				log.Errorf("cannot compose message to notify user %s for project %s: %s", u.Email, projectID, err)
 				continue
 			}
 
 			err = m.SendMail("helpdesk@donders.ru.nl", subject, body, []string{u.Email})
 			if err != nil {
-				log.Errorf("cannot notify manager %s for project %s: %s", u.Email, projectID, err)
+				log.Errorf("cannot notify user %s for project %s: %s", u.Email, projectID, err)
 			} else {
-				log.Infof("manager %s notified for provisioned project %s", manager, projectID)
+				log.Infof("user %s notified for provisioned project %s", recipient, projectID)
 			}
 		}
 	}
