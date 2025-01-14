@@ -371,7 +371,7 @@ The storage of your dataset project {{.ProjectID}} with title
 
 has been initialised.
 
-As a data custodian, you are given the contributor (i.e. read-write) permission for building the dataset.  You may access the storage via the following paths:
+Dataset builders specified on the PPM form are given the contributor (i.e. read-write) permission for building the dataset. They may access the storage via the following paths:
 
 	* on Windows desktop: R:\{{.ProjectID}}
 	* in the cluster: /project_cephfs/{{.ProjectID}}
