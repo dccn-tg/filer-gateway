@@ -378,7 +378,7 @@ As a data custodian, you are given the contributor (i.e. read-write) permission 
 
 Please note that data in this project SHOULD NOT be unique as the storage is NOT backed up.
 
-After you complete the dataset build process, please notify the DCCN helpdesk (helpdesk@donders.ru.nl).  An adjustment on the data access control by the TG is required to allow you managing the data sharing.
+After you complete the dataset build process, please notify the DCCN data support (datasupport@donders.ru.nl).  The data steward will conduct a review on the dataset content followed by an adjustment to the data access control by the TG to enable the data sharing/reuse.
 
 For procedures related to managing the dataset project, please refer to:
 
