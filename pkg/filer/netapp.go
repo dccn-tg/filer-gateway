@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -691,14 +691,14 @@ func (filer NetApp) delObjectByHref(href string) error {
 	if res.StatusCode != 202 {
 		// try to get the error code returned as the body
 		var apiErr APIError
-		if httpBodyBytes, err := ioutil.ReadAll(res.Body); err == nil {
+		if httpBodyBytes, err := io.ReadAll(res.Body); err == nil {
 			json.Unmarshal(httpBodyBytes, &apiErr)
 		}
 		return fmt.Errorf("response not ok: %s (%d), error: %+v", res.Status, res.StatusCode, apiErr)
 	}
 
 	// read response body as accepted job
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %s", err)
 	}
@@ -752,7 +752,7 @@ func (filer NetApp) getObjectByHref(href string, object interface{}) error {
 	}
 
 	// read response body
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -807,7 +807,7 @@ func (filer NetApp) queryObjectRecords(query url.Values, nsAPI string, object in
 	}
 
 	// read response body
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -853,14 +853,14 @@ func (filer NetApp) createObject(object interface{}, nsAPI string) error {
 	if res.StatusCode != 202 {
 		// try to get the error code returned as the body
 		var apiErr APIError
-		if httpBodyBytes, err := ioutil.ReadAll(res.Body); err == nil {
+		if httpBodyBytes, err := io.ReadAll(res.Body); err == nil {
 			json.Unmarshal(httpBodyBytes, &apiErr)
 		}
 		return fmt.Errorf("response not ok: %s (%d), error: %+v", res.Status, res.StatusCode, apiErr)
 	}
 
 	// read response body as accepted job
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %s", err)
 	}
@@ -910,14 +910,14 @@ func (filer NetApp) patchObject(object Record, data []byte) error {
 	if res.StatusCode != 202 {
 		// try to get the error code returned as the body
 		var apiErr APIError
-		if httpBodyBytes, err := ioutil.ReadAll(res.Body); err == nil {
+		if httpBodyBytes, err := io.ReadAll(res.Body); err == nil {
 			json.Unmarshal(httpBodyBytes, &apiErr)
 		}
 		return fmt.Errorf("response not ok: %s (%d), error: %+v", res.Status, res.StatusCode, apiErr)
 	}
 
 	// read response body as accepted job
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %s", err)
 	}
@@ -950,7 +950,7 @@ func (filer NetApp) waitJob(job *APIJob) error {
 
 waitLoop:
 	for {
-		if e := filer.getObjectByHref(href, &(job.Job)); err != nil {
+		if e := filer.getObjectByHref(href, &(job.Job)); e != nil {
 			err = fmt.Errorf("cannot poll job %s: %s", job.Job.UUID, e)
 			break
 		}

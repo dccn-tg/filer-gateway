@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -230,8 +230,6 @@ func (filer FreeNas) getObject(nsAPI string, object interface{}) error {
 
 	c := newHTTPSClient(30*time.Second, true)
 
-	filer.config.GetAPIURL()
-
 	href := strings.Join([]string{filer.config.GetAPIURL(), nsAPI}, "")
 
 	log.Debugf("href: %s", href)
@@ -250,7 +248,7 @@ func (filer FreeNas) getObject(nsAPI string, object interface{}) error {
 	}
 
 	// read response body
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -299,7 +297,7 @@ func (filer FreeNas) createObject(object interface{}, nsAPI string) error {
 		return err
 	}
 	// read response body as accepted job
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %s", err)
 	}
@@ -342,7 +340,7 @@ func (filer FreeNas) updateObject(object interface{}, nsAPI string) error {
 		return err
 	}
 	// read response body as accepted job
-	httpBodyBytes, err := ioutil.ReadAll(res.Body)
+	httpBodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("cannot read response body: %s", err)
 	}
