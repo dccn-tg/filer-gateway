@@ -3,7 +3,7 @@ module github.com/dccn-tg/filer-gateway
 go 1.20
 
 require (
-	github.com/dccn-tg/tg-toolset-golang v1.26.0
+	github.com/dccn-tg/tg-toolset-golang v1.27.0
 	github.com/go-openapi/errors v0.20.1
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.0

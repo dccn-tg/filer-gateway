@@ -91,6 +91,10 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/dccn-tg/tg-toolset-golang v1.26.0 h1:kun6cDR6EutXyflGTe3KhInNBjawqvcqcJdYLmfysqM=
 github.com/dccn-tg/tg-toolset-golang v1.26.0/go.mod h1:/6iG3HgK7FwK5LkFF8oQMQX7s9qEs2Oo1ihzOgNlQic=
+github.com/dccn-tg/tg-toolset-golang v1.27.0-pre h1:6qCxKMU4TX6h4bRdUdVUsWeghOk+Woxx7gyhtCVZF/w=
+github.com/dccn-tg/tg-toolset-golang v1.27.0-pre/go.mod h1:/6iG3HgK7FwK5LkFF8oQMQX7s9qEs2Oo1ihzOgNlQic=
+github.com/dccn-tg/tg-toolset-golang v1.27.0 h1:K81hCyoMYhSxeAASvhoih6L3s6Kh8A0tK10t2sFs0Vw=
+github.com/dccn-tg/tg-toolset-golang v1.27.0/go.mod h1:/6iG3HgK7FwK5LkFF8oQMQX7s9qEs2Oo1ihzOgNlQic=
 github.com/dgraph-io/badger v1.6.0/go.mod h1:zwt7syl517jmP8s94KqSxTlM6IMsdhYy6psNgSztDR4=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
