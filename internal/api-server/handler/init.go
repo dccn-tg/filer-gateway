@@ -30,8 +30,14 @@ var (
 	// PathProject is the top-leve directory in which directories of active projects are located.
 	PathProject string = "/project"
 
+	// PathProjectRrd is the top-leve directory in which directories of active projects' research-related data are located.
+	PathProjectRrd string = "/rrd"
+
 	// QueueSetProject is the queue name for setting project resources.
 	QueueSetProject string = "tasks.setProject"
+
+	// QueueSetProjectRrd is the queue name for setting project's research-related data storage.
+	QueueSetProjectRrd string = "tasks.setProjectRrd"
 
 	// QueueSetUser is the queue name for setting user resources.
 	QueueSetUser string = "tasks.setUser"
