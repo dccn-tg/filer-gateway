@@ -377,6 +377,98 @@ paths:
           schema:
             $ref: '#/definitions/responseBody500'
 
+  /rrds:
+    get:
+      summary: get filer resources of all research-related data storage.
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyRrds'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+    post:
+      summary: provision filer resource for a new research-related data storage.
+
+      security:
+        - oauth2: [urn:dccn:filer-gateway:*]
+        - basicAuth: []
+          apiKeyHeader: []
+
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: body
+          name: rrdProvisionData
+          description: data for rrd storage provisioning
+          required: true
+          schema:
+            $ref: '#/definitions/requestBodyRrdProvision'
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyTaskResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
+  /rrds/{id}:
+    get:
+      summary: get filer resource for an existing research-related data storage.
+    
+      consumes:
+        - application/json
+
+      produces:
+        - application/json
+
+      parameters:
+        - in: path
+          name: id
+          description: project identifier
+          type: string
+          required: true
+
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/responseBodyRrdResource'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/responseBody400'
+        404:
+          description: project not found
+          schema:
+            type: string
+            enum: [project not found]
+        500:
+          description: failure
+          schema:
+            $ref: '#/definitions/responseBody500'
+
   /tasks/{type}/{id}:
     get:
       summary: query background task status
@@ -494,6 +586,28 @@ definitions:
         items:
           $ref: '#/definitions/responseBodyProjectResource'
 
+  responseBodyRrdResource:
+    description: JSON object containing rrd resources.
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      storage:
+        $ref: '#/definitions/storageResponse'
+      members:
+        $ref: '#/definitions/members'
+    required:
+      - projectID
+      - storage
+      - members
+
+  responseBodyRrds:
+    description: JSON list containing a list of rrd resources.
+    properties:
+      projects:
+        type: array
+        items:
+          $ref: '#/definitions/responseBodyRrdResource'
+
   responseBodyProjectMembers:
     description: JSON object containing current list of members implemented on the filer.
     properties:
@@ -557,6 +671,21 @@ definitions:
     required:
       - projectID
       - storage
+      - members
+
+  requestBodyRrdProvision:
+    properties:
+      projectID:
+        $ref: '#/definitions/projectID'
+      storage:
+        $ref: '#/definitions/storageRequest'
+      members:
+        $ref: '#/definitions/members'
+      recursion:
+        description: apply ACL setting for members recursively on existing files/directories.
+        type: boolean
+    required:
+      - projectID
       - members
 
   storageResponse:

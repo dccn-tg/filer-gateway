@@ -59,6 +59,12 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		GetProjectsIDHandler: GetProjectsIDHandlerFunc(func(params GetProjectsIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetProjectsID has not yet been implemented")
 		}),
+		GetRrdsHandler: GetRrdsHandlerFunc(func(params GetRrdsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetRrds has not yet been implemented")
+		}),
+		GetRrdsIDHandler: GetRrdsIDHandlerFunc(func(params GetRrdsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetRrdsID has not yet been implemented")
+		}),
 		GetTasksTypeIDHandler: GetTasksTypeIDHandlerFunc(func(params GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetTasksTypeID has not yet been implemented")
 		}),
@@ -76,6 +82,9 @@ func NewFilerGatewayAPI(spec *loads.Document) *FilerGatewayAPI {
 		}),
 		PostProjectsHandler: PostProjectsHandlerFunc(func(params PostProjectsParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation PostProjects has not yet been implemented")
+		}),
+		PostRrdsHandler: PostRrdsHandlerFunc(func(params PostRrdsParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation PostRrds has not yet been implemented")
 		}),
 		PostUsersHandler: PostUsersHandlerFunc(func(params PostUsersParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation PostUsers has not yet been implemented")
@@ -155,6 +164,10 @@ type FilerGatewayAPI struct {
 	GetProjectsHandler GetProjectsHandler
 	// GetProjectsIDHandler sets the operation handler for the get projects ID operation
 	GetProjectsIDHandler GetProjectsIDHandler
+	// GetRrdsHandler sets the operation handler for the get rrds operation
+	GetRrdsHandler GetRrdsHandler
+	// GetRrdsIDHandler sets the operation handler for the get rrds ID operation
+	GetRrdsIDHandler GetRrdsIDHandler
 	// GetTasksTypeIDHandler sets the operation handler for the get tasks type ID operation
 	GetTasksTypeIDHandler GetTasksTypeIDHandler
 	// GetUsersHandler sets the operation handler for the get users operation
@@ -167,6 +180,8 @@ type FilerGatewayAPI struct {
 	PatchUsersIDHandler PatchUsersIDHandler
 	// PostProjectsHandler sets the operation handler for the post projects operation
 	PostProjectsHandler PostProjectsHandler
+	// PostRrdsHandler sets the operation handler for the post rrds operation
+	PostRrdsHandler PostRrdsHandler
 	// PostUsersHandler sets the operation handler for the post users operation
 	PostUsersHandler PostUsersHandler
 
@@ -271,6 +286,12 @@ func (o *FilerGatewayAPI) Validate() error {
 	if o.GetProjectsIDHandler == nil {
 		unregistered = append(unregistered, "GetProjectsIDHandler")
 	}
+	if o.GetRrdsHandler == nil {
+		unregistered = append(unregistered, "GetRrdsHandler")
+	}
+	if o.GetRrdsIDHandler == nil {
+		unregistered = append(unregistered, "GetRrdsIDHandler")
+	}
 	if o.GetTasksTypeIDHandler == nil {
 		unregistered = append(unregistered, "GetTasksTypeIDHandler")
 	}
@@ -288,6 +309,9 @@ func (o *FilerGatewayAPI) Validate() error {
 	}
 	if o.PostProjectsHandler == nil {
 		unregistered = append(unregistered, "PostProjectsHandler")
+	}
+	if o.PostRrdsHandler == nil {
+		unregistered = append(unregistered, "PostRrdsHandler")
 	}
 	if o.PostUsersHandler == nil {
 		unregistered = append(unregistered, "PostUsersHandler")
@@ -424,6 +448,14 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/rrds"] = NewGetRrds(o.context, o.GetRrdsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/rrds/{id}"] = NewGetRrdsID(o.context, o.GetRrdsIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/tasks/{type}/{id}"] = NewGetTasksTypeID(o.context, o.GetTasksTypeIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -445,6 +477,10 @@ func (o *FilerGatewayAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/projects"] = NewPostProjects(o.context, o.PostProjectsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/rrds"] = NewPostRrds(o.context, o.PostRrdsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
