@@ -277,6 +277,8 @@ func main() {
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
 	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
 
+	api.PostRrdsHandler = operations.PostRrdsHandlerFunc(handler.CreateRrd(ctx, bok))
+
 	api.GetUsersHandler = operations.GetUsersHandlerFunc(handler.GetUsers(&ucache, &pcache))
 	api.GetUsersIDHandler = operations.GetUsersIDHandlerFunc(handler.GetUserResource(&ucache, &pcache))
 	api.PostUsersHandler = operations.PostUsersHandlerFunc(handler.CreateUserResource(ctx, bok))

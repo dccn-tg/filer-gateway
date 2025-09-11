@@ -88,7 +88,7 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 		var qns []string
 		switch t := params.Type; t {
 		case "project":
-			qns = []string{QueueSetProject}
+			qns = []string{QueueSetProject, QueueSetProjectRrd}
 		case "user":
 			qns = []string{QueueSetUser, QueueDelUser}
 		default:
@@ -146,6 +146,92 @@ func GetTask(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.G
 		}
 
 		return operations.NewGetTasksTypeIDNotFound()
+	}
+}
+
+// CreateRrd handles the project's research-related data stroage creation on filer by formulating it into an.
+// asynchronous task.
+//
+// task configuration:
+// - canceled if running more than 12 hours.
+// - no retry.
+// - result is kept for 7 days.
+func CreateRrd(ctx context.Context, bok *bokchoy.Bokchoy) func(params operations.PostRrdsParams, principle *models.Principle) middleware.Responder {
+	return func(params operations.PostRrdsParams, principle *models.Principle) middleware.Responder {
+
+		// construct task data from request data
+		var system string
+		var quotaGb int64
+		if params.RrdProvisionData.Storage == nil {
+			system = "netapp"
+			quotaGb = 1
+		} else {
+			system = *params.RrdProvisionData.Storage.System
+			quotaGb = *params.RrdProvisionData.Storage.QuotaGb
+		}
+
+		t := task.SetProjectResource{
+			ProjectID: string(*params.RrdProvisionData.ProjectID),
+			Storage: task.Storage{
+				System:  system,
+				QuotaGb: quotaGb,
+			},
+			Members:   make([]task.Member, 0),
+			Recursion: params.RrdProvisionData.Recursion,
+		}
+
+		for _, m := range params.RrdProvisionData.Members {
+
+			switch *m.Role {
+			case acl.Manager.String():
+			case acl.Contributor.String():
+			case acl.Viewer.String():
+			case "none":
+			default:
+				// only accept setting for manager,contributor and viewer roles
+				return operations.NewPostRrdsBadRequest().WithPayload(
+					&models.ResponseBody400{
+						ErrorMessage: fmt.Sprintf("invalid member role for set: %s", *m.Role),
+					},
+				)
+			}
+
+			t.Members = append(t.Members, task.Member{
+				UserID: *m.UserID,
+				Role:   *m.Role,
+			})
+		}
+
+		// publish task to the queue, and set timeout to 12 hours
+		// TODO: the timeout should be optimized!!
+		task, err := bok.Queue(QueueSetProjectRrd).Publish(ctx, &t,
+			bokchoy.WithTimeout(12*time.Hour),
+			bokchoy.WithMaxRetries(0),
+			bokchoy.WithTTL(7*24*time.Hour))
+
+		if err != nil {
+			return operations.NewPostRrdsInternalServerError().WithPayload(
+				&models.ResponseBody500{
+					ErrorMessage: err.Error(),
+					ExitCode:     TaskQueueError,
+				},
+			)
+		}
+
+		taskStatus := task.StatusDisplay()
+
+		tid := models.TaskID(task.ID)
+
+		return operations.NewPostRrdsOK().WithPayload(
+			&models.ResponseBodyTaskResource{
+				TaskID: &tid,
+				TaskStatus: &models.TaskStatus{
+					Status: &taskStatus,
+					Result: nil,
+					Error:  nil,
+				},
+			},
+		)
 	}
 }
 
