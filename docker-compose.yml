@@ -18,6 +18,7 @@ services:
     volumes:
       - ${HOME_VOL-/home}:/home:ro
       - ${PROJECT_VOL:-/project}:/project:ro
+      - ${PROJECT_RRD_VOL:-/rrd}:/rrd:ro
       - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:ro
       - ${CFG_API_SERVER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-api-server.yml}:/etc/filer-gateway/config.yml:ro
       - /var/lib/sss/pipes:/var/lib/sss/pipes
@@ -42,6 +43,7 @@ services:
     volumes:
       - ${HOME_VOL-/home}:/home:rw
       - ${PROJECT_VOL:-/project}:/project:rw
+      - ${PROJECT_RRD_VOL:-/rrd}:/rrd:rw
       - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs:rw
       - ${CFG_WORKER:-/mnt/docker/scripts/microservices/filer-gateway/filer-gateway-worker.yml}:/etc/filer-gateway/config.yml:ro
       - /var/lib/sss/pipes:/var/lib/sss/pipes
