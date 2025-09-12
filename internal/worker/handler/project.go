@@ -194,7 +194,7 @@ func setProjectResource(
 	if isNewProject {
 		err := notifyOnProvisioned(data.ProjectID, managers, contributors)
 		if err != nil {
-			log.Errorf("[%s] %s", id, err)
+			log.Errorf("[%s] notification error: %s", id, err)
 		}
 	}
 
