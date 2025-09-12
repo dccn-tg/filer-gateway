@@ -67,7 +67,7 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
-	ppath := filepath.Join(hapi.PathProjectRrd, data.ProjectID)
+	ppath := filepath.Join(hapi.PathProjectRrd, fmt.Sprintf("rrd%s", data.ProjectID))
 
 	if err = setProjectResource(r.Task.ID, data, api, ppath, ppath, h.notifyProjectRrdProvisioned); err != nil {
 		log.Errorf("[%s] %s", r.Task.ID, err)
