@@ -31,7 +31,7 @@ func getFilerAPI(configFile string) (filer.Filer, error) {
 
 	fConfig := cfg.NetApp
 	fConfig.ProjectMode = "qtree"
-	fConfig.ProjectRoot = "/rrd"
+	fConfig.ProjectRoot = hapi.PathProjectRrd
 	fConfig.VolumeProjectQtrees = "rrd4project"
 
 	// initiate filer API instances
@@ -85,7 +85,7 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 	}
 
 	if m, err := json.Marshal(p); err == nil {
-		h.ApiNotifierClient.Publish(context.Background(), "api_rrdcache_update", string(m))
+		h.ApiNotifierClient.Publish(context.Background(), "api_rcache_update", string(m))
 	}
 
 	return nil
