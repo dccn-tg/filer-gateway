@@ -809,6 +809,84 @@ func GetProjects(cache *ProjectResourceCache) func(params operations.GetProjects
 	}
 }
 
+// GetRrds implements retrival of resources of all project rrds implemented on the filer, under path of
+// `handler.PathProjectRrd`.
+func GetRrds(cache *RrdResourceCache) func(params operations.GetRrdsParams) middleware.Responder {
+	return func(params operations.GetRrdsParams) middleware.Responder {
+
+		// max. 4 concurrent workers (because we are already getting data from cache)
+		nworkers := 4
+		if nworkers > runtime.NumCPU() {
+			nworkers = runtime.NumCPU()
+		}
+
+		// list all directories in `handler.PathProject`
+		pnumbers := make(chan string, nworkers*2)
+		resources := make(chan struct {
+			pnumber  string
+			resource *projectResource
+		})
+
+		wg := sync.WaitGroup{}
+		// start concurrent workers to get project resources from the cache.
+		for i := 0; i < nworkers; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for pnumber := range pnumbers {
+					if r, err := cache.getResource(pnumber, false); err == nil {
+						resources <- struct {
+							pnumber  string
+							resource *projectResource
+						}{
+							pnumber,
+							r,
+						}
+					} else {
+						log.Errorf("%s", err)
+					}
+				}
+			}()
+		}
+
+		// go routine to get all project numbers in the `PathProject` directory
+		go func(path string) {
+			// close the dirs channel on exit
+			defer close(pnumbers)
+			objs, err := fp.ListDir(path)
+			if err != nil {
+				log.Errorf("cannot get content of path: %s", path)
+				return
+			}
+			for _, obj := range objs {
+				pnumbers <- strings.TrimPrefix(filepath.Base(obj), "rrd")
+			}
+		}(PathProjectRrd)
+
+		// go routine to wait for all workers to complete and close the resources channel.
+		go func() {
+			wg.Wait()
+			close(resources)
+		}()
+
+		projects := make([]*models.ResponseBodyProjectResource, 0)
+		for r := range resources {
+			pid := models.ProjectID(r.pnumber)
+			projects = append(projects, &models.ResponseBodyProjectResource{
+				ProjectID: &pid,
+				Storage:   r.resource.storage,
+				Members:   r.resource.members,
+			})
+		}
+
+		return operations.NewGetProjectsOK().WithPayload(
+			&models.ResponseBodyProjects{
+				Projects: projects,
+			},
+		)
+	}
+}
+
 // GetProjectResource implements retrival of project resource (i.e. storage and members).
 func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetProjectsIDParams) middleware.Responder {
 	return func(params operations.GetProjectsIDParams) middleware.Responder {
@@ -832,8 +910,41 @@ func GetProjectResource(cache *ProjectResourceCache) func(params operations.GetP
 
 		pid := models.ProjectID(params.ID)
 
-		return operations.NewGetProjectsIDOK().WithPayload(
-			&models.ResponseBodyProjectResource{
+		return operations.NewGetRrdsIDOK().WithPayload(
+			&models.ResponseBodyRrdResource{
+				ProjectID: &pid,
+				Storage:   r.storage,
+				Members:   r.members,
+			},
+		)
+	}
+}
+
+// GetRrdResource implements retrival of project rrd resource (i.e. storage and members).
+func GetRrdResource(cache *RrdResourceCache) func(params operations.GetRrdsIDParams) middleware.Responder {
+	return func(params operations.GetRrdsIDParams) middleware.Responder {
+
+		r, err := cache.getResource(params.ID, false)
+
+		// Return response error based on error code.
+		if err != nil {
+			switch err.(*ResponseError).code {
+			case 404:
+				return operations.NewGetProjectsIDNotFound().WithPayload(err.Error())
+			default:
+				return operations.NewGetProjectsIDInternalServerError().WithPayload(
+					&models.ResponseBody500{
+						ErrorMessage: err.Error(),
+						ExitCode:     QuotaGettingError,
+					},
+				)
+			}
+		}
+
+		pid := models.ProjectID(params.ID)
+
+		return operations.NewGetRrdsIDOK().WithPayload(
+			&models.ResponseBodyRrdResource{
 				ProjectID: &pid,
 				Storage:   r.storage,
 				Members:   r.members,
@@ -863,6 +974,8 @@ func getStorageSystem(cfg config.Configuration, path string) string {
 	case strings.HasPrefix(path, filer.New("cephfs", cfg.CephFs).GetProjectRoot()):
 		return "cephfs"
 	case strings.HasPrefix(path, filer.New("netapp", cfg.NetApp).GetProjectRoot()):
+		return "netapp"
+	case strings.HasPrefix(path, PathProjectRrd):
 		return "netapp"
 	default:
 		return "netapp"

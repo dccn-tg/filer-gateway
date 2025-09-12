@@ -35,6 +35,7 @@ var (
 
 	scache handler.SystemInfoCache
 	pcache handler.ProjectResourceCache
+	rcache handler.RrdResourceCache
 	ucache handler.UserResourceCache
 )
 
@@ -109,6 +110,15 @@ func main() {
 		Notifier: ppubsub.Channel(),
 	}
 	pcache.Init()
+
+	// rrd cache
+	rpubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_rcache_update")
+	rcache = handler.RrdResourceCache{
+		Config:   cfg,
+		Context:  ctx,
+		Notifier: rpubsub.Channel(),
+	}
+	rcache.Init()
 
 	// user cache
 	upubsub := redis.NewClient(redisOpts).Subscribe(ctx, "api_ucache_update")
@@ -277,6 +287,8 @@ func main() {
 	api.PostProjectsHandler = operations.PostProjectsHandlerFunc(handler.CreateProject(ctx, bok))
 	api.PatchProjectsIDHandler = operations.PatchProjectsIDHandlerFunc(handler.UpdateProject(ctx, bok))
 
+	api.GetRrdsIDHandler = operations.GetRrdsIDHandlerFunc(handler.GetRrdResource(&rcache))
+	api.GetRrdsHandler = operations.GetRrdsHandlerFunc(handler.GetRrds(&rcache))
 	api.PostRrdsHandler = operations.PostRrdsHandlerFunc(handler.CreateRrd(ctx, bok))
 
 	api.GetUsersHandler = operations.GetUsersHandlerFunc(handler.GetUsers(&ucache, &pcache))
