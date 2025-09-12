@@ -61,13 +61,17 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 		return err
 	}
 
+	// modify `data.ProjectID` to add prefix `rrd` for the qtree name
+	pid := data.ProjectID
+	data.ProjectID = fmt.Sprintf("rrd%s", pid)
+
 	api, err := getFilerAPI(h.ConfigFile)
 	if err != nil {
 		log.Errorf("[%s] fail to construct filer API: %s", r.Task.ID, err)
 		return err
 	}
 
-	ppath := filepath.Join(hapi.PathProjectRrd, fmt.Sprintf("rrd%s", data.ProjectID))
+	ppath := filepath.Join(hapi.PathProjectRrd, data.ProjectID)
 
 	if err = setProjectResource(r.Task.ID, data, api, ppath, ppath, h.notifyProjectRrdProvisioned); err != nil {
 		log.Errorf("[%s] %s", r.Task.ID, err)
@@ -76,7 +80,7 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 
 	// notify api server to update cache for the project
 	p := task.UpdateProjectPayload{
-		ProjectID: data.ProjectID,
+		ProjectID: pid,
 	}
 
 	if m, err := json.Marshal(p); err == nil {
