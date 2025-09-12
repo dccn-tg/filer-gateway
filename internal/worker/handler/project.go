@@ -291,9 +291,12 @@ func (h *SetProjectResourceHandler) notifyProjectProvisioned(projectID string, m
 	}
 
 	// send email to project managers
-	m := mailer.New(cfg.Smtp)
+	m, err := mailer.New(cfg.Mailer, mailer.SMTP)
+	if err != nil {
+		return fmt.Errorf("cannot construct mailer %s", err)
+	}
 	localRelay := false
-	if cfg.Smtp.Host == "localhost" || strings.HasSuffix(cfg.Smtp.Host, "dccn.nl") {
+	if cfg.Mailer.SMTP.Host == "localhost" || strings.HasSuffix(cfg.Mailer.SMTP.Host, "dccn.nl") {
 		localRelay = true
 	}
 

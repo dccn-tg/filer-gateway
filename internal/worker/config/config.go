@@ -15,7 +15,7 @@ import (
 type Configuration struct {
 	NetApp filer.NetAppConfig
 	CephFs filer.CephFsConfig
-	Smtp   tscfg.SMTPConfiguration
+	Mailer tscfg.MailerConfiguration
 	Pdb    tscfg.PDBConfiguration
 }
 
