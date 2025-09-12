@@ -22,30 +22,30 @@ import (
 	"github.com/hurngchunlee/bokchoy"
 )
 
-func setProjectResource(
-	id string,
-	data task.SetProjectResource,
-	api filer.Filer,
+func taskSetProjectResource(
+	taskID string,
+	taskData task.SetProjectResource,
+	filerApi filer.Filer,
 	lpath, ppath string,
-	notifyOnProvisioned func(projectID string, managers, contributors []string) error) error {
+	notifyOnNewResource func(projectID string, managers, contributors []string) error) error {
 
-	isNewProject := false
+	isNewResource := false
 
-	if data.Storage.QuotaGb >= 0 {
+	if taskData.Storage.QuotaGb >= 0 {
 		// create project namespace or update project quota depending on whether the project directory exists.
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
-			isNewProject = true
+			isNewResource = true
 			// call filer API to create project volume and/or namespace
-			if err := api.CreateProject(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-				return fmt.Errorf("fail to create space for project %s: %s", data.ProjectID, err)
+			if err := filerApi.CreateProject(taskData.ProjectID, int(taskData.Storage.QuotaGb)); err != nil {
+				return fmt.Errorf("fail to create space for project %s: %s", taskData.ProjectID, err)
 			}
-			log.Debugf("[%s] project space created on %s at path %s with quota %d GB", id, data.Storage.System, ppath, data.Storage.QuotaGb)
+			log.Debugf("[%s] project space created on %s at path %s with quota %d GB", taskID, taskData.Storage.System, ppath, taskData.Storage.QuotaGb)
 		} else {
 			// call filer API to update project quota
-			if err := api.SetProjectQuota(data.ProjectID, int(data.Storage.QuotaGb)); err != nil {
-				return fmt.Errorf("fail to set quota for project %s: %s", data.ProjectID, err)
+			if err := filerApi.SetProjectQuota(taskData.ProjectID, int(taskData.Storage.QuotaGb)); err != nil {
+				return fmt.Errorf("fail to set quota for project %s: %s", taskData.ProjectID, err)
 			}
-			log.Debugf("[%s] project space quota on %s at path %s updated to %d GB", id, data.Storage.System, ppath, data.Storage.QuotaGb)
+			log.Debugf("[%s] project space quota on %s at path %s updated to %d GB", taskID, taskData.Storage.System, ppath, taskData.Storage.QuotaGb)
 		}
 	}
 
@@ -54,7 +54,7 @@ func setProjectResource(
 		if _, err := os.Stat(lpath); os.IsNotExist(err) {
 			// make symlink to ppath
 			if err := os.Symlink(ppath, lpath); err != nil {
-				log.Errorf("[%s] fail to make symlink %s -> %s: %s", id, lpath, ppath, err)
+				log.Errorf("[%s] fail to make symlink %s -> %s: %s", taskID, lpath, ppath, err)
 			}
 		}
 	}
@@ -65,7 +65,7 @@ func setProjectResource(
 	viewers := make([]string, 0)
 	udelete := make([]string, 0)
 
-	for _, m := range data.Members {
+	for _, m := range taskData.Members {
 		switch m.Role {
 		case acl.Manager.String():
 			managers = append(managers, m.UserID)
@@ -81,10 +81,10 @@ func setProjectResource(
 	// set members
 	if len(managers)+len(contributors)+len(viewers) > 0 {
 
-		switch data.Recursion {
+		switch taskData.Recursion {
 		case true:
 			// use runner to set ACL recursively
-			log.Debugf("[%s] setting ACL for members with recursion: %s", id, data.ProjectID)
+			log.Debugf("[%s] setting ACL for members with recursion: %s", taskID, taskData.ProjectID)
 
 			runner := acl.Runner{
 				Managers:     strings.Join(managers, ","),
@@ -106,7 +106,7 @@ func setProjectResource(
 		case false:
 
 			// use roler to set top-level ACL
-			log.Debugf("[%s] setting ACL for members without recursion: %s", id, data.ProjectID)
+			log.Debugf("[%s] setting ACL for members without recursion: %s", taskID, taskData.ProjectID)
 
 			// state the physical path to get the mode
 			ppathInfo, err := os.Stat(ppath)
@@ -136,10 +136,10 @@ func setProjectResource(
 
 	// delete members
 	if len(udelete) > 0 {
-		switch data.Recursion {
+		switch taskData.Recursion {
 		case true:
 			// delete ACL recursively
-			log.Debugf("[%s] deleting ACL for members with recursion: %s", id, data.ProjectID)
+			log.Debugf("[%s] deleting ACL for members with recursion: %s", taskID, taskData.ProjectID)
 
 			udelstr := strings.Join(udelete, ",")
 			runner := acl.Runner{
@@ -162,7 +162,7 @@ func setProjectResource(
 
 		case false:
 			// delete ACL only on top-level project directory
-			log.Debugf("[%s] deleting ACL for members without recursion: %s", id, data.ProjectID)
+			log.Debugf("[%s] deleting ACL for members without recursion: %s", taskID, taskData.ProjectID)
 
 			// state the physical path to get the mode
 			ppathInfo, err := os.Stat(ppath)
@@ -191,10 +191,10 @@ func setProjectResource(
 	}
 
 	// send out notification
-	if isNewProject {
-		err := notifyOnProvisioned(data.ProjectID, managers, contributors)
+	if isNewResource {
+		err := notifyOnNewResource(taskData.ProjectID, managers, contributors)
 		if err != nil {
-			log.Errorf("[%s] notification error: %s", id, err)
+			log.Errorf("[%s] notification error: %s", taskID, err)
 		}
 	}
 
@@ -256,7 +256,7 @@ func (h *SetProjectResourceHandler) Handle(r *bokchoy.Request) error {
 		ppath = filepath.Join(api.GetProjectRoot(), data.ProjectID)
 	}
 
-	if err = setProjectResource(r.Task.ID, data, api, lpath, ppath, h.notifyProjectProvisioned); err != nil {
+	if err = taskSetProjectResource(r.Task.ID, data, api, lpath, ppath, h.notifyProjectProvisioned); err != nil {
 		log.Errorf("[%s] %s", r.Task.ID, err)
 		return err
 	}
