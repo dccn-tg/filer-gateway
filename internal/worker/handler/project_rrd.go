@@ -30,7 +30,8 @@ func getFilerAPI(configFile string) (filer.Filer, error) {
 	}
 
 	fConfig := cfg.NetApp
-	fConfig.ProjectRoot = "rrd4project"
+	fConfig.ProjectMode = "qtree"
+	fConfig.ProjectRoot = "/rrd"
 	fConfig.VolumeProjectQtrees = "rrd4project"
 
 	// initiate filer API instances
