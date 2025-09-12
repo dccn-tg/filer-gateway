@@ -73,7 +73,7 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 
 	ppath := filepath.Join(hapi.PathProjectRrd, data.ProjectID)
 
-	if err = setProjectResource(r.Task.ID, data, api, ppath, ppath, h.notifyProjectRrdProvisioned); err != nil {
+	if err = taskSetProjectResource(r.Task.ID, data, api, ppath, ppath, h.notifyProjectRrdProvisioned); err != nil {
 		log.Errorf("[%s] %s", r.Task.ID, err)
 		return err
 	}
@@ -91,6 +91,7 @@ func (h *SetProjectRrdResourceHandler) Handle(r *bokchoy.Request) error {
 }
 
 func (h *SetProjectRrdResourceHandler) notifyProjectRrdProvisioned(projectID string, managers, contributors []string) error {
+
 	cfg, err := config.LoadConfig(h.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("cannot read config for mailer: %s", err)
@@ -101,6 +102,9 @@ func (h *SetProjectRrdResourceHandler) notifyProjectRrdProvisioned(projectID str
 	if err != nil {
 		return fmt.Errorf("cannot read config for pdb: %s", err)
 	}
+
+	// trim prefix `rrd` from projectID
+	projectID = strings.TrimPrefix(projectID, "rrd")
 
 	p, err := ipdb.GetProject(projectID)
 	if err != nil {
