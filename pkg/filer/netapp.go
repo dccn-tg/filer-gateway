@@ -224,7 +224,7 @@ func (filer NetApp) CreateProject(projectID string, quotaGiB int) error {
 			break
 		}
 		if _, err := os.Stat(ppath); os.IsNotExist(err) {
-			log.Debugf("waiting for home path to become available: ", ppath)
+			log.Debugf("waiting for path to become available: ", ppath)
 			time.Sleep(time.Second)
 		} else {
 			break
