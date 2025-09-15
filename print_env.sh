@@ -12,6 +12,9 @@ echo
 echo "# volume for project directory"
 echo "PROJECT_VOL=$PROJECT_VOL"
 echo
+echo "# volume for project research-related data (rrd) directory"
+echo "PROJECT_RRD_VOL=$PROJECT_RRD_VOL"
+echo
 echo "# volume for project_cephfs directory"
 echo "PROJECT_CEPHFS_VOL=$PROJECT_CEPHFS_VOL"
 echo

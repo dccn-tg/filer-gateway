@@ -66,6 +66,10 @@ type ClientService interface {
 
 	GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption) (*GetProjectsIDOK, error)
 
+	GetRrds(params *GetRrdsParams, opts ...ClientOption) (*GetRrdsOK, error)
+
+	GetRrdsID(params *GetRrdsIDParams, opts ...ClientOption) (*GetRrdsIDOK, error)
+
 	GetTasksTypeID(params *GetTasksTypeIDParams, opts ...ClientOption) (*GetTasksTypeIDOK, error)
 
 	GetUsers(params *GetUsersParams, opts ...ClientOption) (*GetUsersOK, error)
@@ -77,6 +81,8 @@ type ClientService interface {
 	PatchUsersID(params *PatchUsersIDParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PatchUsersIDOK, *PatchUsersIDNoContent, error)
 
 	PostProjects(params *PostProjectsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostProjectsOK, error)
+
+	PostRrds(params *PostRrdsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostRrdsOK, error)
 
 	PostUsers(params *PostUsersParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostUsersOK, error)
 
@@ -272,6 +278,82 @@ func (a *Client) GetProjectsID(params *GetProjectsIDParams, opts ...ClientOption
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for GetProjectsID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+GetRrds gets filer resources of all research related data storage
+*/
+func (a *Client) GetRrds(params *GetRrdsParams, opts ...ClientOption) (*GetRrdsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetRrdsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetRrds",
+		Method:             "GET",
+		PathPattern:        "/rrds",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetRrdsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetRrdsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetRrds: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+GetRrdsID gets filer resource for an existing research related data storage
+*/
+func (a *Client) GetRrdsID(params *GetRrdsIDParams, opts ...ClientOption) (*GetRrdsIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetRrdsIDParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetRrdsID",
+		Method:             "GET",
+		PathPattern:        "/rrds/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &GetRrdsIDReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetRrdsIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetRrdsID: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
@@ -505,6 +587,45 @@ func (a *Client) PostProjects(params *PostProjectsParams, authInfo runtime.Clien
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for PostProjects: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+PostRrds provisions filer resource for a new research related data storage
+*/
+func (a *Client) PostRrds(params *PostRrdsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*PostRrdsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPostRrdsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "PostRrds",
+		Method:             "POST",
+		PathPattern:        "/rrds",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"https"},
+		Params:             params,
+		Reader:             &PostRrdsReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PostRrdsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for PostRrds: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

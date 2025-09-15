@@ -113,6 +113,23 @@ func main() {
 		return nil
 	})
 
+	// add handler to handle tasks in the queue of `hapi.QueueSetProjectRrd`
+	bok.Queue(hapi.QueueSetProjectRrd).Handle(
+		&hworker.SetProjectRrdResourceHandler{
+			ConfigFile:        *configFile,
+			ApiNotifierClient: redis.NewClient(redisOpts),
+		},
+	).OnStartFunc(func(r *bokchoy.Request) error {
+		log.Infof("[%s] started with %d retries, payload: %v", r.Task.ID, r.Task.MaxRetries, r.Task.Payload)
+		return nil
+	}).OnFailureFunc(func(r *bokchoy.Request) error {
+		log.Errorf("[%s] failed with error: %s", r.Task.ID, r.Task.Error)
+		return nil
+	}).OnSuccessFunc(func(r *bokchoy.Request) error {
+		log.Infof("[%s] succeeded", r.Task.ID)
+		return nil
+	})
+
 	// add handler to handle tasks in the queue of `hapi.QueueSetUser`
 	bok.Queue(hapi.QueueSetUser).Handle(
 		&hworker.SetUserResourceHandler{

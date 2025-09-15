@@ -88,6 +88,16 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 			return middleware.NotImplemented("operation operations.GetProjectsID has not yet been implemented")
 		})
 	}
+	if api.GetRrdsHandler == nil {
+		api.GetRrdsHandler = operations.GetRrdsHandlerFunc(func(params operations.GetRrdsParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRrds has not yet been implemented")
+		})
+	}
+	if api.GetRrdsIDHandler == nil {
+		api.GetRrdsIDHandler = operations.GetRrdsIDHandlerFunc(func(params operations.GetRrdsIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.GetRrdsID has not yet been implemented")
+		})
+	}
 	if api.GetTasksTypeIDHandler == nil {
 		api.GetTasksTypeIDHandler = operations.GetTasksTypeIDHandlerFunc(func(params operations.GetTasksTypeIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetTasksTypeID has not yet been implemented")
@@ -116,6 +126,11 @@ func configureAPI(api *operations.FilerGatewayAPI) http.Handler {
 	if api.PostProjectsHandler == nil {
 		api.PostProjectsHandler = operations.PostProjectsHandlerFunc(func(params operations.PostProjectsParams, principal *models.Principle) middleware.Responder {
 			return middleware.NotImplemented("operation operations.PostProjects has not yet been implemented")
+		})
+	}
+	if api.PostRrdsHandler == nil {
+		api.PostRrdsHandler = operations.PostRrdsHandlerFunc(func(params operations.PostRrdsParams, principal *models.Principle) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostRrds has not yet been implemented")
 		})
 	}
 	if api.PostUsersHandler == nil {

@@ -273,6 +273,131 @@ func init() {
         }
       }
     },
+    "/rrds": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources of all research-related data storage.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyRrds"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "oauth2": [
+              "urn:dccn:filer-gateway:*"
+            ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "provision filer resource for a new research-related data storage.",
+        "parameters": [
+          {
+            "description": "data for rrd storage provisioning",
+            "name": "rrdProvisionData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyRrdProvision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/rrds/{id}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resource for an existing research-related data storage.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyRrdResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "project not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "project not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
     "/tasks/{type}/{id}": {
       "get": {
         "produces": [
@@ -680,6 +805,27 @@ func init() {
         }
       }
     },
+    "requestBodyRrdProvision": {
+      "required": [
+        "projectID",
+        "members"
+      ],
+      "properties": {
+        "members": {
+          "$ref": "#/definitions/members"
+        },
+        "projectID": {
+          "$ref": "#/definitions/projectID"
+        },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
+        },
+        "storage": {
+          "$ref": "#/definitions/storageRequest"
+        }
+      }
+    },
     "requestBodyUserProvision": {
       "required": [
         "userID",
@@ -789,6 +935,36 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/responseBodyProjectResource"
+          }
+        }
+      }
+    },
+    "responseBodyRrdResource": {
+      "description": "JSON object containing rrd resources.",
+      "required": [
+        "projectID",
+        "storage",
+        "members"
+      ],
+      "properties": {
+        "members": {
+          "$ref": "#/definitions/members"
+        },
+        "projectID": {
+          "$ref": "#/definitions/projectID"
+        },
+        "storage": {
+          "$ref": "#/definitions/storageResponse"
+        }
+      }
+    },
+    "responseBodyRrds": {
+      "description": "JSON list containing a list of rrd resources.",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyRrdResource"
           }
         }
       }
@@ -1210,6 +1386,131 @@ func init() {
         }
       }
     },
+    "/rrds": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resources of all research-related data storage.",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyRrds"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "oauth2": [
+              "urn:dccn:filer-gateway:*"
+            ]
+          },
+          {
+            "apiKeyHeader": [],
+            "basicAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "provision filer resource for a new research-related data storage.",
+        "parameters": [
+          {
+            "description": "data for rrd storage provisioning",
+            "name": "rrdProvisionData",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/requestBodyRrdProvision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyTaskResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
+    "/rrds/{id}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "get filer resource for an existing research-related data storage.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "project identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/responseBodyRrdResource"
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "schema": {
+              "$ref": "#/definitions/responseBody400"
+            }
+          },
+          "404": {
+            "description": "project not found",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "project not found"
+              ]
+            }
+          },
+          "500": {
+            "description": "failure",
+            "schema": {
+              "$ref": "#/definitions/responseBody500"
+            }
+          }
+        }
+      }
+    },
     "/tasks/{type}/{id}": {
       "get": {
         "produces": [
@@ -1617,6 +1918,27 @@ func init() {
         }
       }
     },
+    "requestBodyRrdProvision": {
+      "required": [
+        "projectID",
+        "members"
+      ],
+      "properties": {
+        "members": {
+          "$ref": "#/definitions/members"
+        },
+        "projectID": {
+          "$ref": "#/definitions/projectID"
+        },
+        "recursion": {
+          "description": "apply ACL setting for members recursively on existing files/directories.",
+          "type": "boolean"
+        },
+        "storage": {
+          "$ref": "#/definitions/storageRequest"
+        }
+      }
+    },
     "requestBodyUserProvision": {
       "required": [
         "userID",
@@ -1726,6 +2048,36 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/responseBodyProjectResource"
+          }
+        }
+      }
+    },
+    "responseBodyRrdResource": {
+      "description": "JSON object containing rrd resources.",
+      "required": [
+        "projectID",
+        "storage",
+        "members"
+      ],
+      "properties": {
+        "members": {
+          "$ref": "#/definitions/members"
+        },
+        "projectID": {
+          "$ref": "#/definitions/projectID"
+        },
+        "storage": {
+          "$ref": "#/definitions/storageResponse"
+        }
+      }
+    },
+    "responseBodyRrds": {
+      "description": "JSON list containing a list of rrd resources.",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/responseBodyRrdResource"
           }
         }
       }

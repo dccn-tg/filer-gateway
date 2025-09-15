@@ -14,7 +14,7 @@ FROM almalinux:8 as api-server
 RUN ulimit -n 1024 && yum install -y nfs4-acl-tools sssd-client attr acl && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root
 EXPOSE 8080
-VOLUME ["/project", "/project_cephfs", "/home"]
+VOLUME ["/project", "rrd", "/project_cephfs", "/home"]
 COPY --from=0 /tmp/filer-gateway/bin/filer-gateway-api .
 
 ## entrypoint in shell form so that we can use $PORT environment variable
@@ -24,7 +24,7 @@ ENTRYPOINT ["./filer-gateway-api"]
 FROM almalinux:8 as worker
 RUN ulimit -n 1024 && yum install -y nfs4-acl-tools sssd-client attr acl && yum clean all && rm -rf /var/cache/yum/*
 WORKDIR /root
-VOLUME ["/project", "/project_cephfs", "/home"]
+VOLUME ["/project", "/rrd", "/project_cephfs", "/home"]
 COPY --from=0 /tmp/filer-gateway/bin/filer-gateway-worker .
 
 ## entrypoint in shell form so that we can use $PORT environment variable
