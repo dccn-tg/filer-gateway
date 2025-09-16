@@ -47,7 +47,6 @@ paths:
           description: failure
           schema:
             $ref: '#/definitions/responseBody500'
-          description: failure
 
   /metrics:
     get:
