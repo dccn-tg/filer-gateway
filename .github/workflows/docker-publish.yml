@@ -17,6 +17,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        include:
+          - target: api-server
+            suffix: -api
+          - target: worker
+            suffix: -worker
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -49,6 +56,7 @@ jobs:
         uses: docker/build-push-action@v5.1.0
         with:
           context: .
+          target: ${{ matrix.target }}
           file: Dockerfile
           pull: true
           push: ${{ github.event_name != 'pull_request' }}
