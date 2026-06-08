@@ -1,9 +1,9 @@
 module github.com/dccn-tg/filer-gateway
 
-go 1.20
+go 1.25.0
 
 require (
-	github.com/dccn-tg/tg-toolset-golang v1.30.0
+	github.com/dccn-tg/tg-toolset-golang v1.32.0
 	github.com/go-openapi/errors v0.20.1
 	github.com/go-openapi/loads v0.21.0
 	github.com/go-openapi/runtime v0.21.0
@@ -20,8 +20,8 @@ require (
 	github.com/s12v/go-jwks v0.2.1
 	github.com/spf13/viper v1.18.2
 	github.com/square/go-jose v2.6.0+incompatible
-	golang.org/x/net v0.34.0
-	golang.org/x/sys v0.29.0
+	golang.org/x/net v0.54.0
+	golang.org/x/sys v0.44.0
 )
 
 require (
@@ -96,11 +96,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.32.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
