@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # filer gateway connection detail
 [ -z $API_URL ] && API_URL="http://localhost:8080/v1"

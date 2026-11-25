@@ -2,6 +2,11 @@
 
 The demo scripts are written in BASH.  They can be used to test the filer-gateway deployment and as a reference implementation.  The scripts require [`curl`](https://curl.haxx.se/) and [`jq`](https://stedolan.github.io/jq/).
 
+If you use [`direnv`](https://direnv.net/), this directory includes a `flake.nix` and `.envrc` so `jq` loads automatically when you enter the directory:
+
+1. Run `direnv allow` once in this directory.
+1. Copy `.env.demo.example` to `.env` to load the default API variables.
+
 To use the scripts, you need to know the API URL, API key, API user and API password of your filer-gateway deployment; and set them accordingly via the following environment variables:
 
 - `API_URL`: the API base URL, default is set to `http://localhost:8080/v1`.
